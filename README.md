@@ -23,6 +23,8 @@ supabase db reset            # migraciones + supabase/seed.sql (fuentes de ejemp
 cd packages/ingest && cp .env.example .env   # pega SUPABASE_SERVICE_KEY de `supabase status`
 uv sync && uv run playwright install webkit chromium
 uv run places-ingest seed
+uv run places-ingest festivities --publish          # Capa 1: un evento por fiesta para lo que resta del año
+uv run places-ingest festivities --publish --year 2027
 uv run places-ingest doctor
 
 # 3. Web
@@ -37,6 +39,8 @@ node apps/web/scripts/create-admin.mjs tu@correo.mx 'una-contraseña'
 ```
 
 ## Flujo del MVP
+
+0. La cartelera arranca con las fiestas y ferias recurrentes del corredor (`festivities --publish`), marcadas como "fecha estimada, por confirmar" hasta que llegue el flyer real.
 
 1. Subes flyers en `/admin/upload` (o `places-ingest upload ./carpeta -m tlayacapan`). Solo se encolan.
 2. En la Mac, `places-ingest process` toma la cola: OCR (Apple Vision) → Qwen 3.5 por Ollama → reglas de fecha/precio → match de lugar → evento `pending`. Ollama se arranca y apaga bajo demanda.

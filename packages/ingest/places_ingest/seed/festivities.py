@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import date, timedelta
+from datetime import date, datetime, time, timedelta
 from pathlib import Path
 
 import yaml
@@ -75,3 +75,90 @@ def occurrences_for_year(year: int) -> list[tuple[str, str, date, int]]:
             if d:
                 out.append((block["cvegeo"], it["name"], d, it.get("duration_days", 1)))
     return out
+
+
+def _category_for(name: str) -> str:
+    n = name.lower()
+    if "feria" in n:
+        return "feria"
+    if "carnaval" in n or "día de muertos" in n or "xantolo" in n:
+        return "fiesta_patronal"
+    if "peregrinación" in n or "semana santa" in n:
+        return "religioso"
+    if "aniversario" in n or "rompimiento" in n or "sitio de" in n:
+        return "otro"
+    return "fiesta_patronal"
+
+
+MESES = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto",
+         "septiembre", "octubre", "noviembre", "diciembre"]
+
+
+def publish_year(year: int, status: str = "published", from_date: date | None = None) -> dict[str, int]:
+    """Crea un evento (con una ocurrencia de todo el día que abarca la fiesta) por cada fiesta del año.
+
+    Idempotente: unique (festivity_id, festivity_year). Las ocurrencias van con is_confirmed=false
+    hasta que llegue un flyer real; la descripción lo dice.
+    """
+    from zoneinfo import ZoneInfo
+
+    from ..config import settings
+    from ..db import fetch_all, fetch_one
+
+    tz = ZoneInfo(settings.timezone)
+    from_date = from_date or date.today()
+    stats = {"created": 0, "skipped_existing": 0, "skipped_past": 0}
+    with connect() as conn:
+        src = fetch_one(conn, "select id from public.sources where kind='manual' and name='calendario-anual'")
+        if not src:
+            src = fetch_one(
+                conn,
+                "insert into public.sources (name, kind, trust_score) values ('calendario-anual','manual',0.6) returning id",
+            )
+        fests = fetch_all(conn, "select * from public.festivities")
+        for f in fests:
+            start: date | None = None
+            if f["movable_rule"]:
+                start = movable_date(f["movable_rule"], year)
+            elif f["month"] and f["day"]:
+                try:
+                    start = date(year, f["month"], f["day"])
+                except ValueError:
+                    start = None
+            if not start:
+                continue
+            end = start + timedelta(days=max(int(f["duration_days"] or 1), 1) - 1)
+            if end < from_date:
+                stats["skipped_past"] += 1
+                continue
+            if fetch_one(conn, "select 1 from public.events where festivity_id=%s and festivity_year=%s", (f["id"], year)):
+                stats["skipped_existing"] += 1
+                continue
+            when = (f"{start.day} de {MESES[start.month - 1]}" if start == end
+                    else f"del {start.day} al {end.day} de {MESES[end.month - 1]}")
+            desc = (
+                f"{f['description'] + ' ' if f['description'] else ''}"
+                f"Fecha estimada según el calendario anual ({when}). Por confirmar con el programa oficial."
+            )
+            row = fetch_one(
+                conn,
+                """
+                insert into public.events
+                  (slug, title, description, category, place_id, place_text, municipality_cvegeo,
+                   is_free, status, confidence, source_id, festivity_id, festivity_year, verified_at, published_at)
+                values (public.slugify(%s) || '-' || (select slug from public.municipalities where cvegeo = %s) || '-' || %s,
+                        %s, %s, %s, %s, %s, %s, true, %s, 0.6, %s, %s, %s,
+                        case when %s = 'published' then now() end, case when %s = 'published' then now() end)
+                returning id
+                """,
+                (f["name"], f["municipality_cvegeo"], year, f["name"], desc, _category_for(f["name"]), f["place_id"], f["locality"],
+                 f["municipality_cvegeo"], status, src["id"], f["id"], year, status, status),
+            )
+            execute(
+                conn,
+                """insert into public.event_occurrences (event_id, starts_at, ends_at, is_all_day, is_confirmed, note)
+                   values (%s, %s, %s, true, false, 'Fecha estimada, por confirmar')""",
+                (row["id"], datetime.combine(start, time(0, 0), tzinfo=tz), datetime.combine(end, time(23, 59), tzinfo=tz)),
+            )
+            stats["created"] += 1
+    return stats

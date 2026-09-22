@@ -33,7 +33,8 @@ uv run places-ingest upload ~/flyers -m tlayacapan --origin https://facebook.com
 uv run places-ingest process                  # una pasada por la cola
 uv run places-ingest process --loop --every 60
 uv run places-ingest scrape --force --only "Tlayacapan"
-uv run places-ingest festivities --year 2027
+uv run places-ingest festivities --year 2027          # lista fechas calculadas (móviles incluidas)
+uv run places-ingest festivities --publish --year 2027  # crea un evento publicado por fiesta (idempotente)
 ```
 
 ## Como job de launchd

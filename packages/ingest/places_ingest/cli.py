@@ -86,13 +86,18 @@ def scrape(force: bool = typer.Option(False, help="Ignorar intervalos"),
 
 
 @app.command()
-def festivities(year: int = typer.Option(None, help="Año para listar fechas calculadas")):
-    """Lista las fiestas del corredor para un año (fijas y móviles)."""
+def festivities(year: int = typer.Option(None, help="Año para listar fechas calculadas"),
+                publish: bool = typer.Option(False, help="Crear un evento por fiesta para lo que resta del año"),
+                status: str = typer.Option("published", help="published | pending (con --publish)")):
+    """Lista las fiestas del corredor para un año; con --publish las convierte en eventos."""
     from datetime import date
 
-    from .seed.festivities import occurrences_for_year
+    from .seed.festivities import occurrences_for_year, publish_year
 
     year = year or date.today().year
+    if publish:
+        console.print(publish_year(year, status=status))
+        return
     t = Table("Fecha", "Municipio", "Fiesta", "Días")
     for cvegeo, name, d, days in sorted(occurrences_for_year(year), key=lambda r: r[2]):
         t.add_row(d.isoformat(), cvegeo, name, str(days))
