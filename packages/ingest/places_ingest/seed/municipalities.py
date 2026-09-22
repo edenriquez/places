@@ -21,6 +21,18 @@ CORRIDOR = [
     ("15052", "15", "052", "Estado de México", "Malinalco", 18.9490, -99.4949, True, "2 h 10", 27482),
     ("15088", "15", "088", "Estado de México", "Tenancingo", 18.9608, -99.5906, False, "2 h 00", 106891),
     ("15063", "15", "063", "Estado de México", "Ocuilan", 18.9790, -99.4166, False, "2 h 00", 34485),
+    # Corredor volcanes (Amecameca y alrededores), Estado de México
+    ("15009", "15", "009", "Estado de México", "Amecameca", 19.1236, -98.7664, False, "1 h 15", 53441),
+    ("15068", "15", "068", "Estado de México", "Ozumba", 19.0392, -98.7936, False, "1 h 25", 30785),
+    ("15094", "15", "094", "Estado de México", "Tepetlixpa", 19.0000, -98.8167, False, "1 h 30", 20500),
+    ("15017", "15", "017", "Estado de México", "Ayapango", 19.1264, -98.8033, False, "1 h 15", 10053),
+    ("15103", "15", "103", "Estado de México", "Tlalmanalco", 19.2044, -98.8025, False, "1 h 10", 47390),
+    ("15015", "15", "015", "Estado de México", "Atlautla", 19.0167, -98.7667, False, "1 h 30", 31900),
+    ("15034", "15", "034", "Estado de México", "Ecatzingo", 18.9522, -98.7503, False, "1 h 40", 10827),
+    ("15050", "15", "050", "Estado de México", "Juchitepec", 19.1000, -98.8792, False, "1 h 10", 27000),
+    ("15089", "15", "089", "Estado de México", "Tenango del Aire", 19.1572, -98.8583, False, "1 h 05", 12470),
+    ("15022", "15", "022", "Estado de México", "Cocotitlán", 19.2264, -98.8622, False, "1 h 00", 15107),
+    ("15083", "15", "083", "Estado de México", "Temamatla", 19.2028, -98.8694, False, "1 h 00", 14130),
 ]
 
 

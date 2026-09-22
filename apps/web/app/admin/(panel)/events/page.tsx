@@ -5,6 +5,7 @@ import { flyerUrl, fmtWhenShort } from "@/lib/format";
 import { CATEGORY_LABEL, type Category } from "@/lib/types";
 import { StatusPill } from "../status-pill";
 import { EventStatusButtons } from "./status-buttons";
+import { EventImageButton } from "./image-button";
 
 export const metadata = { title: "Eventos · Admin" };
 
@@ -21,7 +22,10 @@ export default async function EventsAdminPage({ searchParams }: { searchParams: 
   return (
     <div className="mx-auto max-w-[1100px]">
       <div className="flex flex-wrap items-end justify-between gap-3">
-        <h1 className="text-[28px] font-bold">Eventos · {rows.length}</h1>
+        <div>
+          <h1 className="text-[28px] font-bold">Eventos · {rows.length}</h1>
+          <p className="mt-1 text-[14px] text-ink-2">Publica, despublica y sube la imagen de cada evento. La imagen de una fiesta se reutiliza cada año.</p>
+        </div>
         <div className="flex gap-2 text-[13px]">
           {[["", "Todos"], ["published", "Publicados"], ["pending", "Pendientes"], ["rejected", "Descartados"]].map(([k, l]) => (
             <Link key={k} href={k ? `/admin/events?s=${k}` : "/admin/events"} className={`rounded-full border px-3 py-1.5 font-medium ${(sp.s ?? "") === k ? "border-ink bg-ink text-white" : "border-line-2"}`}>{l}</Link>
@@ -47,7 +51,12 @@ export default async function EventsAdminPage({ searchParams }: { searchParams: 
                   <td className="px-4 py-2 text-ink-2">{first ? fmtWhenShort(first) : "sin fecha"}</td>
                   <td className="px-4 py-2 text-ink-2">{e.municipalities?.name ?? "—"}</td>
                   <td className="px-4 py-2"><StatusPill status={e.status} /></td>
-                  <td className="px-4 py-2 text-right"><EventStatusButtons id={e.id} status={e.status} /></td>
+                  <td className="px-4 py-2 text-right">
+                    <div className="flex items-center justify-end gap-2">
+                      <EventImageButton eventId={e.id} hasImage={!!e.image_path} />
+                      <EventStatusButtons id={e.id} status={e.status} />
+                    </div>
+                  </td>
                 </tr>
               );
             })}

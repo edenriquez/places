@@ -32,6 +32,7 @@ def movable_date(rule: str, year: int) -> date | None:
     e = easter(year)
     return {
         "carnaval": e - timedelta(days=47),       # martes de carnaval
+        "miercoles_ceniza": e - timedelta(days=46),
         "semana_santa": e - timedelta(days=7),    # domingo de ramos
         "pentecostes": e + timedelta(days=49),
         "ascension": e + timedelta(days=39),
@@ -43,7 +44,6 @@ def seed_festivities() -> int:
     data = yaml.safe_load(YAML_PATH.read_text(encoding="utf-8"))
     n = 0
     with connect() as conn:
-        execute(conn, "delete from public.festivities where source = 'manual'")
         for block in data:
             cvegeo = block["cvegeo"]
             for it in block["items"]:
@@ -53,6 +53,10 @@ def seed_festivities() -> int:
                     insert into public.festivities
                       (municipality_cvegeo, name, locality, month, day, movable_rule, duration_days, description, source)
                     values (%s, %s, %s, %s, %s, %s, %s, %s, 'manual')
+                    on conflict (municipality_cvegeo, name) do update set
+                      locality = excluded.locality, month = excluded.month, day = excluded.day,
+                      movable_rule = excluded.movable_rule, duration_days = excluded.duration_days,
+                      description = excluded.description
                     """,
                     (cvegeo, it["name"], it.get("locality"), it.get("month"), it.get("day"),
                      it.get("movable_rule"), it.get("duration_days", 1), it.get("description")),
@@ -145,14 +149,14 @@ def publish_year(year: int, status: str = "published", from_date: date | None = 
                 """
                 insert into public.events
                   (slug, title, description, category, place_id, place_text, municipality_cvegeo,
-                   is_free, status, confidence, source_id, festivity_id, festivity_year, verified_at, published_at)
+                   is_free, status, confidence, source_id, festivity_id, festivity_year, image_path, verified_at, published_at)
                 values (public.slugify(%s) || '-' || (select slug from public.municipalities where cvegeo = %s) || '-' || %s,
-                        %s, %s, %s, %s, %s, %s, true, %s, 0.6, %s, %s, %s,
+                        %s, %s, %s, %s, %s, %s, true, %s, 0.6, %s, %s, %s, %s,
                         case when %s = 'published' then now() end, case when %s = 'published' then now() end)
                 returning id
                 """,
                 (f["name"], f["municipality_cvegeo"], year, f["name"], desc, _category_for(f["name"]), f["place_id"], f["locality"],
-                 f["municipality_cvegeo"], status, src["id"], f["id"], year, status, status),
+                 f["municipality_cvegeo"], status, src["id"], f["id"], year, f.get("image_path"), status, status),
             )
             execute(
                 conn,

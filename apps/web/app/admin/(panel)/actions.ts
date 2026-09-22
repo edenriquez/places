@@ -191,3 +191,14 @@ export async function setEventStatus(id: string, status: "published" | "pending"
   revalidatePath("/admin/events");
   revalidatePath("/");
 }
+
+/** Asigna imagen a un evento; si viene de una fiesta recurrente, la guarda también ahí para años futuros. */
+export async function setEventImage(eventId: string, path: string) {
+  const sb = await admin();
+  const { data: ev, error } = await sb.from("events").update({ image_path: path }).eq("id", eventId).select("festivity_id").single();
+  if (error) return { ok: false as const, error: error.message };
+  if (ev?.festivity_id) await sb.from("festivities").update({ image_path: path }).eq("id", ev.festivity_id);
+  revalidatePath("/admin/events");
+  revalidatePath("/");
+  return { ok: true as const };
+}

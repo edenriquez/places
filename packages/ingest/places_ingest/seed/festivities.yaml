@@ -1,5 +1,5 @@
 # Capa 1: fiestas y ferias recurrentes del corredor Morelos / Edomex sur.
-# month/day fijos, o movable_rule: carnaval | semana_santa | pentecostes | corpus | ascension.
+# month/day fijos, o movable_rule: carnaval | miercoles_ceniza | semana_santa | pentecostes | corpus | ascension.
 # Fuentes: calendarios municipales, SIC (festividad), conocimiento local. Confirmar cada año con flyers.
 
 - cvegeo: "17020"   # Tepoztlán
@@ -65,3 +65,50 @@
     - {name: "Fiesta del Señor de Chalma", month: 7, day: 1, duration_days: 3, locality: "Chalma"}
     - {name: "Fiesta de San Miguel Arcángel, Chalma", month: 9, day: 29, duration_days: 3, locality: "Chalma"}
     - {name: "Fiesta del Señor de Chalma (Reyes)", month: 1, day: 6, duration_days: 3, locality: "Chalma"}
+# --- Corredor volcanes (Amecameca y alrededores) ---
+- cvegeo: "15009"   # Amecameca
+  items:
+    - {name: "Feria de Amecameca y fiesta del Señor del Sacromonte", movable_rule: miercoles_ceniza, duration_days: 7, description: "Peregrinación al Sacromonte, feria regional y juegos mecánicos."}
+    - {name: "Feria de la Nuez", month: 8, day: 20, duration_days: 7, description: "Nuez de Castilla, gastronomía y artesanía."}
+    - {name: "Fiesta de la Asunción de María", month: 8, day: 15, duration_days: 2}
+    - {name: "Día de Muertos en Amecameca", month: 11, day: 1, duration_days: 2}
+    - {name: "Fiesta de la Virgen de Guadalupe, Sacromonte", month: 12, day: 12, duration_days: 2}
+- cvegeo: "15068"   # Ozumba
+  items:
+    - {name: "Fiesta de la Inmaculada Concepción", month: 12, day: 8, duration_days: 3}
+    - {name: "Feria de la Nochebuena y el Pan de Ozumba", month: 12, day: 15, duration_days: 5}
+    - {name: "Semana Santa en Ozumba", movable_rule: semana_santa, duration_days: 7}
+- cvegeo: "15094"   # Tepetlixpa
+  items:
+    - {name: "Fiesta de San Esteban", month: 12, day: 26, duration_days: 3}
+    - {name: "Carnaval de Tepetlixpa", movable_rule: carnaval, duration_days: 3}
+- cvegeo: "15017"   # Ayapango
+  items:
+    - {name: "Fiesta de Santiago Apóstol", month: 7, day: 25, duration_days: 3}
+    - {name: "Feria del Elote y el Pulque", month: 9, day: 15, duration_days: 3}
+- cvegeo: "15103"   # Tlalmanalco
+  items:
+    - {name: "Fiesta de San Luis Obispo", month: 8, day: 19, duration_days: 3, description: "En la Capilla Abierta del siglo XVI."}
+    - {name: "Feria del Pulque y la Barbacoa", month: 3, day: 15, duration_days: 3}
+    - {name: "Día de Muertos en Tlalmanalco", month: 11, day: 1, duration_days: 2}
+- cvegeo: "15015"   # Atlautla
+  items:
+    - {name: "Fiesta de San Miguel Arcángel", month: 9, day: 29, duration_days: 3}
+    - {name: "Carnaval de Atlautla", movable_rule: carnaval, duration_days: 3}
+- cvegeo: "15034"   # Ecatzingo
+  items:
+    - {name: "Fiesta de San Pedro y San Pablo", month: 6, day: 29, duration_days: 3}
+- cvegeo: "15050"   # Juchitepec
+  items:
+    - {name: "Fiesta de Santo Domingo de Guzmán", month: 8, day: 4, duration_days: 3}
+    - {name: "Carnaval de Juchitepec", movable_rule: carnaval, duration_days: 3}
+- cvegeo: "15089"   # Tenango del Aire
+  items:
+    - {name: "Fiesta de San Juan Bautista", month: 6, day: 24, duration_days: 3}
+    - {name: "Feria de la Cecina y el Queso", month: 10, day: 10, duration_days: 3}
+- cvegeo: "15022"   # Cocotitlán
+  items:
+    - {name: "Fiesta de San Juan Bautista", month: 6, day: 24, duration_days: 3}
+- cvegeo: "15083"   # Temamatla
+  items:
+    - {name: "Fiesta de la Asunción de María", month: 8, day: 15, duration_days: 3}
