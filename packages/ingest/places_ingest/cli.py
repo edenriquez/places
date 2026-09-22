@@ -114,7 +114,7 @@ def doctor():
         with connect() as conn:
             r = fetch_one(conn, "select count(*) n from public.municipalities")
             t.add_row("Postgres", f"[green]ok[/] ({r['n']} municipios)")
-    except Exception as e:  # noqa: BLE001
+    except Exception as e:
         t.add_row("Postgres", f"[red]{e}[/]")
     t.add_row("Storage key", "[green]ok[/]" if settings.supabase_service_key else "[red]falta SUPABASE_SERVICE_KEY[/]")
     from .llm.ollama import OllamaServer
@@ -127,7 +127,7 @@ def doctor():
                 t.add_row("Ollama", "[green]ok[/] (bajo demanda; no queda corriendo)" if not is_available_before else "[green]ok[/] (ya estaba corriendo)")
                 t.add_row(f"modelo {settings.vision_model}", "[green]ok[/]" if has_model(settings.vision_model) else "[red]falta (ollama pull)[/]")
                 t.add_row(f"modelo {settings.ocr_model}", "[green]ok[/]" if has_model(settings.ocr_model) else "[yellow]opcional[/]")
-        except Exception as e:  # noqa: BLE001
+        except Exception as e:
             t.add_row("Ollama", f"[red]{e}[/]")
     t.add_row("swiftc (Apple Vision)", "[green]ok[/]" if shutil.which("swiftc") else "[yellow]no[/]")
     t.add_row("tesseract", "[green]ok[/]" if shutil.which("tesseract") else "[yellow]no[/]")

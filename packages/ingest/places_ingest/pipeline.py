@@ -41,7 +41,7 @@ def process_ingestion(conn: psycopg.Connection, ing: dict) -> str:
         muni_hint_name = row["name"] if row else None
     post_text = (ing.get("payload") or {}).get("text")
 
-    event, raw = extract_event(local, ocr_text, muni_hint_name, ing.get("organizer_hint"), post_text)
+    event, _raw = extract_event(local, ocr_text, muni_hint_name, ing.get("organizer_hint"), post_text)
 
     # --- reglas deterministas complementan al modelo ---
     all_text = "\n".join(t for t in (ocr_text, post_text or "") if t)
@@ -65,7 +65,7 @@ def process_ingestion(conn: psycopg.Connection, ing: dict) -> str:
     cvegeo = ing.get("municipality_hint") or match_municipality(conn, event.municipality)
     if not cvegeo and event.place_text:
         cvegeo = match_municipality(conn, event.place_text.split(",")[-1])
-    place_id, sim = match_place(conn, event.place_text, cvegeo) if cvegeo else (None, 0.0)
+    place_id, _sim = match_place(conn, event.place_text, cvegeo) if cvegeo else (None, 0.0)
 
     # --- confianza final ---
     conf = float(event.confidence)

@@ -46,7 +46,7 @@ def run_scrapers(force: bool = False, only: str | None = None) -> dict[str, int]
                 for it in items:
                     try:
                         local, digest = download_image(it.image_url)
-                    except Exception as e:  # noqa: BLE001
+                    except Exception as e:
                         console.print(f"  [yellow]img falló[/] {e}")
                         continue
                     if fetch_one(conn, "select 1 from public.raw_ingestions where media_sha256=%s", (digest,)):
@@ -71,7 +71,7 @@ def run_scrapers(force: bool = False, only: str | None = None) -> dict[str, int]
                 )
                 conn.commit()
                 console.print(f"  [green]+{new} nuevos[/] de {len(items)} imágenes")
-            except Exception as e:  # noqa: BLE001
+            except Exception as e:
                 conn.rollback()
                 execute(conn, "update public.sources set last_run_at=now(), last_error=%s, run_requested_at=null where id=%s",
                         (str(e)[:900], src["id"]))

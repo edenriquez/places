@@ -43,7 +43,7 @@ def _download(table: str) -> str:
                     path.write_bytes(r.content)
                 last = None
                 break
-            except Exception as e:  # noqa: BLE001
+            except Exception as e:
                 last = e
                 time.sleep(2 * (attempt + 1))
         if last is not None:

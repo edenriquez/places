@@ -7,7 +7,7 @@ from pathlib import Path
 
 from rich.console import Console
 
-from .db import connect, execute, fetch_all, fetch_one
+from .db import connect, execute, fetch_all, fetch_one, jsonb
 from .llm.ollama import OllamaServer
 from .pipeline import process_ingestion
 from .storage import sha256_of, upload_flyer
@@ -35,7 +35,7 @@ def process_queue(limit: int = 20, max_attempts: int = 3) -> dict[str, int]:
                 try:
                     status = process_ingestion(conn, ing)
                     conn.commit()
-                except Exception as e:  # noqa: BLE001
+                except Exception as e:
                     conn.rollback()
                     execute(conn, "update public.raw_ingestions set status='failed', error=%s where id=%s", (str(e)[:900], ing["id"]))
                     conn.commit()
@@ -72,7 +72,7 @@ def enqueue_folder(folder: Path, municipality_cvegeo: str | None, origin_url: st
                 """insert into public.raw_ingestions
                    (source_id, status, media_path, media_sha256, origin_url, municipality_hint, organizer_hint, payload)
                    values (%s, 'queued', %s, %s, %s, %s, %s, %s)""",
-                (src["id"], dest, digest, origin_url, municipality_cvegeo, organizer, '{"filename": "%s"}' % f.name),
+                (src["id"], dest, digest, origin_url, municipality_cvegeo, organizer, jsonb({"filename": f.name})),
             )
             conn.commit()
             n += 1

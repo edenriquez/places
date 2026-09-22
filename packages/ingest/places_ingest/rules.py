@@ -80,13 +80,14 @@ def detect_dates(text: str, today: date | None = None) -> list[date]:
         # último recurso: dateparser sobre cada línea corta
         for line in text.splitlines():
             line = line.strip()
-            if 4 <= len(line) <= 40 and any(ch.isdigit() for ch in line):
-                dt = dateparser.parse(
-                    line, languages=["es"],
-                    settings={"PREFER_DATES_FROM": "future", "TIMEZONE": settings.timezone, "RETURN_AS_TIMEZONE_AWARE": False},
-                )
-                if isinstance(dt, datetime) and dt.year >= today.year:
-                    out.append(dt.date())
+            if not (4 <= len(line) <= 40 and any(ch.isdigit() for ch in line)):
+                continue
+            dt = dateparser.parse(
+                line, languages=["es"],
+                settings={"PREFER_DATES_FROM": "future", "TIMEZONE": settings.timezone, "RETURN_AS_TIMEZONE_AWARE": False},
+            )
+            if isinstance(dt, datetime) and dt.year >= today.year:
+                out.append(dt.date())
     # únicos, ordenados
     return sorted(set(out))
 
@@ -98,9 +99,8 @@ def detect_time(text: str) -> time | None:
             continue
         if not ampm and not m.group(2) and "hrs" not in m.group(0).lower() and "h" not in m.group(0).lower():
             continue  # un número solo no es hora
-        if "p" in ampm or "tarde" in ampm or "noche" in ampm:
-            if h < 12:
-                h += 12
+        if ("p" in ampm or "tarde" in ampm or "noche" in ampm) and h < 12:
+            h += 12
         if h == 24:
             h = 0
         return time(h, mnt)
