@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>mx.entrelugares.ingest.process</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/Users/eduardoenriquez/.local/bin/uv</string>
+    <string>run</string>
+    <string>--project</string>
+    <string>/Users/eduardoenriquez/dev/places/packages/ingest</string>
+    <string>places-ingest</string>
+    <string>process</string>
+  </array>
+  <key>WorkingDirectory</key><string>/Users/eduardoenriquez/dev/places/packages/ingest</string>
+  <key>StartInterval</key><integer>600</integer>
+  <key>RunAtLoad</key><true/>
+  <key>StandardOutPath</key><string>/Users/eduardoenriquez/dev/places/packages/ingest/data/logs/process.log</string>
+  <key>StandardErrorPath</key><string>/Users/eduardoenriquez/dev/places/packages/ingest/data/logs/process.err.log</string>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key><string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
+  </dict>
+</dict>
+</plist>

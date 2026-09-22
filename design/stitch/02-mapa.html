@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+
+<html lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=390, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/>
+<title>Entre Lugares · Mapa de Eventos</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            primary: "#ff385c",
+            "primary-dim": "#e01542",
+            secondary: "#717171",
+            "on-surface": "#222222",
+            "surface-dim": "#f7f7f7"
+          },
+          fontFamily: {
+            headline: ["Plus Jakarta Sans", "sans-serif"],
+            body: ["Inter", "sans-serif"]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 450, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    .map-soft-shadow {
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+    .pin-shadow {
+      box-shadow: 0 3px 12px rgba(0, 0, 0, 0.16), 0 1px 3px rgba(0, 0, 0, 0.08);
+    }
+  </style>
+</head>
+<body class="bg-[#F6F4EE] text-[#222222] font-body antialiased overflow-hidden select-none m-0 p-0 flex justify-center items-center min-h-screen">
+<!-- Mobile Viewport Container: 390x844 px (iPhone layout) -->
+<div class="relative w-full max-w-[390px] h-[844px] bg-[#F6F4EE] overflow-hidden shadow-2xl flex flex-col justify-between">
+<!-- 1. FULL BACKGROUND VECTOR MAP (Covers 100% of screen) -->
+<div class="absolute inset-0 w-full h-full z-0 overflow-hidden pointer-events-auto">
+<svg class="w-full h-full object-cover" fill="none" viewbox="0 0 390 844" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<radialgradient cx="0" cy="0" gradienttransform="translate(130 220) rotate(90) scale(180 160)" gradientunits="userSpaceOnUse" id="hillA" r="1">
+<stop stop-color="#ECE5D8" stop-opacity="0.9"></stop>
+<stop stop-color="#F6F4EE" stop-opacity="0"></stop>
+</radialgradient>
+<radialgradient cx="0" cy="0" gradienttransform="translate(290 310) rotate(80) scale(190 170)" gradientunits="userSpaceOnUse" id="hillB" r="1">
+<stop stop-color="#EAE3D5" stop-opacity="0.85"></stop>
+<stop stop-color="#F6F4EE" stop-opacity="0"></stop>
+</radialgradient>
+<radialgradient cx="0" cy="0" gradienttransform="translate(190 530) rotate(90) scale(200 220)" gradientunits="userSpaceOnUse" id="hillC" r="1">
+<stop stop-color="#E8E0D2" stop-opacity="0.8"></stop>
+<stop stop-color="#F6F4EE" stop-opacity="0"></stop>
+</radialgradient>
+</defs>
+<!-- Background base -->
+<rect fill="#F6F4EE" height="844" width="390"></rect>
+<!-- Mountain terrain contours -->
+<ellipse cx="120" cy="210" fill="url(#hillA)" rx="160" ry="140"></ellipse>
+<ellipse cx="290" cy="310" fill="url(#hillB)" rx="150" ry="130"></ellipse>
+<ellipse cx="180" cy="540" fill="url(#hillC)" rx="190" ry="160"></ellipse>
+<!-- Forest and reserve shapes -->
+<path d="M 20 160 Q 110 130 180 180 T 290 150 Q 360 190 380 260 T 320 380 Q 210 410 130 350 Z" fill="#E4DDCF" fill-opacity="0.55"></path>
+<!-- River Yautepec Stream -->
+<path d="M 370 120 C 335 180 315 250 320 320 C 326 385 285 430 265 480 C 242 535 235 600 244 710" stroke="#D3E5E7" stroke-linecap="round" stroke-linejoin="round" stroke-width="4"></path>
+<!-- Secondary Roads -->
+<path d="M -20 320 C 60 310 120 330 170 300 C 210 275 250 290 290 270 C 340 250 375 260 410 250" stroke="#E6E0D3" stroke-linecap="round" stroke-width="3"></path>
+<path d="M 70 90 Q 95 200 130 270 T 165 440 Q 195 500 235 540" stroke="#E6E0D3" stroke-linecap="round" stroke-width="2.5"></path>
+<path d="M 230 290 Q 255 375 280 405 T 340 500" stroke="#E6E0D3" stroke-linecap="round" stroke-width="2.5"></path>
+<path d="M 130 270 L 235 295" stroke="#DDD6C8" stroke-linecap="round" stroke-width="3.5"></path>
+<!-- Main Highway (Autopista) -->
+<path d="M 20 160 Q 90 215 138 275 T 245 370 Q 305 410 380 440" stroke="#FFFFFF" stroke-linecap="round" stroke-width="6.5"></path>
+<path d="M 20 160 Q 90 215 138 275 T 245 370 Q 305 410 380 440" stroke="#D9D2C4" stroke-linecap="round" stroke-width="3"></path>
+<path d="M 245 370 C 250 435 238 495 232 575 C 226 638 218 710 212 790" stroke="#FFFFFF" stroke-linecap="round" stroke-width="5.5"></path>
+<path d="M 245 370 C 250 435 238 495 232 575 C 226 638 218 710 212 790" stroke="#D9D2C4" stroke-linecap="round" stroke-width="2.5"></path>
+<!-- Natural reserve labels -->
+<text fill="#A49E92" font-family="Inter" font-size="8.5" font-weight="700" letter-spacing="1.4" x="85" y="175">PARQUE NACIONAL EL TEPOZTECO</text>
+<text fill="#A8A297" font-family="Inter" font-size="8" font-weight="600" letter-spacing="1.2" x="235" y="245">CORREDOR BIOLÓGICO</text>
+<text fill="#ABA59A" font-family="Inter" font-size="8.5" font-weight="600" letter-spacing="1.2" x="145" y="525">VALLE DE YAUTEPEC</text>
+<!-- Settlement points & typography -->
+<g opacity="0.9">
+<circle cx="112" cy="272" fill="#757066" r="3"></circle>
+<text fill="#4B473F" font-family="Plus Jakarta Sans" font-size="11" font-weight="700" letter-spacing="0.6" text-anchor="middle" x="112" y="262">TEPOZTLÁN</text>
+</g>
+<g opacity="0.9">
+<circle cx="268" cy="298" fill="#757066" r="3"></circle>
+<text fill="#4B473F" font-family="Plus Jakarta Sans" font-size="11" font-weight="700" letter-spacing="0.6" text-anchor="middle" x="268" y="288">TLAYACAPAN</text>
+</g>
+<g opacity="0.85">
+<circle cx="330" cy="400" fill="#888277" r="2.5"></circle>
+<text fill="#5F5A51" font-family="Plus Jakarta Sans" font-size="10.5" font-weight="600" letter-spacing="0.5" text-anchor="middle" x="330" y="391">OAXTEPEC</text>
+</g>
+<g opacity="0.85">
+<circle cx="225" cy="515" fill="#888277" r="2.5"></circle>
+<text fill="#5F5A51" font-family="Plus Jakarta Sans" font-size="10.5" font-weight="600" letter-spacing="0.5" text-anchor="middle" x="225" y="506">YAUTEPEC</text>
+</g>
+<g opacity="0.75">
+<circle cx="335" cy="225" fill="#989389" r="2"></circle>
+<text fill="#6F6A61" font-family="Plus Jakarta Sans" font-size="9.5" font-weight="600" letter-spacing="0.4" text-anchor="middle" x="335" y="217">TOTOLAPAN</text>
+</g>
+<g opacity="0.75">
+<circle cx="58" cy="420" fill="#989389" r="2"></circle>
+<text fill="#6F6A61" font-family="Plus Jakarta Sans" font-size="9.5" font-weight="600" letter-spacing="0.4" text-anchor="middle" x="58" y="412">JIUTEPEC</text>
+</g>
+</svg>
+<!-- 2. AIRBNB-STYLE PRICE PINS OVER MAP -->
+<!-- Pin 1: Tepoztlán ($150) -->
+<div class="absolute top-[225px] left-[78px] -translate-x-1/2 -translate-y-1/2 cursor-pointer z-10">
+<div class="rounded-full px-3 py-1 bg-white font-bold text-xs text-gray-900 shadow-md ring-1 ring-black/5 hover:scale-105 transition-transform flex items-center gap-1 pin-shadow">
+          $150
+        </div>
+</div>
+<!-- Pin 2: Selected/Active Pin: Tlayacapan ($120) -->
+<div class="absolute top-[345px] left-[268px] -translate-x-1/2 -translate-y-full cursor-pointer z-20">
+<div class="relative flex flex-col items-center group">
+<div class="rounded-full px-3.5 py-1.5 bg-black font-bold text-xs text-white shadow-xl ring-2 ring-white flex items-center gap-1 scale-105 transition-transform">
+<span>$120</span>
+</div>
+<!-- Little caret arrow -->
+<div class="w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[5px] border-t-black -mt-[1px]"></div>
+<!-- Red pulsing dot indicator -->
+<div class="absolute -bottom-2 flex items-center justify-center">
+<span class="absolute w-3.5 h-3.5 bg-primary/40 rounded-full animate-ping"></span>
+<span class="w-2 h-2 bg-primary rounded-full ring-2 ring-white"></span>
+</div>
+</div>
+</div>
+<!-- Pin 3: Amatlán / Tepoztlán Este ($80) -->
+<div class="absolute top-[305px] left-[175px] -translate-x-1/2 -translate-y-1/2 cursor-pointer z-10">
+<div class="rounded-full px-3 py-1 bg-white font-bold text-xs text-gray-900 shadow-md ring-1 ring-black/5 hover:scale-105 transition-transform flex items-center gap-1 pin-shadow">
+          $80
+        </div>
+</div>
+<!-- Pin 4: Oaxtepec ($300) -->
+<div class="absolute top-[420px] left-[325px] -translate-x-1/2 -translate-y-1/2 cursor-pointer z-10">
+<div class="rounded-full px-3 py-1 bg-white font-bold text-xs text-gray-900 shadow-md ring-1 ring-black/5 hover:scale-105 transition-transform flex items-center gap-1 pin-shadow">
+          $300
+        </div>
+</div>
+<!-- Pin 5: Yautepec (Gratis) -->
+<div class="absolute top-[475px] left-[210px] -translate-x-1/2 -translate-y-1/2 cursor-pointer z-10">
+<div class="rounded-full px-3 py-1 bg-white font-bold text-xs text-gray-900 shadow-md ring-1 ring-black/5 hover:scale-105 transition-transform flex items-center gap-1 pin-shadow">
+          Gratis
+        </div>
+</div>
+</div>
+<!-- 3. TOP FLOATING BAR (z-30, pt-safe px-4 mt-3) -->
+<header class="relative z-30 pt-10 px-4 mt-1 flex items-center justify-between gap-2.5 pointer-events-none">
+<!-- Search pill capsule -->
+<div class="pointer-events-auto flex-1 bg-white rounded-full shadow-lg border border-black/5 px-3.5 py-2 flex items-center justify-between gap-2 transition-transform active:scale-[0.99]">
+<div class="flex items-center gap-2.5 min-w-0">
+<span class="material-symbols-outlined text-[20px] text-gray-900 flex-shrink-0" data-icon="search">search</span>
+<div class="text-left min-w-0 pr-1">
+<h1 class="text-xs font-bold text-gray-900 truncate leading-tight">Tepoztlán · Este finde</h1>
+<p class="text-[11px] text-gray-500 truncate leading-tight">Todos los eventos · 15 km</p>
+</div>
+</div>
+<!-- Filter tune button -->
+<button aria-label="Filtros" class="w-7 h-7 rounded-full border border-gray-200 flex items-center justify-center text-gray-700 hover:bg-gray-50 flex-shrink-0 transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px]" data-icon="tune">tune</span>
+</button>
+</div>
+<!-- 'Lista' button on right -->
+<button aria-label="Cambiar a vista de lista" class="pointer-events-auto bg-white text-gray-900 rounded-full px-4 py-2.5 shadow-lg border border-black/5 flex items-center gap-1.5 text-xs font-semibold hover:bg-gray-50 active:scale-95 transition-all flex-shrink-0" type="button">
+<span class="material-symbols-outlined text-[18px] text-gray-800" data-icon="format_list_bulleted">format_list_bulleted</span>
+<span>Lista</span>
+</button>
+</header>
+<!-- 4. BOTTOM FLOATING SECTION: RE-CENTER BUTTON + HORIZONTAL CAROUSEL -->
+<div class="relative z-30 flex flex-col pointer-events-none pb-1">
+<!-- Floating Re-center GPS button (round, white, top right above cards) -->
+<div class="w-full flex justify-end px-4 mb-2 pointer-events-auto">
+<button aria-label="Mi ubicación" class="w-10 h-10 rounded-full bg-white text-gray-800 shadow-lg border border-black/5 flex items-center justify-center hover:bg-gray-50 active:scale-95 transition-all" type="button">
+<span class="material-symbols-outlined text-[20px]" data-icon="my_location">my_location</span>
+</button>
+</div>
+<!-- Compact horizontal cards carousel -->
+<section aria-label="Eventos recomendados" class="pointer-events-auto w-full px-4 mb-2">
+<div class="flex gap-3 overflow-x-auto snap-x no-scrollbar pb-1">
+<!-- Card 1: ACTIVE (Matches $120 pin) -->
+<article class="w-[300px] bg-white rounded-2xl shadow-xl border border-gray-100 flex p-3 gap-3 items-center shrink-0 snap-center relative cursor-pointer active:scale-[0.99] transition-transform">
+<div class="w-20 h-20 rounded-xl overflow-hidden shrink-0 bg-gray-100 relative">
+<img alt="Fiesta Patronal San Juan Bautista" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida/AEtjO1VbSSWcqbgGcJirRfp9i3OwNL8mieUoF821jsZX8tRh4IpVBBu8t7q1r1Xg90hVomjx5RZBH63WM4ga7CwgMOvFehoHiQIoiUKamD6mFyH8bUPU-x4ME_wQHJrcbjzUGr3MdKwonrcFB78obCmq9bjsvwToU2wlGSTGtuNV_h6TlLoNWLpk95WHeGTv7sJnVLXkF8nNfzogsYiUT5Wt5L29r7kevXMBj83iUb9IOpy2a75t-u4XJgs1eg"/>
+</div>
+<div class="flex-1 min-w-0 pr-6 text-left">
+<h3 class="font-headline text-[13px] font-bold text-gray-900 truncate leading-snug">Fiesta Patronal San Juan Bautista</h3>
+<p class="text-[11.5px] text-gray-500 truncate mt-0.5">Tlayacapan · Sáb 27 sep</p>
+<div class="mt-1.5 flex items-baseline gap-1">
+<span class="text-[13px] font-bold text-gray-900">$120</span>
+<span class="text-[11px] text-gray-500">/ boleto</span>
+</div>
+</div>
+<!-- Favorite button -->
+<button aria-label="Guardar fiesta patronal" class="absolute top-3 right-3 text-gray-400 hover:text-primary transition-colors p-0.5" type="button">
+<span class="material-symbols-outlined text-[19px]" data-icon="favorite_border">favorite_border</span>
+</button>
+</article>
+<!-- Card 2: Noche de Son Jarocho ($80) -->
+<article class="w-[300px] bg-white rounded-2xl shadow-xl border border-gray-100 flex p-3 gap-3 items-center shrink-0 snap-center relative cursor-pointer active:scale-[0.99] transition-transform">
+<div class="w-20 h-20 rounded-xl overflow-hidden shrink-0 bg-gray-100 relative">
+<img alt="Noche de Son Jarocho" class="w-full h-full object-cover" data-alt="Vibrant traditional Mexican son jarocho acoustic music performance on an open-air stone patio in Tepoztlán Morelos with soft evening light, rustic earthenware, pristine light aesthetic, candid editorial photography." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDmPckzsY8x8Y_Cj-aEMEctU_SF20zyxEYOONbi4S7haYL7f4frdH2fOUXklruXmpouXkUOhpaF4w7z4AFu10Rg0_YPlBMdtMqNO-yu0rZVtTm9UdTsfaKnj8vRELcRnRjJCBOrvpeinJtWtM69utcpBLOUDhf8VS-hQ03A5-se5LCZK9nXXvntgU2HXMiUAKn0_vctJswuufl1OLcRMSJNfmUhnPbLCIWqj1InUocOjAV9-RRNdyoSQxPAkwqTzOm4Wc_pstGPg4U"/>
+</div>
+<div class="flex-1 min-w-0 pr-6 text-left">
+<h3 class="font-headline text-[13px] font-bold text-gray-900 truncate leading-snug">Noche de Son Jarocho</h3>
+<p class="text-[11.5px] text-gray-500 truncate mt-0.5">Malinalco · Sáb 27 sep</p>
+<div class="mt-1.5 flex items-baseline gap-1">
+<span class="text-[13px] font-bold text-gray-900">$80</span>
+<span class="text-[11px] text-gray-500">/ persona</span>
+</div>
+</div>
+<button aria-label="Guardar son jarocho" class="absolute top-3 right-3 text-gray-400 hover:text-primary transition-colors p-0.5" type="button">
+<span class="material-symbols-outlined text-[19px]" data-icon="favorite_border">favorite_border</span>
+</button>
+</article>
+<!-- Card 3: Feria del Tamal (Gratis) -->
+<article class="w-[300px] bg-white rounded-2xl shadow-xl border border-gray-100 flex p-3 gap-3 items-center shrink-0 snap-center relative cursor-pointer active:scale-[0.99] transition-transform">
+<div class="w-20 h-20 rounded-xl overflow-hidden shrink-0 bg-gray-100 relative">
+<img alt="Feria del Tamal" class="w-full h-full object-cover" data-alt="Traditional artisan Mexican gastronomy food market festival stalls with clay pots and fresh tamales, warm festive atmosphere." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBRU4vX9-sIq8aA5YpXiphDOzn1YzTHo5SaloONf-wox2O3EOo1mXDIvzpDeLPN-IHgZn2fKlX8JGpfjDhoUwZocLJljoCmlk1lNyDsbZH2e1oFHo-81FQbnCkM3M5A6yawXm-Cd9ZOanBw79N7ZVpmwvvR7GGdWVWKweX-t7Pt2JLFoO-YnbpK0YK9SanrDm26F2kSep6lBsOUTuquy-J4mcGVNqmpXuuz5mW9p6zecCJiJh0z_32rJPW67m7jNeXNubZ8ee0ZByA"/>
+</div>
+<div class="flex-1 min-w-0 pr-6 text-left">
+<h3 class="font-headline text-[13px] font-bold text-gray-900 truncate leading-snug">Feria del Tamal</h3>
+<p class="text-[11.5px] text-gray-500 truncate mt-0.5">Tepoztlán · Dom 28 sep</p>
+<div class="mt-1.5 flex items-baseline gap-1">
+<span class="text-[13px] font-bold text-primary">Gratis</span>
+<span class="text-[11px] text-gray-500">· Entrada libre</span>
+</div>
+</div>
+<button aria-label="Guardar feria del tamal" class="absolute top-3 right-3 text-gray-400 hover:text-primary transition-colors p-0.5" type="button">
+<span class="material-symbols-outlined text-[19px]" data-icon="favorite_border">favorite_border</span>
+</button>
+</article>
+</div>
+</section>
+</div>
+<!-- 5. BOTTOM NAVIGATION BAR (DOCKED / FLOATING AT BOTTOM, z-40) -->
+<nav aria-label="Navegación principal" class="relative z-40 w-full bg-white border-t border-gray-200/80 px-4 py-2 pb-5 flex justify-around items-center shadow-lg">
+<!-- 1. Explorar -->
+<a class="flex flex-col items-center justify-center text-gray-500 hover:text-gray-900 transition-colors gap-0.5 active:scale-95" href="#explorar">
+<span class="material-symbols-outlined text-[23px]" data-icon="explore">explore</span>
+<span class="text-[10.5px] font-medium leading-tight">Explorar</span>
+</a>
+<!-- 2. Mapa (ACTIVE TAB - Coral #ff385c) -->
+<a aria-current="page" class="flex flex-col items-center justify-center text-primary gap-0.5 active:scale-95" href="#mapa">
+<span class="material-symbols-outlined text-[23px]" data-icon="map" style="font-variation-settings: 'FILL' 1;">map</span>
+<span class="text-[10.5px] font-bold leading-tight">Mapa</span>
+</a>
+<!-- 3. Guardados -->
+<a class="flex flex-col items-center justify-center text-gray-500 hover:text-gray-900 transition-colors gap-0.5 active:scale-95" href="#guardados">
+<span class="material-symbols-outlined text-[23px]" data-icon="favorite_border">favorite_border</span>
+<span class="text-[10.5px] font-medium leading-tight">Guardados</span>
+</a>
+<!-- 4. Perfil -->
+<a class="flex flex-col items-center justify-center text-gray-500 hover:text-gray-900 transition-colors gap-0.5 active:scale-95" href="#perfil">
+<span class="material-symbols-outlined text-[23px]" data-icon="person_outline">person_outline</span>
+<span class="text-[10.5px] font-medium leading-tight">Perfil</span>
+</a>
+</nav>
+</div>
+</body></html>

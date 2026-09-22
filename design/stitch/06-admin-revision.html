@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+
+<html class="h-full bg-surface" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Entre Lugares — Panel de Administración</title>
+<!-- Google Fonts & Material Symbols -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS v3 -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "tertiary-fixed": "#7df169",
+            "secondary-container": "#e5e2e1",
+            "on-secondary-fixed": "#403f3f",
+            "inverse-primary": "#ff5169",
+            "primary-fixed": "#ffdada",
+            "on-tertiary": "#ebffe0",
+            "inverse-on-surface": "#9c9d9d",
+            "on-primary": "#fff6f5",
+            "error-dim": "#5c1202",
+            "on-background": "#2d3435",
+            "on-secondary": "#fbf8f8",
+            "tertiary-dim": "#006102",
+            "tertiary-fixed-dim": "#6fe25d",
+            "surface-bright": "#f9f9f9",
+            "surface-dim": "#d3dbdd",
+            "background": "#f9f9f9",
+            "tertiary-container": "#7df169",
+            "secondary": "#605f5f",
+            "on-secondary-container": "#525151",
+            "on-error-container": "#742410",
+            "secondary-fixed": "#e5e2e1",
+            "on-secondary-fixed-variant": "#5c5b5b",
+            "surface-container": "#ebeeef",
+            "on-primary-fixed": "#840024",
+            "surface": "#f9f9f9",
+            "error": "#9e422c",
+            "on-primary-fixed-variant": "#b90036",
+            "outline-variant": "#acb3b4",
+            "surface-container-high": "#e4e9ea",
+            "on-tertiary-fixed-variant": "#006302",
+            "primary-fixed-dim": "#ffc6c8",
+            "on-tertiary-fixed": "#004201",
+            "surface-container-highest": "#dde4e5",
+            "on-tertiary-container": "#005802",
+            "on-error": "#fff7f6",
+            "on-surface-variant": "#596061",
+            "outline": "#757c7d",
+            "surface-container-low": "#f2f4f4",
+            "surface-container-lowest": "#ffffff",
+            "on-primary-container": "#a60030",
+            "primary-dim": "#a80030",
+            "surface-variant": "#dde4e5",
+            "tertiary": "#006f03",
+            "primary": "#be0038",
+            "secondary-dim": "#535353",
+            "on-surface": "#2d3435",
+            "surface-tint": "#be0038",
+            "secondary-fixed-dim": "#d6d4d3",
+            "inverse-surface": "#0c0f0f",
+            "error-container": "#fe8b70",
+            "primary-container": "#ffdada"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "space-xl": "2rem",
+            "space-md": "1rem",
+            "space-sm": "0.5rem",
+            "space-lg": "1.5rem",
+            "margin": "1rem",
+            "gutter": "1rem",
+            "space-xs": "0.25rem"
+          },
+          "fontFamily": {
+            "body-md": ["Inter"],
+            "label-md": ["Inter"],
+            "headline-lg": ["Plus Jakarta Sans"],
+            "body-lg": ["Inter"],
+            "body-sm": ["Inter"],
+            "headline-md": ["Plus Jakarta Sans"],
+            "label-sm": ["Inter"],
+            "headline-sm": ["Plus Jakarta Sans"],
+            "mono-code": ["JetBrains Mono", "monospace"]
+          },
+          "fontSize": {
+            "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+            "label-md": ["12px", { "lineHeight": "16px", "fontWeight": "600" }],
+            "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "700" }],
+            "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+            "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }],
+            "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+            "label-sm": ["11px", { "lineHeight": "14px", "letterSpacing": "0.06em", "fontWeight": "600" }],
+            "headline-sm": ["20px", { "lineHeight": "26px", "fontWeight": "600" }]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+    /* Clean micro-scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #dde4e5;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #acb3b4;
+    }
+  </style>
+</head>
+<body class="h-full bg-surface text-on-surface font-body-md antialiased overflow-x-hidden">
+<!-- ==================== SIDE NAV BAR (MANDATORY SHARED COMPONENT) ==================== -->
+<aside class="fixed top-0 left-0 h-screen w-[220px] bg-surface-container-lowest border-r border-outline-variant/30 flex flex-col justify-between p-4 z-40 select-none">
+<div class="flex flex-col gap-6">
+<!-- Header / Logo -->
+<div class="flex items-center gap-3 px-1 pt-1">
+<div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined text-[18px]" data-icon="place">place</span>
+</div>
+<div>
+<h1 class="font-headline-sm text-headline-sm font-bold text-on-surface tracking-tight leading-tight">Entre Lugares</h1>
+<p class="font-label-sm text-label-sm text-on-surface-variant font-normal">Panel de Administración</p>
+</div>
+</div>
+<!-- Quick Action CTA -->
+<button class="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-lg border border-outline-variant/40 hover:bg-surface-container transition-colors text-on-surface font-label-md text-label-md">
+<span class="material-symbols-outlined text-[16px]" data-icon="add">add</span>
+<span>Nuevo Evento</span>
+</button>
+<!-- Navigation Tabs -->
+<nav class="flex flex-col gap-1">
+<!-- 1. Eventos -->
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-on-surface font-normal hover:bg-surface-container-high transition-colors duration-150" href="#eventos">
+<span class="material-symbols-outlined text-[18px]" data-icon="calendar_today">calendar_today</span>
+<span class="font-label-md text-label-md">Eventos</span>
+</a>
+<!-- 2. Fuentes / Scraping -->
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-on-surface font-normal hover:bg-surface-container-high transition-colors duration-150" href="#scraping">
+<span class="material-symbols-outlined text-[18px]" data-icon="sync">sync</span>
+<span class="font-label-md text-label-md">Fuentes / Scraping</span>
+</a>
+<!-- 3. Lugares -->
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-on-surface font-normal hover:bg-surface-container-high transition-colors duration-150" href="#lugares">
+<span class="material-symbols-outlined text-[18px]" data-icon="place">place</span>
+<span class="font-label-md text-label-md">Lugares</span>
+</a>
+<!-- 4. Moderación / Revisión (ACTIVE TAB) -->
+<a class="flex items-center justify-between px-3 py-2.5 rounded-lg bg-primary text-on-primary font-medium transition-all duration-150 active:scale-[0.99] shadow-sm" href="#revision">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[18px]" data-icon="fact_check">fact_check</span>
+<span class="font-label-md text-label-md">Moderación / Revisión</span>
+</div>
+<span class="bg-primary-dim text-on-primary font-label-sm text-[10px] px-1.5 py-0.5 rounded-full font-bold">12</span>
+</a>
+<!-- 5. Configuración -->
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-on-surface font-normal hover:bg-surface-container-high transition-colors duration-150" href="#configuracion">
+<span class="material-symbols-outlined text-[18px]" data-icon="settings">settings</span>
+<span class="font-label-md text-label-md">Configuración</span>
+</a>
+</nav>
+</div>
+<!-- Footer Profile & Session -->
+<div class="border-t border-outline-variant/30 pt-3 flex flex-col gap-1">
+<div class="flex items-center gap-3 px-2 py-2">
+<div class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container font-headline-sm text-sm font-semibold">
+          ER
+        </div>
+<div class="flex-1 min-w-0">
+<p class="font-label-md text-label-md text-on-surface truncate">Eduardo R.</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Perfil de Administrador</p>
+</div>
+</div>
+<button class="flex items-center gap-3 px-2 py-2 rounded-lg text-on-surface-variant hover:text-error hover:bg-surface-container-high transition-colors font-label-md text-label-md text-left">
+<span class="material-symbols-outlined text-[18px]" data-icon="logout">logout</span>
+<span>Cerrar Sesión</span>
+</button>
+</div>
+</aside>
+<!-- ==================== MAIN CONTENT WRAPPER ==================== -->
+<div class="ml-[220px] min-h-screen flex flex-col pb-24">
+<!-- ==================== TOP NAV BAR (MANDATORY SHARED COMPONENT) ==================== -->
+<header class="sticky top-0 z-30 flex items-center justify-between px-8 h-16 bg-surface-container-lowest border-b border-outline-variant/30">
+<!-- Title & Queue Status -->
+<div class="flex items-center gap-4">
+<h2 class="font-headline-sm text-headline-sm font-semibold text-on-surface tracking-tight">Revisión · 12 pendientes</h2>
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-label-sm font-label-sm bg-surface-container text-on-surface-variant border border-outline-variant/40">
+          Cola activa
+        </span>
+</div>
+<!-- Quick Geographic Filter Links -->
+<nav class="hidden xl:flex items-center gap-6">
+<a class="font-label-md text-label-md text-primary font-semibold border-b-2 border-primary pb-1" href="#todos">Todos los municipios</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface font-normal transition-colors" href="#tlayacapan">Tlayacapan (4)</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface font-normal transition-colors" href="#tepoztlan">Tepoztlán (3)</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface font-normal transition-colors" href="#toluca">Toluca (3)</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface font-normal transition-colors" href="#metepec">Metepec (2)</a>
+</nav>
+<!-- Trailing Controls: Prev/Next & Utility Icons -->
+<div class="flex items-center gap-2">
+<div class="flex items-center border border-outline-variant/30 rounded-lg overflow-hidden bg-surface-container-lowest">
+<button class="flex items-center gap-1 px-3 py-1.5 font-label-md text-label-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors" title="Evento Anterior">
+<span class="material-symbols-outlined text-[16px]" data-icon="chevron_left">chevron_left</span>
+<span class="hidden sm:inline">Evento Anterior</span>
+</button>
+<div class="w-[1px] h-4 bg-outline-variant/30"></div>
+<button class="flex items-center gap-1 px-3 py-1.5 font-label-md text-label-md text-on-surface hover:text-primary hover:bg-surface-container transition-colors font-medium" title="Siguiente Evento">
+<span class="hidden sm:inline">Siguiente Evento</span>
+<span class="material-symbols-outlined text-[16px]" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+<button class="p-2 text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded-full transition-colors" title="Filtrar">
+<span class="material-symbols-outlined text-[20px]" data-icon="filter_list">filter_list</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded-full transition-colors" title="Ajustes">
+<span class="material-symbols-outlined text-[20px]" data-icon="tune">tune</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded-full transition-colors" title="Ayuda">
+<span class="material-symbols-outlined text-[20px]" data-icon="help_outline">help_outline</span>
+</button>
+</div>
+</header>
+<!-- Subheader Alert / OCR Confidence Indicator -->
+<div class="bg-surface-container-low border-b border-outline-variant/30 px-8 py-2.5">
+<div class="max-w-[1240px] mx-auto flex flex-wrap items-center justify-between gap-3">
+<div class="flex items-center gap-3">
+<div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#fef3c7] text-[#92400e] border border-[#fde68a]">
+<span class="material-symbols-outlined text-[16px]" data-icon="smart_toy">smart_toy</span>
+<span class="font-label-md text-label-md font-semibold">Confianza OCR: 0.82</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-amber-600" data-icon="info">info</span>
+            Se detectaron múltiples días con rangos variables. Por favor, valida los horarios de las bandas de viento.
+          </p>
+</div>
+<div class="flex items-center gap-2">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Lote: 24-JUN-TLAYACAPAN</span>
+<span class="w-1.5 h-1.5 rounded-full bg-outline-variant"></span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Extraído hace 14 min</span>
+</div>
+</div>
+</div>
+<!-- ==================== MAIN EDITORIAL WORKSPACE (2 EQUAL COLUMNS) ==================== -->
+<main class="flex-1 max-w-[1240px] w-full mx-auto px-8 py-6">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+<!-- ==================== LEFT COLUMN: FLYER & PROVENANCE ==================== -->
+<div class="lg:col-span-5 flex flex-col gap-5 sticky top-24">
+<!-- Flyer Container Card -->
+<div class="bg-surface-container-lowest border border-outline-variant/30 rounded-xl overflow-hidden shadow-sm flex flex-col">
+<!-- Inspection Header Toolbar -->
+<div class="px-4 py-2.5 border-b border-outline-variant/30 bg-surface-container-low flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant" data-icon="image">image</span>
+<span class="font-label-md text-label-md text-on-surface font-semibold">Flyer Original Extraído</span>
+</div>
+<!-- Zoom / Frame Controls -->
+<div class="flex items-center gap-1 bg-surface-container-lowest border border-outline-variant/30 rounded-lg p-0.5">
+<button class="p-1 hover:bg-surface-container text-on-surface-variant hover:text-on-surface rounded transition-colors" title="Alejar">
+<span class="material-symbols-outlined text-[15px]" data-icon="zoom_out">zoom_out</span>
+</button>
+<span class="font-mono-code text-[11px] px-1 text-on-surface font-medium">100%</span>
+<button class="p-1 hover:bg-surface-container text-on-surface-variant hover:text-on-surface rounded transition-colors" title="Acercar">
+<span class="material-symbols-outlined text-[15px]" data-icon="zoom_in">zoom_in</span>
+</button>
+<div class="w-[1px] h-3 bg-outline-variant/30 mx-0.5"></div>
+<button class="p-1 hover:bg-surface-container text-on-surface-variant hover:text-on-surface rounded transition-colors" title="Pantalla Completa">
+<span class="material-symbols-outlined text-[15px]" data-icon="fullscreen">fullscreen</span>
+</button>
+</div>
+</div>
+<!-- Flyer Image -->
+<div class="p-4 bg-surface-container-low/50 flex justify-center">
+<div class="relative rounded-lg overflow-hidden border border-outline-variant/30 shadow-inner max-h-[580px] flex items-center justify-center">
+<img alt="Cartel oficial de la Fiesta Patronal de San Juan Bautista en Tlayacapan Morelos del 24 al 30 de junio con danzantes chinelos y templo colonial" class="w-full h-auto object-contain max-h-[560px] rounded-lg" src="https://lh3.googleusercontent.com/aida/AEtjO1VbSSWcqbgGcJirRfp9i3OwNL8mieUoF821jsZX8tRh4IpVBBu8t7q1r1Xg90hVomjx5RZBH63WM4ga7CwgMOvFehoHiQIoiUKamD6mFyH8bUPU-x4ME_wQHJrcbjzUGr3MdKwonrcFB78obCmq9bjsvwToU2wlGSTGtuNV_h6TlLoNWLpk95WHeGTv7sJnVLXkF8nNfzogsYiUT5Wt5L29r7kevXMBj83iUb9IOpy2a75t-u4XJgs1eg"/>
+</div>
+</div>
+<!-- Provenance & Source Metadata -->
+<div class="p-4 border-t border-outline-variant/30 bg-surface-container-lowest flex flex-col gap-2">
+<div class="flex items-center justify-between text-on-surface-variant font-body-sm text-body-sm">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-outline" data-icon="upload_file">upload_file</span>
+<span>Subido por <strong class="text-on-surface font-medium">Eduardo R.</strong></span>
+</div>
+<span>21 sep 2026</span>
+</div>
+<div class="flex items-center justify-between bg-surface-container-low p-2 rounded-lg border border-outline-variant/20">
+<div class="flex items-center gap-2 min-w-0 pr-2">
+<span class="material-symbols-outlined text-[15px] text-outline shrink-0" data-icon="link">link</span>
+<span class="font-mono-code text-[11px] text-on-surface-variant truncate">facebook.com/ayuntamientotlayacapan/posts/891274...</span>
+</div>
+<div class="flex items-center gap-1 shrink-0">
+<button class="p-1 hover:bg-surface-container text-on-surface-variant hover:text-on-surface rounded transition-colors" title="Copiar enlace">
+<span class="material-symbols-outlined text-[16px]" data-icon="content_copy">content_copy</span>
+</button>
+<a class="p-1 hover:bg-surface-container text-on-surface-variant hover:text-primary rounded transition-colors" href="#" rel="noopener" target="_blank" title="Abrir enlace original">
+<span class="material-symbols-outlined text-[16px]" data-icon="open_in_new">open_in_new</span>
+</a>
+</div>
+</div>
+</div>
+</div>
+<!-- Raw OCR Accordion (Interactive details/summary) -->
+<details class="group bg-surface-container-lowest border border-outline-variant/30 rounded-xl overflow-hidden shadow-sm" open="">
+<summary class="px-4 py-3 bg-surface-container-low flex items-center justify-between cursor-pointer select-none font-label-md text-label-md text-on-surface">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant" data-icon="document_scanner">document_scanner</span>
+<span>Texto OCR (74 líneas detectadas)</span>
+</div>
+<div class="flex items-center gap-2">
+<button class="px-2 py-0.5 rounded border border-outline-variant/30 bg-surface-container-lowest text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm transition-colors flex items-center gap-1" onclick="event.stopPropagation();" type="button">
+<span class="material-symbols-outlined text-[14px]" data-icon="copy_all">copy_all</span>
+<span>Copiar plano</span>
+</button>
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant transition-transform group-open:rotate-180" data-icon="expand_more">expand_more</span>
+</div>
+</summary>
+<div class="p-3 bg-surface-container-lowest border-t border-outline-variant/20 max-h-48 overflow-y-auto">
+<pre class="font-mono-code text-[11px] text-on-surface-variant leading-relaxed select-all whitespace-pre-wrap">¡VIVA SAN JUAN BAUTISTA!
+DANZA, MÚSICA, TRADICIÓN Y CULTURA
+FIESTA PATRONAL SAN JUAN BAUTISTA
+TLAYACAPAN, MORELOS
+24 AL 30 DE JUNIO
+MÚSICA EN VIVO, PROCESIONES, FUEGOS ARTIFICIALES
+¡NO FALTES!
+ORGANIZA: COMITÉ DE FESTEJOS PATRONALES
+TLAYACAPAN PUEBLO MÁGICO 2026
+EX CONVENTO DE SAN JUAN BAUTISTA ATRIO PRINCIPAL
+BRINCO DEL CHINELO CON BANDAS LOCALES
+ENTRADA LIBRE - EVENTO PARA TODA LA FAMILIA</pre>
+</div>
+</details>
+</div>
+<!-- ==================== RIGHT COLUMN: VERIFICATION FORM ==================== -->
+<div class="lg:col-span-7 flex flex-col gap-6">
+<form class="bg-surface-container-lowest border border-outline-variant/30 rounded-xl p-6 shadow-sm flex flex-col gap-6">
+<!-- Form Header & Status -->
+<div class="flex items-center justify-between border-b border-outline-variant/20 pb-4">
+<div>
+<h3 class="font-headline-sm text-headline-sm font-bold text-on-surface">Datos Estructurados del Evento</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Revisa los campos extraídos automáticamente antes de publicar en el feed regional.</p>
+</div>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-label-sm font-label-sm bg-tertiary-fixed/30 text-on-tertiary-container font-semibold border border-tertiary-fixed">
+<span class="material-symbols-outlined text-[14px]" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                Validación inicial lista
+              </span>
+</div>
+<!-- Field 1: Title & Match Score -->
+<div class="flex flex-col gap-1.5">
+<div class="flex items-center justify-between">
+<label class="font-label-md text-label-md text-on-surface font-semibold flex items-center gap-1.5" for="titulo">
+<span>Título del Evento</span>
+<span class="text-primary">*</span>
+</label>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-label-sm font-semibold bg-tertiary-container/30 text-tertiary">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span>
+                  99% match OCR
+                </span>
+</div>
+<input class="w-full px-3.5 py-2.5 rounded-lg border border-outline-variant/50 focus:border-primary focus:ring-1 focus:ring-primary text-on-surface font-body-md text-body-md transition-colors bg-surface-container-lowest" id="titulo" name="titulo" type="text" value="Fiesta Patronal San Juan Bautista Tlayacapan 2026"/>
+</div>
+<!-- Field 2: Categories (Chips) -->
+<div class="flex flex-col gap-2">
+<label class="font-label-md text-label-md text-on-surface font-semibold flex items-center justify-between">
+<span>Categorías Culturales</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-normal">Selecciona hasta 3</span>
+</label>
+<div class="flex flex-wrap gap-2">
+<!-- Selected Chip 1 -->
+<button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary text-on-primary font-label-md text-label-md font-medium shadow-xs" type="button">
+<span class="material-symbols-outlined text-[15px]" data-icon="festival">festival</span>
+<span>Feria Patronal</span>
+<span class="material-symbols-outlined text-[15px] opacity-80 hover:opacity-100" data-icon="close">close</span>
+</button>
+<!-- Selected Chip 2 -->
+<button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary text-on-primary font-label-md text-label-md font-medium shadow-xs" type="button">
+<span class="material-symbols-outlined text-[15px]" data-icon="music_note">music_note</span>
+<span>Música en vivo</span>
+<span class="material-symbols-outlined text-[15px] opacity-80 hover:opacity-100" data-icon="close">close</span>
+</button>
+<!-- Selected Chip 3 -->
+<button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary text-on-primary font-label-md text-label-md font-medium shadow-xs" type="button">
+<span class="material-symbols-outlined text-[15px]" data-icon="theater_comedy">theater_comedy</span>
+<span>Danza y Tradición</span>
+<span class="material-symbols-outlined text-[15px] opacity-80 hover:opacity-100" data-icon="close">close</span>
+</button>
+<!-- Unselected Chips -->
+<button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container-low text-on-surface-variant hover:text-on-surface hover:bg-surface-container border border-outline-variant/30 font-label-md text-label-md font-normal transition-colors" type="button">
+<span class="material-symbols-outlined text-[15px]" data-icon="restaurant">restaurant</span>
+<span>Gastronomía</span>
+</button>
+<button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container-low text-on-surface-variant hover:text-on-surface hover:bg-surface-container border border-outline-variant/30 font-label-md text-label-md font-normal transition-colors" type="button">
+<span class="material-symbols-outlined text-[15px]" data-icon="brush">brush</span>
+<span>Taller</span>
+</button>
+</div>
+</div>
+<!-- Field 3: Dates and Schedule (Structured List) -->
+<div class="flex flex-col gap-2">
+<div class="flex items-center justify-between">
+<label class="font-label-md text-label-md text-on-surface font-semibold flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-outline" data-icon="calendar_month">calendar_month</span>
+<span>Fechas y Horarios del Programa</span>
+</label>
+<span class="font-label-sm text-label-sm text-on-surface-variant">3 jornadas configuradas</span>
+</div>
+<div class="border border-outline-variant/30 rounded-lg overflow-hidden divide-y divide-outline-variant/20 bg-surface-container-lowest">
+<!-- Row 1 -->
+<div class="flex items-center justify-between p-3 hover:bg-surface-container-low/50 transition-colors">
+<div class="flex items-center gap-3">
+<span class="w-2 h-2 rounded-full bg-primary shrink-0"></span>
+<div>
+<p class="font-label-md text-label-md text-on-surface font-semibold">24 jun 2026</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Inauguración &amp; Mañanitas · 18:00 hrs a 23:00 hrs</p>
+</div>
+</div>
+<div class="flex items-center gap-1">
+<button class="p-1.5 text-on-surface-variant hover:text-on-surface rounded hover:bg-surface-container transition-colors" title="Editar horario" type="button">
+<span class="material-symbols-outlined text-[18px]" data-icon="edit">edit</span>
+</button>
+<button class="p-1.5 text-on-surface-variant hover:text-error rounded hover:bg-surface-container transition-colors" title="Eliminar fila" type="button">
+<span class="material-symbols-outlined text-[18px]" data-icon="delete">delete</span>
+</button>
+</div>
+</div>
+<!-- Row 2 -->
+<div class="flex items-center justify-between p-3 hover:bg-surface-container-low/50 transition-colors">
+<div class="flex items-center gap-3">
+<span class="w-2 h-2 rounded-full bg-outline-variant shrink-0"></span>
+<div>
+<p class="font-label-md text-label-md text-on-surface font-semibold">25 jun 2026</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Brinco del Chinelo y Banda · 20:00 hrs a 01:00 hrs</p>
+</div>
+</div>
+<div class="flex items-center gap-1">
+<button class="p-1.5 text-on-surface-variant hover:text-on-surface rounded hover:bg-surface-container transition-colors" title="Editar horario" type="button">
+<span class="material-symbols-outlined text-[18px]" data-icon="edit">edit</span>
+</button>
+<button class="p-1.5 text-on-surface-variant hover:text-error rounded hover:bg-surface-container transition-colors" title="Eliminar fila" type="button">
+<span class="material-symbols-outlined text-[18px]" data-icon="delete">delete</span>
+</button>
+</div>
+</div>
+<!-- Row 3 -->
+<div class="flex items-center justify-between p-3 hover:bg-surface-container-low/50 transition-colors">
+<div class="flex items-center gap-3">
+<span class="w-2 h-2 rounded-full bg-outline-variant shrink-0"></span>
+<div>
+<p class="font-label-md text-label-md text-on-surface font-semibold">30 jun 2026</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Clausura y Quema de Castillo · 21:30 hrs a 23:30 hrs</p>
+</div>
+</div>
+<div class="flex items-center gap-1">
+<button class="p-1.5 text-on-surface-variant hover:text-on-surface rounded hover:bg-surface-container transition-colors" title="Editar horario" type="button">
+<span class="material-symbols-outlined text-[18px]" data-icon="edit">edit</span>
+</button>
+<button class="p-1.5 text-on-surface-variant hover:text-error rounded hover:bg-surface-container transition-colors" title="Eliminar fila" type="button">
+<span class="material-symbols-outlined text-[18px]" data-icon="delete">delete</span>
+</button>
+</div>
+</div>
+</div>
+<button class="self-start mt-1 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-outline-variant/40 hover:bg-surface-container text-on-surface font-label-md text-label-md transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px] text-primary" data-icon="add">add</span>
+<span>Agregar fecha</span>
+</button>
+</div>
+<!-- Field 4: Location Autocomplete & Suggestion Card -->
+<div class="flex flex-col gap-2">
+<label class="font-label-md text-label-md text-on-surface font-semibold flex items-center justify-between" for="lugar">
+<span>Lugar del Evento / Sede</span>
+<span class="text-primary font-normal text-body-sm">Reconocimiento geográfico</span>
+</label>
+<div class="relative">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-outline">
+<span class="material-symbols-outlined text-[18px]" data-icon="search">search</span>
+</div>
+<input class="w-full pl-9 pr-3.5 py-2.5 rounded-lg border border-outline-variant/50 focus:border-primary focus:ring-1 focus:ring-primary text-on-surface font-body-md text-body-md transition-colors bg-surface-container-lowest" id="lugar" type="text" value="Ex Convento de San Juan Bautista"/>
+</div>
+<!-- Highlighted AI/Database Match Suggestion -->
+<div class="bg-surface-container-low border border-tertiary-fixed rounded-lg p-3 flex items-center justify-between gap-3">
+<div class="flex items-start gap-2.5">
+<div class="w-7 h-7 rounded-full bg-tertiary-fixed/40 flex items-center justify-center text-tertiary shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[16px]" data-icon="check" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<p class="font-label-md text-label-md text-on-surface font-semibold">Ex Convento de San Juan Bautista</p>
+<span class="font-label-sm text-[10px] px-1.5 py-0.2 rounded bg-tertiary-fixed text-on-tertiary-container font-semibold">Coincidencia 92%</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Atrio Principal, Centro Histórico, Tlayacapan · Patrimonio UNESCO</p>
+</div>
+</div>
+<button class="shrink-0 px-3 py-1.5 rounded-lg bg-surface-container-lowest hover:bg-surface-container border border-outline-variant/30 text-on-surface font-label-md text-label-md font-medium transition-colors" type="button">
+                  Aceptar sugerencia
+                </button>
+</div>
+</div>
+<!-- Field 5 & 6: Municipality & Pricing (Grid Row) -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<!-- Municipality Selector -->
+<div class="flex flex-col gap-1.5">
+<label class="font-label-md text-label-md text-on-surface font-semibold" for="municipio">Municipio / Estado</label>
+<select class="w-full px-3 py-2 rounded-lg border border-outline-variant/50 focus:border-primary focus:ring-1 focus:ring-primary text-on-surface font-body-md text-body-md bg-surface-container-lowest" id="municipio">
+<option selected="">Tlayacapan, Morelos</option>
+<option>Tepoztlán, Morelos</option>
+<option>Cuernavaca, Morelos</option>
+<option>Toluca, Estado de México</option>
+<option>Metepec, Estado de México</option>
+</select>
+</div>
+<!-- Pricing / Free Entry Toggle -->
+<div class="flex flex-col gap-1.5">
+<label class="font-label-md text-label-md text-on-surface font-semibold">Acceso y Costo</label>
+<div class="flex items-center justify-between p-2 rounded-lg border border-outline-variant/40 bg-surface-container-low h-[42px]">
+<span class="font-label-md text-label-md text-on-surface font-medium flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-tertiary" data-icon="confirmation_number">confirmation_number</span>
+                    Gratis / Entrada libre
+                  </span>
+<!-- Clean Toggle Switch -->
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-9 h-5 bg-outline-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+</div>
+</div>
+<!-- Field 7: Organizer -->
+<div class="flex flex-col gap-1.5">
+<label class="font-label-md text-label-md text-on-surface font-semibold" for="organizador">Organizador / Instancia Responsable</label>
+<input class="w-full px-3.5 py-2.5 rounded-lg border border-outline-variant/50 focus:border-primary focus:ring-1 focus:ring-primary text-on-surface font-body-md text-body-md transition-colors bg-surface-container-lowest" id="organizador" type="text" value="Comité de Festejos Patronales &amp; H. Ayuntamiento de Tlayacapan"/>
+</div>
+<!-- Field 8: Editorial Description Textarea -->
+<div class="flex flex-col gap-1.5">
+<div class="flex items-center justify-between">
+<label class="font-label-md text-label-md text-on-surface font-semibold" for="descripcion">Resumen Editorial para la Guía</label>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-normal">Tono informativo y cultural</span>
+</div>
+<textarea class="w-full px-3.5 py-2.5 rounded-lg border border-outline-variant/50 focus:border-primary focus:ring-1 focus:ring-primary text-on-surface font-body-md text-body-md transition-colors bg-surface-container-lowest leading-relaxed resize-none" id="descripcion" rows="4">Celebración tradicional en honor a San Juan Bautista en el Pueblo Mágico de Tlayacapan. El programa incluye procesiones solemnes, mañanitas con banda de viento tradicional de Morelos, el emblemático brinco del chinelo en el atrio del Ex Convento y quema de toritos pirotécnicos al caer la noche. Actividades aptas para toda la familia con muestra gastronómica local.</textarea>
+</div>
+</form>
+</div>
+</div>
+</main>
+<!-- ==================== DOCKED BOTTOM ACTION BAR ==================== -->
+<footer class="fixed bottom-0 ml-[220px] w-[calc(100%-220px)] bg-surface-container-lowest border-t border-outline-variant/30 py-3.5 px-8 z-30 shadow-[0_-2px_10px_rgba(0,0,0,0.03)]">
+<div class="max-w-[1240px] mx-auto flex items-center justify-between">
+<!-- Left Rejection / Flag Actions -->
+<div class="flex items-center gap-3">
+<button class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-error hover:bg-error/5 border border-error/20 font-label-md text-label-md font-medium transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px]" data-icon="delete_outline">delete_outline</span>
+<span>Descartar</span>
+</button>
+<button class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container border border-outline-variant/30 font-label-md text-label-md font-medium transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px]" data-icon="content_copy">content_copy</span>
+<span>Es duplicado de...</span>
+</button>
+</div>
+<!-- Right Approval / Save Actions -->
+<div class="flex items-center gap-3">
+<button class="px-4 py-2 rounded-lg bg-surface-container-lowest border border-outline-variant/40 hover:bg-surface-container text-on-surface font-label-md text-label-md font-medium transition-colors" type="button">
+            Guardar corrección
+          </button>
+<button class="inline-flex items-center gap-2 px-6 py-2 rounded-lg bg-primary hover:bg-primary-dim text-on-primary font-label-md text-label-md font-semibold transition-all shadow-sm active:scale-95" type="button">
+<span class="material-symbols-outlined text-[18px]" data-icon="publish">publish</span>
+<span>Aprobar y publicar</span>
+</button>
+</div>
+</div>
+</footer>
+</div>
+</body></html>

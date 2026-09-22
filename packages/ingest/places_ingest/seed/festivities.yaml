@@ -1,0 +1,67 @@
+# Capa 1: fiestas y ferias recurrentes del corredor Morelos / Edomex sur.
+# month/day fijos, o movable_rule: carnaval | semana_santa | pentecostes | corpus | ascension.
+# Fuentes: calendarios municipales, SIC (festividad), conocimiento local. Confirmar cada año con flyers.
+
+- cvegeo: "17020"   # Tepoztlán
+  items:
+    - {name: "Carnaval de Tepoztlán (brinco del chinelo)", movable_rule: carnaval, duration_days: 4}
+    - {name: "Reto al Tepozteco y fiesta de la Natividad", month: 9, day: 8, duration_days: 2, description: "Representación en náhuatl del reto al Tepozteco, feria y castillo."}
+    - {name: "Feria de la Nochebuena", month: 12, day: 20, duration_days: 5, locality: "Cuautla (regional)"}
+    - {name: "Día de Muertos en Tepoztlán", month: 11, day: 1, duration_days: 2}
+    - {name: "Fiesta de la Santísima Trinidad, Santa Catarina", movable_rule: pentecostes, duration_days: 2, locality: "Santa Catarina"}
+    - {name: "Fiesta de San Andrés, Santiago Tepetlapa", month: 11, day: 30, locality: "Santiago Tepetlapa"}
+    - {name: "Feria del Tamal", month: 2, day: 2, duration_days: 2, description: "Día de la Candelaria."}
+- cvegeo: "17026"   # Tlayacapan
+  items:
+    - {name: "Carnaval de Tlayacapan (chinelos)", movable_rule: carnaval, duration_days: 4}
+    - {name: "Fiesta de San Juan Bautista", month: 6, day: 24, duration_days: 3}
+    - {name: "Día de Muertos (Xantolo tlayacapense)", month: 11, day: 1, duration_days: 2}
+    - {name: "Feria de la Cerería y el Barro", month: 12, day: 12, duration_days: 3, description: "Fiesta guadalupana con artesanos del barro."}
+    - {name: "Fiesta de la Exaltación de la Santa Cruz", month: 5, day: 3}
+- cvegeo: "17029"   # Yautepec
+  items:
+    - {name: "Carnaval de Yautepec", movable_rule: carnaval, duration_days: 5}
+    - {name: "Fiesta de la Asunción", month: 8, day: 15, duration_days: 3}
+    - {name: "Feria de Oacalco (Señor de la Salud)", month: 5, day: 3, duration_days: 3, locality: "Oacalco"}
+- cvegeo: "17006"   # Cuautla
+  items:
+    - {name: "Feria de la Nochebuena (Cuautla)", month: 12, day: 15, duration_days: 12}
+    - {name: "Fiesta de Santiago Apóstol", month: 7, day: 25, duration_days: 3}
+    - {name: "Aniversario del Sitio de Cuautla", month: 2, day: 19, duration_days: 2}
+    - {name: "Rompimiento del Sitio de Cuautla (desfile)", month: 5, day: 2}
+- cvegeo: "17022"   # Tetela del Volcán
+  items:
+    - {name: "Fiesta de San Juan Bautista", month: 6, day: 24, duration_days: 3}
+    - {name: "Feria de la Ciruela y el Durazno", month: 7, day: 15, duration_days: 3}
+    - {name: "Día de Muertos en Hueyapan", month: 11, day: 1, duration_days: 2, locality: "Hueyapan"}
+- cvegeo: "17027"   # Totolapan
+  items:
+    - {name: "Fiesta del Señor Aparecido", month: 5, day: 3, duration_days: 3}
+    - {name: "Fiesta de San Guillermo", month: 2, day: 10, duration_days: 3}
+- cvegeo: "17002"   # Atlatlahucan
+  items:
+    - {name: "Fiesta de San Mateo", month: 9, day: 21, duration_days: 3}
+    - {name: "Carnaval de Atlatlahucan", movable_rule: carnaval, duration_days: 3}
+- cvegeo: "17007"   # Cuernavaca
+  items:
+    - {name: "Feria de la Primavera", month: 3, day: 20, duration_days: 15}
+    - {name: "Fiesta de la Virgen de los Milagros, Tlaltenango", month: 9, day: 8, duration_days: 9, locality: "Tlaltenango"}
+- cvegeo: "15052"   # Malinalco
+  items:
+    - {name: "Fiesta del Divino Salvador", month: 8, day: 6, duration_days: 3}
+    - {name: "Feria de la Trucha", month: 10, day: 10, duration_days: 3}
+    - {name: "Carnaval de Malinalco", movable_rule: carnaval, duration_days: 3}
+    - {name: "Semana Santa en Malinalco", movable_rule: semana_santa, duration_days: 7}
+    - {name: "Fiesta de San Guillermo, Chalmita", month: 2, day: 10, locality: "Chalmita"}
+- cvegeo: "15088"   # Tenancingo
+  items:
+    - {name: "Feria del Rebozo", month: 8, day: 1, duration_days: 7}
+    - {name: "Fiesta de San Francisco de Asís", month: 10, day: 4, duration_days: 3}
+    - {name: "Feria de la Flor", month: 2, day: 10, duration_days: 4}
+- cvegeo: "15063"   # Ocuilan
+  items:
+    - {name: "Fiesta de San Juan Bautista", month: 6, day: 24, duration_days: 3}
+    - {name: "Peregrinación a Chalma (Pentecostés)", movable_rule: pentecostes, duration_days: 3, locality: "Chalma"}
+    - {name: "Fiesta del Señor de Chalma", month: 7, day: 1, duration_days: 3, locality: "Chalma"}
+    - {name: "Fiesta de San Miguel Arcángel, Chalma", month: 9, day: 29, duration_days: 3, locality: "Chalma"}
+    - {name: "Fiesta del Señor de Chalma (Reyes)", month: 1, day: 6, duration_days: 3, locality: "Chalma"}

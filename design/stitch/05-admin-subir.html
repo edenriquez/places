@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+
+<html class="h-full bg-surface" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Entre Lugares · Admin · Subir flyers</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "inverse-surface": "#0c0f0f",
+            "surface-container-high": "#e4e9ea",
+            "on-primary-fixed": "#840024",
+            "on-secondary-fixed-variant": "#5c5b5b",
+            "on-primary": "#fff6f5",
+            "primary-fixed-dim": "#ffc6c8",
+            "on-secondary-container": "#525151",
+            "on-surface-variant": "#596061",
+            "surface": "#f9f9f9",
+            "outline-variant": "#acb3b4",
+            "surface-container-highest": "#dde4e5",
+            "secondary-dim": "#535353",
+            "on-tertiary-fixed": "#004201",
+            "error-container": "#fe8b70",
+            "secondary-container": "#e5e2e1",
+            "on-secondary-fixed": "#403f3f",
+            "tertiary-fixed-dim": "#6fe25d",
+            "surface-bright": "#f9f9f9",
+            "inverse-on-surface": "#9c9d9d",
+            "surface-tint": "#be0038",
+            "on-primary-container": "#a60030",
+            "tertiary-dim": "#006102",
+            "surface-container": "#ebeeef",
+            "on-surface": "#2d3435",
+            "surface-container-low": "#f2f4f4",
+            "on-error-container": "#742410",
+            "on-error": "#fff7f6",
+            "secondary": "#605f5f",
+            "on-tertiary": "#ebffe0",
+            "primary-fixed": "#ffdada",
+            "background": "#f9f9f9",
+            "surface-dim": "#d3dbdd",
+            "tertiary": "#006f03",
+            "tertiary-container": "#7df169",
+            "secondary-fixed-dim": "#d6d4d3",
+            "on-tertiary-fixed-variant": "#006302",
+            "on-tertiary-container": "#005802",
+            "surface-container-lowest": "#ffffff",
+            "primary-dim": "#a80030",
+            "on-primary-fixed-variant": "#b90036",
+            "surface-variant": "#dde4e5",
+            "secondary-fixed": "#e5e2e1",
+            "outline": "#757c7d",
+            "primary-container": "#ffdada",
+            "error-dim": "#5c1202",
+            "tertiary-fixed": "#7df169",
+            "primary": "#be0038",
+            "error": "#9e422c",
+            "on-background": "#2d3435",
+            "on-secondary": "#fbf8f8",
+            "inverse-primary": "#ff5169"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "space-md": "1rem",
+            "margin": "1rem",
+            "space-xs": "0.25rem",
+            "gutter": "1rem",
+            "space-xl": "2rem",
+            "space-sm": "0.5rem",
+            "space-lg": "1.5rem"
+          },
+          "fontFamily": {
+            "headline-lg": ["Plus Jakarta Sans"],
+            "body-md": ["Inter"],
+            "label-md": ["Inter"],
+            "headline-sm": ["Plus Jakarta Sans"],
+            "headline-md": ["Plus Jakarta Sans"],
+            "label-sm": ["Inter"],
+            "body-lg": ["Inter"],
+            "body-sm": ["Inter"]
+          },
+          "fontSize": {
+            "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "700" }],
+            "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+            "label-md": ["12px", { "lineHeight": "16px", "fontWeight": "600" }],
+            "headline-sm": ["20px", { "lineHeight": "26px", "fontWeight": "600" }],
+            "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+            "label-sm": ["11px", { "lineHeight": "14px", "letterSpacing": "0.06em", "fontWeight": "600" }],
+            "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+            "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }]
+          }
+        },
+      },
+    }
+  </script>
+</head>
+<body class="h-full bg-surface text-on-surface antialiased font-body-md text-body-md flex">
+<!-- SideNavBar Anchor Component Execution -->
+<aside class="fixed top-0 left-0 h-screen w-60 z-40 bg-surface-container-lowest border-r border-surface-container-high transition-colors duration-150 ease-in-out">
+<div class="flex flex-col justify-between h-full p-4 w-60">
+<!-- Top Section: Brand & Nav Items -->
+<div class="space-y-6">
+<!-- Brand Header -->
+<div class="flex items-center gap-3 px-2 py-1.5">
+<div class="w-8 h-8 rounded-lg bg-[#FF385C] flex items-center justify-center text-white font-headline-sm font-bold text-[18px]">
+            E
+          </div>
+<div class="flex flex-col">
+<span class="font-headline-sm text-[16px] leading-5 font-bold text-on-surface tracking-tight">Entre Lugares</span>
+<span class="font-label-sm text-[11px] text-on-surface-variant font-medium">Panel de Administración</span>
+</div>
+</div>
+<!-- Navigation Links -->
+<nav class="space-y-1">
+<!-- Item 1: Subir (Active) -->
+<a class="flex items-center justify-between px-3 py-2.5 rounded-lg bg-primary-container text-on-primary-container font-semibold transition-colors duration-150 ease-in-out relative group" href="#">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[20px] text-on-primary-container">cloud_upload</span>
+<span class="text-body-md font-medium text-on-primary-container">Subir</span>
+</div>
+<div class="w-1.5 h-4 bg-[#FF385C] rounded-full"></div>
+</a>
+<!-- Item 2: Revisión -->
+<a class="flex items-center justify-between px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface font-normal transition-colors duration-150 ease-in-out" href="#">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[20px]">fact_check</span>
+<span class="text-body-md">Revisión</span>
+</div>
+<span class="px-2 py-0.5 text-[11px] font-semibold text-white bg-[#FF385C] rounded-full leading-none">12</span>
+</a>
+<!-- Item 3: Fuentes -->
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface font-normal transition-colors duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[20px]">newspaper</span>
+<span class="text-body-md">Fuentes</span>
+</a>
+<!-- Item 4: Eventos -->
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface font-normal transition-colors duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[20px]">calendar_month</span>
+<span class="text-body-md">Eventos</span>
+</a>
+<!-- Item 5: Lugares -->
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface font-normal transition-colors duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[20px]">location_on</span>
+<span class="text-body-md">Lugares</span>
+</a>
+</nav>
+</div>
+<!-- Bottom Section: Exit / Profile Status -->
+<div class="pt-4 border-t border-surface-container-high space-y-2">
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:text-error transition-colors duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[20px]">logout</span>
+<span class="text-body-md">Salir</span>
+</a>
+</div>
+</div>
+</aside>
+<!-- Main Canvas Container -->
+<div class="flex-1 ml-60 min-h-screen flex flex-col bg-surface">
+<!-- TopNavBar Anchor Component Execution -->
+<header class="sticky top-0 right-0 z-30 bg-surface-container-lowest border-b border-surface-container-high transition-all duration-150 ease-in-out">
+<div class="flex items-center justify-between px-8 py-3.5 w-full">
+<!-- Breadcrumb Context -->
+<div class="flex items-center gap-2 text-body-sm text-on-surface-variant">
+<span class="hover:text-on-surface cursor-pointer">Admin</span>
+<span class="text-outline-variant">/</span>
+<span class="font-medium text-on-surface">Subir flyers</span>
+</div>
+<!-- Worker/Job Status Indicator and Trailing Actions -->
+<div class="flex items-center gap-5">
+<!-- Daemon Status Badge -->
+<div class="flex items-center gap-2.5 px-3 py-1.5 rounded-full bg-surface-container-low border border-surface-container-high">
+<span class="relative flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-tertiary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-tertiary"></span>
+</span>
+<span class="text-label-sm font-medium text-on-surface tracking-normal">
+              Job local: activo · última corrida hace 4 min
+            </span>
+</div>
+<!-- Quick Action Buttons -->
+<div class="flex items-center gap-2">
+<button class="p-1.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container-low transition-colors" title="Notificaciones">
+<span class="material-symbols-outlined text-[20px]">notifications</span>
+</button>
+<button class="p-1.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container-low transition-colors" title="Ajustes de pipeline">
+<span class="material-symbols-outlined text-[20px]">tune</span>
+</button>
+<button class="ml-2 px-3 py-1.5 text-label-sm font-medium text-primary hover:bg-primary-container rounded-lg transition-colors border border-primary/20">
+              Actualizar estado
+            </button>
+</div>
+</div>
+</div>
+</header>
+<!-- Page Body Content Area (1200px Max Desktop Constraints) -->
+<main class="flex-1 p-8 max-w-[1200px] w-full mx-auto space-y-8">
+<!-- Page Title & Guidance -->
+<section class="space-y-1">
+<h1 class="font-headline-lg text-headline-lg text-[#222222] tracking-tight">Subir flyers</h1>
+<p class="font-body-md text-body-md text-[#6A6A6A]">
+          Las imágenes se encolan y el job local de la Mac las procesa
+        </p>
+</section>
+<!-- Main Interaction Card: Upload Zone + Context Fields -->
+<section class="bg-surface-container-lowest rounded-2xl border border-[#EAEAEA] p-6 shadow-sm space-y-6">
+<!-- Drag & Drop Zone -->
+<div class="border-2 border-dashed border-[#D0D5DD] hover:border-[#FF385C] bg-[#FAFAFA] hover:bg-white rounded-2xl p-10 flex flex-col items-center justify-center text-center cursor-pointer transition-all duration-200 group" id="drop-zone">
+<div class="w-14 h-14 rounded-full bg-white shadow-xs border border-surface-container-high flex items-center justify-center text-on-surface-variant group-hover:text-[#FF385C] group-hover:scale-105 transition-all mb-4">
+<span class="material-symbols-outlined text-[28px]">cloud_upload</span>
+</div>
+<p class="font-headline-sm text-[16px] leading-6 font-semibold text-[#222222] mb-1">
+            Arrastra imágenes o haz clic · JPG, PNG, WEBP · varias a la vez
+          </p>
+<p class="font-body-sm text-body-sm text-[#6A6A6A]">
+            Máximo 25 MB por archivo. El OCR automático extraerá títulos, fechas, sedes y precios.
+          </p>
+<input accept="image/png, image/jpeg, image/webp" class="hidden" id="file-input" multiple="" type="file"/>
+</div>
+<!-- Extraction Context Inputs Bar -->
+<div class="pt-2 border-t border-surface-container-high/60">
+<p class="text-label-sm font-semibold text-[#222222] mb-3">Contexto opcional para acelerar la extracción</p>
+<div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
+<!-- URL Source -->
+<div class="md:col-span-4 space-y-1.5">
+<label class="block text-label-md font-medium text-on-surface-variant" for="post-url">URL del post de origen</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-2.5 text-[18px] text-outline-variant">link</span>
+<input class="w-full pl-9 pr-3 py-2.5 rounded-xl border border-[#EAEAEA] bg-surface-container-lowest text-body-sm placeholder:text-outline-variant focus:outline-none focus:border-[#FF385C] focus:ring-1 focus:ring-[#FF385C] transition-all" id="post-url" placeholder="https://facebook.com/... o instagram.com/..." type="url"/>
+</div>
+</div>
+<!-- Municipio Dropdown (11 options) -->
+<div class="md:col-span-3 space-y-1.5">
+<label class="block text-label-md font-medium text-on-surface-variant" for="municipio">Municipio</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-2.5 text-[18px] text-outline-variant pointer-events-none">location_on</span>
+<select class="w-full pl-9 pr-8 py-2.5 rounded-xl border border-[#EAEAEA] bg-surface-container-lowest text-body-sm text-[#222222] focus:outline-none focus:border-[#FF385C] focus:ring-1 focus:ring-[#FF385C] appearance-none cursor-pointer transition-all" id="municipio">
+<option disabled="" selected="" value="">Selecciona municipio...</option>
+<option value="Tepoztlán">Tepoztlán (Mor)</option>
+<option value="Tlayacapan">Tlayacapan (Mor)</option>
+<option value="Malinalco">Malinalco (Edomex)</option>
+<option value="Cuernavaca">Cuernavaca (Mor)</option>
+<option value="Tetela del Volcán">Tetela del Volcán (Mor)</option>
+<option value="Yautepec">Yautepec (Mor)</option>
+<option value="Ocuilan">Ocuilan (Edomex)</option>
+<option value="Metepec">Metepec (Edomex)</option>
+<option value="Totolapan">Totolapan (Mor)</option>
+<option value="Zacualpan de Amilpas">Zacualpan de Amilpas (Mor)</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-2.5 text-[18px] text-outline-variant pointer-events-none">expand_more</span>
+</div>
+</div>
+<!-- Organizador -->
+<div class="md:col-span-3 space-y-1.5">
+<label class="block text-label-md font-medium text-on-surface-variant" for="organizador">Organizador</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-2.5 text-[18px] text-outline-variant">groups</span>
+<input class="w-full pl-9 pr-3 py-2.5 rounded-xl border border-[#EAEAEA] bg-surface-container-lowest text-body-sm placeholder:text-outline-variant focus:outline-none focus:border-[#FF385C] focus:ring-1 focus:ring-[#FF385C] transition-all" id="organizador" placeholder="Ej. Mayordomía, Casa de Cultura, Colectivo" type="text"/>
+</div>
+</div>
+<!-- Botón primario Encolar -->
+<div class="md:col-span-2">
+<button class="w-full h-[42px] px-5 bg-[#FF385C] hover:bg-[#e03150] text-white font-headline-sm text-body-sm font-semibold rounded-xl flex items-center justify-center gap-2 shadow-xs transition-all active:scale-[0.98]" type="button">
+<span class="material-symbols-outlined text-[18px]">add_to_queue</span>
+<span>Encolar</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Recent Uploads Table Section -->
+<section class="space-y-4">
+<!-- Header & Quick Filters -->
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<h2 class="font-headline-sm text-headline-sm text-[#222222]">Cargas recientes</h2>
+<span class="px-2.5 py-0.5 rounded-full bg-surface-container-high text-on-surface text-label-sm font-semibold">
+              8 elementos hoy
+            </span>
+</div>
+<div class="flex items-center gap-2 text-label-sm">
+<span class="text-on-surface-variant">Filtrar estado:</span>
+<button class="px-2.5 py-1 rounded-lg bg-surface-container-lowest border border-[#EAEAEA] text-on-surface font-medium hover:bg-surface-container-low transition-colors">
+              Todos
+            </button>
+<button class="px-2.5 py-1 rounded-lg bg-[#FFE4E8] text-[#FF385C] font-semibold transition-colors">
+              Revisar (12)
+            </button>
+</div>
+</div>
+<!-- Clean Editorial Table Container -->
+<div class="bg-surface-container-lowest rounded-2xl border border-[#EAEAEA] overflow-hidden shadow-sm">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-surface-container-high bg-surface-container-low/40">
+<th class="py-3.5 pl-6 pr-3 text-label-sm text-on-surface-variant font-semibold" scope="col">Miniatura</th>
+<th class="py-3.5 px-4 text-label-sm text-on-surface-variant font-semibold" scope="col">Archivo</th>
+<th class="py-3.5 px-4 text-label-sm text-on-surface-variant font-semibold" scope="col">Municipio</th>
+<th class="py-3.5 px-4 text-label-sm text-on-surface-variant font-semibold" scope="col">Subido</th>
+<th class="py-3.5 px-4 text-label-sm text-on-surface-variant font-semibold" scope="col">Estado</th>
+<th class="py-3.5 pl-4 pr-6 text-right text-label-sm text-on-surface-variant font-semibold" scope="col">Acciones</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container-high/60">
+<!-- Row 1: Primary Specified Image (Fiesta Patronal Tlayacapan) - Status: Revisar -->
+<tr class="hover:bg-surface-container-low/30 transition-colors group">
+<td class="py-3 pl-6 pr-3">
+<div class="w-12 h-12 rounded-lg overflow-hidden border border-[#EAEAEA] bg-surface-container-high relative flex-shrink-0">
+<img alt="Flyer Fiesta Patronal Tlayacapan" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida/AEtjO1VbSSWcqbgGcJirRfp9i3OwNL8mieUoF821jsZX8tRh4IpVBBu8t7q1r1Xg90hVomjx5RZBH63WM4ga7CwgMOvFehoHiQIoiUKamD6mFyH8bUPU-x4ME_wQHJrcbjzUGr3MdKwonrcFB78obCmq9bjsvwToU2wlGSTGtuNV_h6TlLoNWLpk95WHeGTv7sJnVLXkF8nNfzogsYiUT5Wt5L29r7kevXMBj83iUb9IOpy2a75t-u4XJgs1eg"/>
+</div>
+</td>
+<td class="py-3 px-4">
+<div class="flex flex-col">
+<span class="font-body-md font-semibold text-[#222222] truncate max-w-[260px]">
+                      feria_san_juan_tlayacapan_2026.png
+                    </span>
+<span class="text-body-sm text-[#6A6A6A]">
+                      1.8 MB · Mayordomía Central
+                    </span>
+</div>
+</td>
+<td class="py-3 px-4">
+<span class="inline-flex items-center gap-1.5 text-body-sm text-on-surface">
+<span class="w-1.5 h-1.5 rounded-full bg-outline-variant"></span>
+                    Tlayacapan
+                  </span>
+</td>
+<td class="py-3 px-4">
+<span class="text-body-sm text-[#6A6A6A]">Hace 2 min</span>
+</td>
+<td class="py-3 px-4">
+<!-- Pill Coral: Revisar -->
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-label-sm font-semibold bg-[#FFE4E8] text-[#FF385C]">
+<span class="w-1.5 h-1.5 rounded-full bg-[#FF385C]"></span>
+                    Revisar
+                  </span>
+</td>
+<td class="py-3 pl-4 pr-6 text-right">
+<div class="flex items-center justify-end gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
+<a class="px-2.5 py-1 text-label-sm font-semibold text-[#FF385C] hover:bg-primary-container rounded-lg transition-colors" href="#">
+                      Inspeccionar
+                    </a>
+<button class="p-1 rounded-lg text-on-surface-variant hover:text-error hover:bg-surface-container-low transition-colors" title="Descartar">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 2: Status: Procesando (Ámbar) -->
+<tr class="hover:bg-surface-container-low/30 transition-colors group">
+<td class="py-3 pl-6 pr-3">
+<div class="w-12 h-12 rounded-lg overflow-hidden border border-[#EAEAEA] bg-surface-container-high relative flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="A textured close up photograph of an artisanal Mexican carnival announcement card with subtle typography on handmade amate paper. Soft diffuse natural daylight illuminates the cream fibers and dark typography, presenting a clean contemporary editorial feel aligned with modern cultural archives." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAyLDn8r0IN_Q-3eo-lnBWGBu_LQWe8mdBiOhRcTYPRVZv315NjyZ15UUek3Ty9x3Xmh2aGGEXWuhhtNIwSH2ZW7zIn5fcotb7-B6Bt59_y3VEn9b78dRfrU48r53shLP0rDvgmtMNTMEuZr8Lu6XYwXmVb3MzO05ohM1pOvsx3T7cCrtUkbsX0BC-hrJszxFk7GZ7LmhrbSDA9Agz5cJr_i5jPWDOBiq71CqJhq-wGKehh5EKgOVnfDFVWbXPxl0ZGHYqBmcHGp6I"/>
+</div>
+</td>
+<td class="py-3 px-4">
+<div class="flex flex-col">
+<span class="font-body-md font-semibold text-[#222222] truncate max-w-[260px]">
+                      carnaval_tepoztlan_comparsa_2026.jpg
+                    </span>
+<span class="text-body-sm text-[#6A6A6A]">
+                      4.2 MB · Casa de Cultura Tepoztlán
+                    </span>
+</div>
+</td>
+<td class="py-3 px-4">
+<span class="inline-flex items-center gap-1.5 text-body-sm text-on-surface">
+<span class="w-1.5 h-1.5 rounded-full bg-outline-variant"></span>
+                    Tepoztlán
+                  </span>
+</td>
+<td class="py-3 px-4">
+<span class="text-body-sm text-[#6A6A6A]">Hace 4 min</span>
+</td>
+<td class="py-3 px-4">
+<!-- Pill Ámbar: Procesando -->
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-label-sm font-semibold bg-[#FEF3C7] text-[#B45309]">
+<span class="w-1.5 h-1.5 rounded-full bg-[#B45309] animate-pulse"></span>
+                    Procesando
+                  </span>
+</td>
+<td class="py-3 pl-4 pr-6 text-right">
+<div class="flex items-center justify-end gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
+<button class="p-1 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-colors" title="Pausar OCR">
+<span class="material-symbols-outlined text-[18px]">motion_photos_paused</span>
+</button>
+<button class="p-1 rounded-lg text-on-surface-variant hover:text-error hover:bg-surface-container-low transition-colors" title="Descartar">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 3: Status: En cola (Gris) -->
+<tr class="hover:bg-surface-container-low/30 transition-colors group">
+<td class="py-3 pl-6 pr-3">
+<div class="w-12 h-12 rounded-lg overflow-hidden border border-[#EAEAEA] bg-surface-container-high relative flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="Minimalist graphic layout flyer announcing a culinary mezcal festival in Malinalco Mexico. Crisp typography over warm terracotta and bone white palette with subtle geometric lines, clean architectural light and shadow, strictly editorial high end presentation." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB_fE3QLpXi2OWe59rCzGpdABbjDrc1Z-matoFdvbTij8nPVpHKxI9Gj6AANdbkvjDW5tJLBGgbwWCdlRF9o_u-yYOw6gKC9iLGEh4kfUdaF71eO8VglZ2GhwWNIa6pxhLVpxykG1PEW3KsaA3T-g5Awp_77HqbTvS2yJasGQYb5iXLyPcJ7ZmTp-u8WlaMZTLybKc5XAmygQ9j7EsDFxHSQ-xg2CievDo-lV8kkSfi8f7kMSLdpHaqAog9D9nSMh712gAqObNGbIY"/>
+</div>
+</td>
+<td class="py-3 px-4">
+<div class="flex flex-col">
+<span class="font-body-md font-semibold text-[#222222] truncate max-w-[260px]">
+                      ruta_del_mezcal_malinalco_abril.webp
+                    </span>
+<span class="text-body-sm text-[#6A6A6A]">
+                      890 KB · Colectivo Raíces
+                    </span>
+</div>
+</td>
+<td class="py-3 px-4">
+<span class="inline-flex items-center gap-1.5 text-body-sm text-on-surface">
+<span class="w-1.5 h-1.5 rounded-full bg-outline-variant"></span>
+                    Malinalco
+                  </span>
+</td>
+<td class="py-3 px-4">
+<span class="text-body-sm text-[#6A6A6A]">Hace 14 min</span>
+</td>
+<td class="py-3 px-4">
+<!-- Pill Gris: En cola -->
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-label-sm font-semibold bg-[#F2F4F4] text-[#6A6A6A]">
+<span class="w-1.5 h-1.5 rounded-full bg-[#6A6A6A]"></span>
+                    En cola
+                  </span>
+</td>
+<td class="py-3 pl-4 pr-6 text-right">
+<div class="flex items-center justify-end gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
+<button class="p-1 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container-low transition-colors" title="Priorizar en cola">
+<span class="material-symbols-outlined text-[18px]">vertical_align_top</span>
+</button>
+<button class="p-1 rounded-lg text-on-surface-variant hover:text-error hover:bg-surface-container-low transition-colors" title="Descartar">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 4: Status: Listo (Verde) -->
+<tr class="hover:bg-surface-container-low/30 transition-colors group">
+<td class="py-3 pl-6 pr-3">
+<div class="w-12 h-12 rounded-lg overflow-hidden border border-[#EAEAEA] bg-surface-container-high relative flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="A clean modern graphic poster for a traditional Mojiganga festival in Zacualpan de Amilpas Morelos. Stylized giant puppet silhouettes, warm marigold and deep indigo accents, soft studio backlighting, elegant typography on off-white paper texture." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC4EnwXhESJCgEeQo3oe301hqfjIEPoV2VtsOtf2JPNzBLjzTua6oJbL6E8po-X-6gn_hWdPTYsfNcRBcdiKS6_AnydLIvsdW-usQ0xPez-6P4cvMYxQ4z0FvXqeK14Y-or9BsjBT078Olb3BGsuNCjEu05r0P1ODzCOEou9HaxK29z2eT7tvRd3prLesE48dH5-1ySDX3UDqAfOG43xifh1ZxFqifRcH2bhHV7L6NHweVSvu5hinG_C7sQBbxKUT6t6k_auE0WUdw"/>
+</div>
+</td>
+<td class="py-3 px-4">
+<div class="flex flex-col">
+<span class="font-body-md font-semibold text-[#222222] truncate max-w-[260px]">
+                      mojigangas_zacualpan_programa_oficial.png
+                    </span>
+<span class="text-body-sm text-[#6A6A6A]">
+                      2.4 MB · H. Ayuntamiento
+                    </span>
+</div>
+</td>
+<td class="py-3 px-4">
+<span class="inline-flex items-center gap-1.5 text-body-sm text-on-surface">
+<span class="w-1.5 h-1.5 rounded-full bg-outline-variant"></span>
+                    Zacualpan de Amilpas
+                  </span>
+</td>
+<td class="py-3 px-4">
+<span class="text-body-sm text-[#6A6A6A]">Hoy 09:15</span>
+</td>
+<td class="py-3 px-4">
+<!-- Pill Verde: Listo -->
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-label-sm font-semibold bg-[#DCFCE7] text-[#15803D]">
+<span class="w-1.5 h-1.5 rounded-full bg-[#15803D]"></span>
+                    Listo
+                  </span>
+</td>
+<td class="py-3 pl-4 pr-6 text-right">
+<div class="flex items-center justify-end gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
+<button class="p-1 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-colors" title="Ver evento generado">
+<span class="material-symbols-outlined text-[18px]">visibility</span>
+</button>
+<button class="p-1 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container-low transition-colors" title="Reprocesar con otro modelo">
+<span class="material-symbols-outlined text-[18px]">refresh</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<!-- Footer Pagination / Quick Info -->
+<div class="px-6 py-3 border-t border-surface-container-high bg-surface-container-low/20 flex items-center justify-between text-body-sm text-on-surface-variant">
+<span>Mostrando las últimas 4 de 28 cargas procesadas</span>
+<div class="flex items-center gap-3">
+<button class="hover:text-on-surface transition-colors disabled:opacity-40" disabled="">Anterior</button>
+<span class="text-outline-variant">·</span>
+<button class="hover:text-on-surface transition-colors font-medium">Siguiente</button>
+</div>
+</div>
+</div>
+</section>
+</main>
+</div>
+<script>
+    // Micro-interactions for Drag and Drop Visual Feedback
+    const dropZone = document.getElementById('drop-zone');
+    const fileInput = document.getElementById('file-input');
+
+    if (dropZone && fileInput) {
+      dropZone.addEventListener('click', () => fileInput.click());
+
+      ['dragenter', 'dragover'].forEach(eventName => {
+        dropZone.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dropZone.classList.add('border-[#FF385C]', 'bg-[#FFF5F6]');
+        }, false);
+      });
+
+      ['dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dropZone.classList.remove('border-[#FF385C]', 'bg-[#FFF5F6]');
+        }, false);
+      });
+    }
+  </script>
+</body></html>

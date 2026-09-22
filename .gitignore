@@ -1,0 +1,17 @@
+node_modules/
+.next/
+.env
+.env.local
+.env.*.local
+*.log
+.DS_Store
+.venv/
+__pycache__/
+*.pyc
+.ruff_cache/
+supabase/.temp/
+supabase/.branches/
+data/raw/
+data/cache/
+design/stitch/*.png
+packages/ingest/data/

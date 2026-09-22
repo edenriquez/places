@@ -1,0 +1,79 @@
+@import "tailwindcss";
+@import "maplibre-gl/dist/maplibre-gl.css";
+
+/* Tokens de design/stitch/DESIGN.md */
+:root {
+  --bg: #ffffff;
+  --bg-2: #f7f7f7;
+  --line: #ebebeb;
+  --line-2: #dddddd;
+  --ink: #222222;
+  --ink-2: #6a6a6a;
+  --ink-3: #9a9a9a;
+  --accent: #ff385c;
+  --accent-soft: #fff1f3;
+  --live: #e00b41;
+  --free: #008a05;
+  --free-bg: #e8f5e9;
+  --whatsapp: #25d366;
+  --warn: #f5a623;
+  --error: #c13515;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-bg-2: var(--bg-2);
+  --color-line: var(--line);
+  --color-line-2: var(--line-2);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-live: var(--live);
+  --color-free: var(--free);
+  --color-free-bg: var(--free-bg);
+  --color-whatsapp: var(--whatsapp);
+  --color-warn: var(--warn);
+  --color-error: var(--error);
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-jakarta), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --radius-card: 16px;
+  --radius-control: 12px;
+  --shadow-float: 0 6px 20px rgba(0, 0, 0, 0.12);
+  --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.06), 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, .font-display {
+  font-family: var(--font-display);
+  letter-spacing: -0.01em;
+}
+
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+@keyframes pulse-live {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.6); opacity: 0.35; }
+}
+.live-dot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background: var(--live);
+  animation: pulse-live 1.4s ease-in-out infinite;
+}
+
+.maplibregl-ctrl-attrib { font-size: 10px; }

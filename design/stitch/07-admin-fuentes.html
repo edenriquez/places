@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+
+<html class="h-full bg-white" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Admin · Fuentes | Entre Lugares</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@500;600;700;800&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "on-primary": "#fff6f5",
+            "surface-bright": "#f9f9f9",
+            "outline": "#757c7d",
+            "on-error-container": "#742410",
+            "error-container": "#fe8b70",
+            "outline-variant": "#acb3b4",
+            "on-surface-variant": "#596061",
+            "error-dim": "#5c1202",
+            "surface-container-highest": "#dde4e5",
+            "inverse-primary": "#ff5169",
+            "tertiary-fixed-dim": "#6fe25d",
+            "tertiary-container": "#7df169",
+            "secondary": "#605f5f",
+            "on-error": "#fff7f6",
+            "surface-dim": "#d3dbdd",
+            "surface-container-high": "#e4e9ea",
+            "on-secondary-fixed": "#403f3f",
+            "secondary-container": "#e5e2e1",
+            "on-secondary-container": "#525151",
+            "surface-container-low": "#f2f4f4",
+            "inverse-surface": "#0c0f0f",
+            "on-primary-fixed": "#840024",
+            "primary-fixed": "#ffdada",
+            "primary-container": "#ffdada",
+            "on-secondary-fixed-variant": "#5c5b5b",
+            "on-background": "#2d3435",
+            "on-tertiary-fixed": "#004201",
+            "tertiary-dim": "#006102",
+            "tertiary": "#006f03",
+            "on-surface": "#2d3435",
+            "on-primary-container": "#a60030",
+            "surface-variant": "#dde4e5",
+            "inverse-on-surface": "#9c9d9d",
+            "background": "#f9f9f9",
+            "surface-tint": "#be0038",
+            "on-tertiary-fixed-variant": "#006302",
+            "error": "#9e422c",
+            "on-tertiary-container": "#005802",
+            "secondary-fixed": "#e5e2e1",
+            "primary": "#be0038",
+            "primary-fixed-dim": "#ffc6c8",
+            "surface-container-lowest": "#ffffff",
+            "surface": "#f9f9f9",
+            "on-secondary": "#fbf8f8",
+            "tertiary-fixed": "#7df169",
+            "secondary-fixed-dim": "#d6d4d3",
+            "secondary-dim": "#535353",
+            "primary-dim": "#a80030",
+            "on-primary-fixed-variant": "#b90036",
+            "surface-container": "#ebeeef",
+            "on-tertiary": "#ebffe0"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "margin": "1rem",
+            "gutter": "1rem",
+            "space-md": "1rem",
+            "space-sm": "0.5rem",
+            "space-lg": "1.5rem",
+            "space-xl": "2rem",
+            "space-xs": "0.25rem"
+          },
+          "fontFamily": {
+            "label-sm": ["Inter"],
+            "body-sm": ["Inter"],
+            "label-md": ["Inter"],
+            "headline-md": ["Plus Jakarta Sans"],
+            "body-md": ["Inter"],
+            "headline-lg": ["Plus Jakarta Sans"],
+            "headline-sm": ["Plus Jakarta Sans"],
+            "body-lg": ["Inter"],
+            "mono": ["JetBrains Mono", "monospace"]
+          },
+          "fontSize": {
+            "label-sm": ["11px", { "lineHeight": "14px", "letterSpacing": "0.06em", "fontWeight": "600" }],
+            "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }],
+            "label-md": ["12px", { "lineHeight": "16px", "fontWeight": "600" }],
+            "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+            "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+            "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "700" }],
+            "headline-sm": ["20px", { "lineHeight": "26px", "fontWeight": "600" }],
+            "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+      font-size: 19px;
+      line-height: 1;
+      display: inline-block;
+      vertical-align: middle;
+    }
+    body {
+      color: #222222;
+      background-color: #FFFFFF;
+      font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+      -webkit-font-smoothing: antialiased;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-surface-container-lowest text-on-surface font-body-md flex">
+<!-- Left Sidebar Navigation (240px wide, fixed, Airbnb crisp style) -->
+<aside class="fixed top-0 left-0 h-screen w-60 bg-surface-container-lowest border-r border-surface-container-high z-40 flex flex-col justify-between select-none">
+<div class="p-space-lg">
+<!-- Logo Brand -->
+<div class="flex items-center gap-space-sm mb-8">
+<div class="w-8 h-8 rounded-lg bg-primary text-white flex items-center justify-center font-headline-sm font-bold shadow-xs">
+          EL
+        </div>
+<div>
+<h1 class="font-headline-sm text-headline-sm font-bold text-on-surface tracking-tight leading-none">
+            Entre Lugares
+          </h1>
+<p class="font-label-sm text-label-sm text-on-surface-variant tracking-normal mt-0.5">
+            Panel de administración
+          </p>
+</div>
+</div>
+<!-- Navigation Links -->
+<nav class="space-y-1">
+<!-- Eventos -->
+<a class="flex items-center gap-space-sm px-space-md py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors duration-150 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined text-on-surface-variant">calendar_today</span>
+<span>Eventos</span>
+</a>
+<!-- Fuentes / Scraping (ACTIVE) -->
+<a class="flex items-center justify-between px-space-md py-2.5 rounded-lg bg-primary-container text-primary font-semibold transition-colors duration-150 font-label-md text-label-md shadow-xs" href="#">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-primary">data_object</span>
+<span>Fuentes / Scraping</span>
+</div>
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+</a>
+<!-- Lugares -->
+<a class="flex items-center gap-space-sm px-space-md py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors duration-150 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined text-on-surface-variant">location_on</span>
+<span>Lugares</span>
+</a>
+<!-- Moderación / Revisión -->
+<a class="flex items-center justify-between px-space-md py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors duration-150 font-label-md text-label-md" href="#">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-on-surface-variant">rule</span>
+<span>Moderación / Revisión</span>
+</div>
+<span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-surface-container text-on-surface-variant">12</span>
+</a>
+<!-- Configuración -->
+<a class="flex items-center gap-space-sm px-space-md py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors duration-150 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined text-on-surface-variant">settings</span>
+<span>Configuración</span>
+</a>
+</nav>
+<!-- Sub-divider & Quick Action -->
+<div class="pt-6 mt-6 border-t border-surface-container-high">
+<button class="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-surface-container-low hover:bg-surface-container text-on-surface font-label-md text-label-md rounded-lg border border-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-[18px]">add</span>
+<span>Nuevo Evento</span>
+</button>
+</div>
+</div>
+<!-- Bottom Sidebar Footer -->
+<div class="p-space-md border-t border-surface-container-high bg-surface-container-lowest">
+<div class="flex items-center justify-between mb-3 px-2">
+<div class="flex items-center gap-2.5">
+<div class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center font-bold text-on-surface text-label-md border border-surface-container-high">
+            ER
+          </div>
+<div class="leading-tight">
+<div class="font-label-md text-label-md text-on-surface">Eduardo R.</div>
+<div class="font-label-sm text-[10px] text-on-surface-variant">Admin general</div>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between px-2 pt-2 text-on-surface-variant border-t border-surface-container-high/60">
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface flex items-center gap-1.5 transition-colors" href="#">
+<span class="material-symbols-outlined text-[16px]">help</span>
+          Soporte
+        </a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary flex items-center gap-1.5 transition-colors" href="#">
+<span class="material-symbols-outlined text-[16px]">logout</span>
+          Cerrar sesión
+        </a>
+</div>
+</div>
+</aside>
+<!-- Main View Container -->
+<div class="pl-60 flex-1 flex flex-col min-w-0">
+<!-- Top Bar / Breadcrumb Header -->
+<header class="h-16 border-b border-surface-container-high bg-surface-container-lowest px-8 flex items-center justify-between sticky top-0 z-30">
+<div class="flex items-center gap-3">
+<div class="flex items-center gap-2 text-label-md font-label-md">
+<span class="text-on-surface-variant">Admin</span>
+<span class="text-outline-variant font-normal">/</span>
+<span class="text-on-surface font-semibold">Fuentes</span>
+</div>
+<span class="h-4 w-px bg-surface-container-high mx-1"></span>
+<!-- Status Daemon Badge -->
+<div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-surface-container-low border border-surface-container-high text-on-surface-variant font-label-sm text-label-sm">
+<span class="w-2 h-2 rounded-full bg-tertiary"></span>
+<span>Daemon local activo</span>
+<span class="text-outline font-mono text-[10px]">pid: 4190</span>
+</div>
+</div>
+<!-- Right Side Actions -->
+<div class="flex items-center gap-3">
+<button class="inline-flex items-center gap-1.5 px-3.5 py-2 border border-surface-container-high hover:border-outline-variant text-on-surface font-label-md text-label-md rounded-lg bg-white hover:bg-surface-container-low transition-all">
+<span class="material-symbols-outlined text-[17px] text-on-surface-variant">open_in_new</span>
+<span>Ver sitio público</span>
+</button>
+<button class="inline-flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary-dim text-white font-label-md text-label-md rounded-lg shadow-xs transition-colors">
+<span class="material-symbols-outlined text-[18px]">refresh</span>
+<span>Ejecutar scraper general</span>
+</button>
+</div>
+</header>
+<!-- Content Workspace -->
+<main class="flex-1 p-8 bg-surface-container-lowest max-w-7xl w-full mx-auto">
+<!-- Franja Informativa Gris / Status Job Banner -->
+<div class="bg-surface-container-low border border-surface-container-high rounded-xl p-4 flex items-center justify-between mb-8 shadow-xs">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">schedule</span>
+</div>
+<div class="font-body-md text-body-md text-on-surface">
+            El job local corrió por última vez hoy a las <strong class="font-semibold text-on-surface">03:12</strong> desde la Mac de Eduardo
+            <span class="ml-2.5 inline-flex items-center px-2 py-0.5 rounded text-label-sm font-mono text-on-surface-variant bg-surface-container border border-surface-container-high">
+              1m 48s de ejecución
+            </span>
+</div>
+</div>
+<a class="inline-flex items-center gap-1.5 font-label-md text-label-md text-on-surface hover:text-primary transition-colors group" href="#">
+<span>Ver bitácora de ejecución</span>
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant group-hover:text-primary">terminal</span>
+</a>
+</div>
+<!-- Section Title & Filter Bar -->
+<div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6">
+<div>
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface tracking-tight">
+            Fuentes · 24 activas
+          </h2>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">
+            Monitoreo y extracción automatizada de carteleras culturales en pueblos y municipios.
+          </p>
+</div>
+<!-- Controls Cluster -->
+<div class="flex items-center gap-2.5 flex-wrap">
+<!-- Search input -->
+<div class="relative w-64">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline-variant text-[18px]">
+              search
+            </span>
+<input class="w-full pl-9 pr-3.5 py-2 text-body-sm font-body-sm bg-white border border-surface-container-high rounded-lg placeholder-outline-variant text-on-surface focus:outline-none focus:border-on-surface transition-colors" placeholder="Buscar por fuente o municipio..." type="text"/>
+</div>
+<!-- Type filter dropdown -->
+<div class="relative">
+<select class="appearance-none pl-3.5 pr-8 py-2 text-body-sm font-body-sm bg-white border border-surface-container-high rounded-lg text-on-surface hover:border-outline-variant focus:outline-none focus:border-on-surface cursor-pointer transition-colors">
+<option>Todos los tipos</option>
+<option>Facebook</option>
+<option>Instagram</option>
+<option>Sitio web</option>
+</select>
+<span class="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 text-outline-variant pointer-events-none text-[16px]">
+              expand_more
+            </span>
+</div>
+<!-- Add Source Primary CTA -->
+<button class="inline-flex items-center gap-1.5 px-4 py-2 bg-primary hover:bg-primary-dim text-white font-label-md text-label-md rounded-lg shadow-xs transition-colors">
+<span class="material-symbols-outlined text-[18px]">add_circle</span>
+<span>Agregar fuente</span>
+</button>
+</div>
+</div>
+<!-- Data Table Card Container -->
+<div class="bg-surface-container-lowest border border-surface-container-high rounded-xl shadow-xs overflow-hidden">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low border-b border-surface-container-high text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider">
+<th class="py-3 px-5 font-semibold" scope="col">Fuente / Nombre</th>
+<th class="py-3 px-4 font-semibold" scope="col">Tipo</th>
+<th class="py-3 px-4 font-semibold" scope="col">Municipio</th>
+<th class="py-3 px-4 font-semibold" scope="col">Intervalo</th>
+<th class="py-3 px-4 font-semibold" scope="col">Última corrida</th>
+<th class="py-3 px-3 text-center font-semibold" scope="col">Nuevos</th>
+<th class="py-3 px-4 font-semibold" scope="col">Estado</th>
+<th class="py-3 px-5 text-right font-semibold" scope="col">Acciones</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container-high text-body-sm font-body-sm text-on-surface">
+<!-- Row 1: Tlayacapan (OK) -->
+<tr class="hover:bg-surface-container-low/60 transition-colors">
+<td class="py-4 px-5">
+<div class="font-semibold text-on-surface font-body-md text-body-md">Ayuntamiento de Tlayacapan</div>
+<a class="font-mono text-[11px] text-on-surface-variant hover:text-primary transition-colors flex items-center gap-1 mt-0.5" href="https://fb.com/tlayacapanpueblomagico" target="_blank">
+                  fb.com/tlayacapanpueblomagico
+                  <span class="material-symbols-outlined text-[13px]">arrow_outward</span>
+</a>
+</td>
+<td class="py-4 px-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-label-sm font-medium bg-surface-container text-on-surface border border-surface-container-high">
+                  Facebook
+                </span>
+</td>
+<td class="py-4 px-4 text-on-surface-variant">Tlayacapan, Mor.</td>
+<td class="py-4 px-4 text-on-surface-variant">cada 12 h</td>
+<td class="py-4 px-4 text-on-surface-variant">hoy 03:12</td>
+<td class="py-4 px-3 text-center">
+<span class="inline-flex items-center px-2 py-0.5 rounded font-label-sm font-bold bg-surface-container-high text-on-surface">
+                  +5
+                </span>
+</td>
+<td class="py-4 px-4">
+<div class="inline-flex items-center gap-1.5 text-tertiary font-label-md text-label-md">
+<span class="w-2 h-2 rounded-full bg-tertiary"></span>
+                  OK
+                </div>
+</td>
+<td class="py-4 px-5 text-right whitespace-nowrap">
+<div class="inline-flex items-center justify-end gap-2">
+<button class="px-2.5 py-1 text-label-sm font-label-md text-on-surface bg-surface-container-lowest hover:bg-surface-container-low border border-surface-container-high rounded-md transition-colors">
+                    Correr ahora
+                  </button>
+<button class="p-1 text-on-surface-variant hover:text-on-surface rounded hover:bg-surface-container-high/60 transition-colors">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 2: Casa de Cultura Tepoztlán (ERROR + EXPANDED DRAWER) -->
+<tr class="bg-surface-container-low/40">
+<td class="py-4 px-5">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[18px]">error</span>
+<div class="font-semibold text-on-surface font-body-md text-body-md">Casa de Cultura Tepoztlán</div>
+</div>
+<a class="font-mono text-[11px] text-on-surface-variant hover:text-primary transition-colors flex items-center gap-1 mt-0.5 pl-6" href="https://instagram.com/cultura_tepoz" target="_blank">
+                  instagram.com/cultura_tepoz
+                  <span class="material-symbols-outlined text-[13px]">arrow_outward</span>
+</a>
+</td>
+<td class="py-4 px-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-label-sm font-medium bg-surface-container text-on-surface border border-surface-container-high">
+                  Instagram
+                </span>
+</td>
+<td class="py-4 px-4 text-on-surface-variant">Tepoztlán, Mor.</td>
+<td class="py-4 px-4 text-on-surface-variant">cada 6 h</td>
+<td class="py-4 px-4 text-on-surface-variant">hoy 03:12</td>
+<td class="py-4 px-3 text-center text-on-surface-variant">0</td>
+<td class="py-4 px-4">
+<div class="inline-flex items-center gap-1.5 text-primary font-label-md text-label-md font-semibold">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+                  Error
+                </div>
+</td>
+<td class="py-4 px-5 text-right whitespace-nowrap">
+<div class="inline-flex items-center justify-end gap-2">
+<button class="px-2.5 py-1 text-label-sm font-label-md text-on-surface bg-surface-container-lowest hover:bg-surface-container-low border border-surface-container-high rounded-md transition-colors">
+                    Correr ahora
+                  </button>
+<button class="p-1 text-on-surface-variant hover:text-on-surface rounded hover:bg-surface-container-high/60 transition-colors">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 2 Expanded Drawer / Error Panel -->
+<tr class="bg-surface-container-low/40">
+<td class="px-5 pb-5 pt-0" colspan="8">
+<div class="bg-white border-l-4 border-primary border-t border-r border-b border-surface-container-high rounded-lg p-5 shadow-xs">
+<div class="flex items-center justify-between mb-3">
+<div class="flex items-center gap-2">
+<span class="font-headline-sm text-label-md font-bold text-primary uppercase tracking-wide">
+                        Último fallo de extracción
+                      </span>
+<span class="text-outline-variant text-label-sm">·</span>
+<span class="font-mono text-label-sm text-on-surface-variant">Hoy, 03:12:44 CST</span>
+</div>
+<span class="px-2 py-0.5 text-[11px] font-mono font-medium bg-primary-container text-on-primary-container rounded">
+                      CÓDIGO: ERR_SELECTOR_MISMATCH
+                    </span>
+</div>
+<!-- Monospace Box -->
+<div class="bg-surface-container-low/70 border border-surface-container-high p-3.5 rounded-md font-mono text-body-sm text-primary mb-3.5">
+<div class="flex items-center justify-between">
+<code>Selector no encontrado: article img[srcset]</code>
+<span class="text-[11px] text-on-surface-variant">Timeout: 8000ms</span>
+</div>
+</div>
+<!-- Technical Breakdown -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-body-sm font-body-sm text-on-surface-variant mb-4 bg-surface-container-lowest p-3 border border-surface-container-high rounded-md">
+<div>
+<span class="font-semibold text-on-surface block text-label-sm uppercase mb-1">URL inspeccionada:</span>
+<span class="font-mono text-[12px] text-on-surface break-all">https://instagram.com/cultura_tepoz/feed/?hl=es-mx</span>
+</div>
+<div>
+<span class="font-semibold text-on-surface block text-label-sm uppercase mb-1">Causa identificada:</span>
+<span class="text-on-surface">Selector de contenedor dinámico no coincidió con el DOM renderizado (posible cambio de markup en Instagram Web).</span>
+</div>
+</div>
+<!-- Drawer Action Cluster -->
+<div class="flex items-center justify-between pt-1">
+<div class="flex items-center gap-2.5">
+<button class="inline-flex items-center gap-1.5 px-3 py-1.5 text-label-md font-label-md bg-white border border-surface-container-high hover:border-outline text-on-surface rounded-lg transition-colors shadow-xs">
+<span class="material-symbols-outlined text-[17px]">photo_camera</span>
+<span>Ver snapshot</span>
+</button>
+<button class="inline-flex items-center gap-1.5 px-3 py-1.5 text-label-md font-label-md bg-white border border-surface-container-high hover:border-outline text-on-surface rounded-lg transition-colors shadow-xs">
+<span class="material-symbols-outlined text-[17px]">code</span>
+<span>Actualizar selector CSS</span>
+</button>
+</div>
+<button class="inline-flex items-center gap-1.5 px-3 py-1.5 text-label-md font-label-md bg-primary text-white hover:bg-primary-dim rounded-lg transition-colors shadow-xs">
+<span class="material-symbols-outlined text-[17px]">play_arrow</span>
+<span>Probar scraping en vivo</span>
+</button>
+</div>
+</div>
+</td>
+</tr>
+<!-- Row 3: DIF Malinalco (OK) -->
+<tr class="hover:bg-surface-container-low/60 transition-colors">
+<td class="py-4 px-5">
+<div class="font-semibold text-on-surface font-body-md text-body-md">DIF Malinalco</div>
+<a class="font-mono text-[11px] text-on-surface-variant hover:text-primary transition-colors flex items-center gap-1 mt-0.5" href="https://fb.com/difmalinalco2024" target="_blank">
+                  fb.com/difmalinalco2024
+                  <span class="material-symbols-outlined text-[13px]">arrow_outward</span>
+</a>
+</td>
+<td class="py-4 px-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-label-sm font-medium bg-surface-container text-on-surface border border-surface-container-high">
+                  Facebook
+                </span>
+</td>
+<td class="py-4 px-4 text-on-surface-variant">Malinalco, EdoMéx.</td>
+<td class="py-4 px-4 text-on-surface-variant">cada 24 h</td>
+<td class="py-4 px-4 text-on-surface-variant">hoy 03:10</td>
+<td class="py-4 px-3 text-center">
+<span class="inline-flex items-center px-2 py-0.5 rounded font-label-sm font-bold bg-surface-container-high text-on-surface">
+                  +2
+                </span>
+</td>
+<td class="py-4 px-4">
+<div class="inline-flex items-center gap-1.5 text-tertiary font-label-md text-label-md">
+<span class="w-2 h-2 rounded-full bg-tertiary"></span>
+                  OK
+                </div>
+</td>
+<td class="py-4 px-5 text-right whitespace-nowrap">
+<div class="inline-flex items-center justify-end gap-2">
+<button class="px-2.5 py-1 text-label-sm font-label-md text-on-surface bg-surface-container-lowest hover:bg-surface-container-low border border-surface-container-high rounded-md transition-colors">
+                    Correr ahora
+                  </button>
+<button class="p-1 text-on-surface-variant hover:text-on-surface rounded hover:bg-surface-container-high/60 transition-colors">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 4: Secretaría de Cultura Morelos (OK) -->
+<tr class="hover:bg-surface-container-low/60 transition-colors">
+<td class="py-4 px-5">
+<div class="font-semibold text-on-surface font-body-md text-body-md">Secretaría de Cultura Morelos</div>
+<a class="font-mono text-[11px] text-on-surface-variant hover:text-primary transition-colors flex items-center gap-1 mt-0.5" href="https://cartelera.culturamorelos.gob.mx" target="_blank">
+                  cartelera.culturamorelos.gob.mx
+                  <span class="material-symbols-outlined text-[13px]">arrow_outward</span>
+</a>
+</td>
+<td class="py-4 px-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-label-sm font-medium bg-surface-container text-on-surface border border-surface-container-high">
+                  Sitio web
+                </span>
+</td>
+<td class="py-4 px-4 text-on-surface-variant">Cuernavaca / Estatal</td>
+<td class="py-4 px-4 text-on-surface-variant">cada 12 h</td>
+<td class="py-4 px-4 text-on-surface-variant">hoy 03:08</td>
+<td class="py-4 px-3 text-center">
+<span class="inline-flex items-center px-2 py-0.5 rounded font-label-sm font-bold bg-surface-container-high text-on-surface">
+                  +12
+                </span>
+</td>
+<td class="py-4 px-4">
+<div class="inline-flex items-center gap-1.5 text-tertiary font-label-md text-label-md">
+<span class="w-2 h-2 rounded-full bg-tertiary"></span>
+                  OK
+                </div>
+</td>
+<td class="py-4 px-5 text-right whitespace-nowrap">
+<div class="inline-flex items-center justify-end gap-2">
+<button class="px-2.5 py-1 text-label-sm font-label-md text-on-surface bg-surface-container-lowest hover:bg-surface-container-low border border-surface-container-high rounded-md transition-colors">
+                    Correr ahora
+                  </button>
+<button class="p-1 text-on-surface-variant hover:text-on-surface rounded hover:bg-surface-container-high/60 transition-colors">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 5: Colectivo Cultural Amatlán (OK) -->
+<tr class="hover:bg-surface-container-low/60 transition-colors">
+<td class="py-4 px-5">
+<div class="font-semibold text-on-surface font-body-md text-body-md">Colectivo Cultural Amatlán</div>
+<a class="font-mono text-[11px] text-on-surface-variant hover:text-primary transition-colors flex items-center gap-1 mt-0.5" href="https://instagram.com/amatlan_cultura" target="_blank">
+                  instagram.com/amatlan_cultura
+                  <span class="material-symbols-outlined text-[13px]">arrow_outward</span>
+</a>
+</td>
+<td class="py-4 px-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-label-sm font-medium bg-surface-container text-on-surface border border-surface-container-high">
+                  Instagram
+                </span>
+</td>
+<td class="py-4 px-4 text-on-surface-variant">Amatlán de Quetzalcóatl</td>
+<td class="py-4 px-4 text-on-surface-variant">cada 24 h</td>
+<td class="py-4 px-4 text-on-surface-variant">ayer 18:00</td>
+<td class="py-4 px-3 text-center">
+<span class="inline-flex items-center px-2 py-0.5 rounded font-label-sm font-bold bg-surface-container-high text-on-surface">
+                  +3
+                </span>
+</td>
+<td class="py-4 px-4">
+<div class="inline-flex items-center gap-1.5 text-tertiary font-label-md text-label-md">
+<span class="w-2 h-2 rounded-full bg-tertiary"></span>
+                  OK
+                </div>
+</td>
+<td class="py-4 px-5 text-right whitespace-nowrap">
+<div class="inline-flex items-center justify-end gap-2">
+<button class="px-2.5 py-1 text-label-sm font-label-md text-on-surface bg-surface-container-lowest hover:bg-surface-container-low border border-surface-container-high rounded-md transition-colors">
+                    Correr ahora
+                  </button>
+<button class="p-1 text-on-surface-variant hover:text-on-surface rounded hover:bg-surface-container-high/60 transition-colors">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 6: Feria del Barrio San Juan Teotihuacán (OK - 0 nuevos) -->
+<tr class="hover:bg-surface-container-low/60 transition-colors">
+<td class="py-4 px-5">
+<div class="font-semibold text-on-surface font-body-md text-body-md">Feria del Barrio San Juan Teotihuacán</div>
+<a class="font-mono text-[11px] text-on-surface-variant hover:text-primary transition-colors flex items-center gap-1 mt-0.5" href="https://fb.com/mayordomia.teotihuacan" target="_blank">
+                  fb.com/mayordomia.teotihuacan
+                  <span class="material-symbols-outlined text-[13px]">arrow_outward</span>
+</a>
+</td>
+<td class="py-4 px-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-label-sm font-medium bg-surface-container text-on-surface border border-surface-container-high">
+                  Facebook
+                </span>
+</td>
+<td class="py-4 px-4 text-on-surface-variant">Teotihuacán, EdoMéx.</td>
+<td class="py-4 px-4 text-on-surface-variant">cada 24 h</td>
+<td class="py-4 px-4 text-on-surface-variant">hoy 03:00</td>
+<td class="py-4 px-3 text-center text-on-surface-variant">0</td>
+<td class="py-4 px-4">
+<div class="inline-flex items-center gap-1.5 text-tertiary font-label-md text-label-md">
+<span class="w-2 h-2 rounded-full bg-tertiary"></span>
+                  OK
+                </div>
+</td>
+<td class="py-4 px-5 text-right whitespace-nowrap">
+<div class="inline-flex items-center justify-end gap-2">
+<button class="px-2.5 py-1 text-label-sm font-label-md text-on-surface bg-surface-container-lowest hover:bg-surface-container-low border border-surface-container-high rounded-md transition-colors">
+                    Correr ahora
+                  </button>
+<button class="p-1 text-on-surface-variant hover:text-on-surface rounded hover:bg-surface-container-high/60 transition-colors">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<!-- Table Footer / Pagination -->
+<div class="p-4 bg-surface-container-low border-t border-surface-container-high flex flex-col sm:flex-row items-center justify-between gap-3 text-body-sm font-body-sm">
+<div class="text-on-surface-variant font-label-sm">
+            Mostrando <span class="font-semibold text-on-surface">6</span> de <span class="font-semibold text-on-surface">24</span> fuentes · 
+            <span class="text-tertiary font-semibold">21 activas</span> · 
+            <span class="text-primary font-semibold">3 con error</span>
+</div>
+<div class="flex items-center gap-1">
+<button class="px-3 py-1.5 rounded-lg border border-surface-container-high text-on-surface-variant hover:text-on-surface hover:bg-surface-container text-label-md font-label-md transition-colors disabled:opacity-50" disabled="">
+              Anterior
+            </button>
+<button class="w-8 h-8 rounded-lg bg-on-surface text-white text-label-md font-label-md flex items-center justify-center">
+              1
+            </button>
+<button class="w-8 h-8 rounded-lg border border-surface-container-high text-on-surface hover:bg-surface-container text-label-md font-label-md flex items-center justify-center transition-colors">
+              2
+            </button>
+<button class="w-8 h-8 rounded-lg border border-surface-container-high text-on-surface hover:bg-surface-container text-label-md font-label-md flex items-center justify-center transition-colors">
+              3
+            </button>
+<button class="px-3 py-1.5 rounded-lg border border-surface-container-high text-on-surface hover:bg-surface-container text-label-md font-label-md transition-colors">
+              Siguiente
+            </button>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

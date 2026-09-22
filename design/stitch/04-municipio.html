@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>Tlayacapan · Entre Lugares</title>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts: Plus Jakarta Sans & Inter -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "surface-container": "#ebeeef",
+            "on-surface": "#2d3435",
+            "surface": "#f9f9f9",
+            "secondary-fixed": "#e5e2e1",
+            "background": "#f9f9f9",
+            "primary-fixed-dim": "#ffc6c8",
+            "primary": "#be0038",
+            "on-tertiary": "#ebffe0",
+            "primary-dim": "#a80030",
+            "error": "#9e422c",
+            "on-tertiary-fixed-variant": "#006302",
+            "inverse-on-surface": "#9c9d9d",
+            "on-error": "#fff7f6",
+            "secondary-fixed-dim": "#d6d4d3",
+            "on-tertiary-container": "#005802",
+            "primary-fixed": "#ffdada",
+            "surface-variant": "#dde4e5",
+            "tertiary-fixed": "#7df169",
+            "on-primary-container": "#a60030",
+            "on-tertiary-fixed": "#004201",
+            "on-background": "#2d3435",
+            "on-primary": "#fff6f5",
+            "on-error-container": "#742410",
+            "primary-container": "#ffdada",
+            "on-primary-fixed": "#840024",
+            "surface-dim": "#d3dbdd",
+            "tertiary-dim": "#006102",
+            "surface-bright": "#f9f9f9",
+            "tertiary": "#006f03",
+            "tertiary-fixed-dim": "#6fe25d",
+            "inverse-surface": "#0c0f0f",
+            "tertiary-container": "#7df169",
+            "surface-tint": "#be0038",
+            "on-surface-variant": "#596061",
+            "secondary": "#605f5f",
+            "surface-container-low": "#f2f4f4",
+            "on-secondary-fixed": "#403f3f",
+            "surface-container-highest": "#dde4e5",
+            "error-dim": "#5c1202",
+            "outline": "#757c7d",
+            "on-secondary-container": "#525151",
+            "error-container": "#fe8b70",
+            "outline-variant": "#acb3b4",
+            "surface-container-high": "#e4e9ea",
+            "secondary-container": "#e5e2e1",
+            "on-primary-fixed-variant": "#b90036",
+            "on-secondary": "#fbf8f8",
+            "secondary-dim": "#535353",
+            "surface-container-lowest": "#ffffff",
+            "on-secondary-fixed-variant": "#5c5b5b",
+            "inverse-primary": "#ff5169"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "space-sm": "0.5rem",
+            "space-lg": "1.5rem",
+            "space-xl": "2rem",
+            "space-xs": "0.25rem",
+            "gutter": "1rem",
+            "space-md": "1rem",
+            "margin": "1rem"
+          },
+          "fontFamily": {
+            "body-sm": ["Inter"],
+            "headline-sm": ["Plus Jakarta Sans"],
+            "headline-lg": ["Plus Jakarta Sans"],
+            "label-sm": ["Inter"],
+            "label-md": ["Inter"],
+            "body-md": ["Inter"],
+            "headline-md": ["Plus Jakarta Sans"],
+            "body-lg": ["Inter"]
+          },
+          "fontSize": {
+            "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }],
+            "headline-sm": ["20px", { "lineHeight": "26px", "fontWeight": "600" }],
+            "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "700" }],
+            "label-sm": ["11px", { "lineHeight": "14px", "letterSpacing": "0.06em", "fontWeight": "600" }],
+            "label-md": ["12px", { "lineHeight": "16px", "fontWeight": "600" }],
+            "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+            "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+            "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+    .material-symbols-outlined.fill {
+      font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    /* Hide scrollbar for clean chip rail */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface antialiased selection:bg-primary-fixed selection:text-on-primary-fixed min-h-screen flex justify-center">
+<!-- Mobile Screen Canvas (390px base constraint) -->
+<div class="w-full max-w-[390px] bg-surface-container-lowest min-h-screen relative flex flex-col pb-24 shadow-sm border-x border-surface-variant/40">
+<!-- TopAppBar (Anchored JSON Component) -->
+<header class="fixed top-0 left-0 right-0 z-40 flex justify-between items-center px-margin max-w-[390px] mx-auto h-14 bg-surface/90 backdrop-blur-md transition-all duration-200">
+<button aria-label="Volver" class="w-9 h-9 rounded-full bg-surface-container-lowest/80 flex items-center justify-center text-on-surface shadow-xs active:scale-95 transition-transform duration-150">
+<span class="material-symbols-outlined text-[20px]">arrow_back</span>
+</button>
+<span class="font-headline-sm text-headline-sm font-semibold text-on-surface tracking-tight">Tlayacapan</span>
+<div class="flex items-center gap-1.5">
+<button aria-label="Compartir" class="w-9 h-9 rounded-full bg-surface-container-lowest/80 flex items-center justify-center text-on-surface shadow-xs active:scale-95 transition-transform duration-150">
+<span class="material-symbols-outlined text-[19px]">share</span>
+</button>
+<button aria-label="Favorito" class="w-9 h-9 rounded-full bg-surface-container-lowest/80 flex items-center justify-center text-primary shadow-xs active:scale-95 transition-transform duration-150">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">favorite</span>
+</button>
+</div>
+</header>
+<!-- Main Content Flow -->
+<main class="flex-1 w-full pt-14">
+<!-- Hero de Destino -->
+<section class="relative w-full h-[280px] overflow-hidden bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="Scenic editorial photograph of Tlayacapan Mexico showing traditional stone adobe streets with terracotta pottery workshops nestled against majestic rugged mountain cliffs under a crisp sunny morning sky with clean cinematic warm light and vivid details." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDrjOV5Cl9T27LWpB_3P465Dj-HhRZXWxBy-D8zt0Fe7sSpK7IXKBtRg5nY6yPzPbPjRHGLshSZf_By3g2pyDArTSPu8-XRtf_QFQgGB5sIR8Hg4LhMFYhOurgxuBay8Wo3yZ4H57seP0je09Mnqbgx-ajEUNr2hQDgvHlZIF6iTOzmx2NQrckLddwODGzTcBIMPEYQfeUgtEfJbD9uAwToEm67AajZpZlF3XP6__2gb2D-iWT8WRmJxEnpONpxigaNiIzfYOE70gM"/>
+<!-- Subtle gradient overlay strictly for base typography readability -->
+<div class="absolute inset-0 bg-gradient-to-t from-inverse-surface/85 via-inverse-surface/20 to-transparent"></div>
+<!-- Hero Content Overlay -->
+<div class="absolute bottom-0 left-0 right-0 p-space-md flex items-end justify-between">
+<div class="space-y-1">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-surface-container-lowest/25 backdrop-blur-md text-on-primary font-label-sm text-label-sm uppercase tracking-wider">
+<span class="material-symbols-outlined text-[13px] text-tertiary-fixed">verified</span>
+              Pueblo Mágico
+            </span>
+<h1 class="font-headline-lg text-headline-lg font-bold text-surface-container-lowest tracking-tight leading-none pt-1">
+              Tlayacapan
+            </h1>
+<p class="font-body-sm text-body-sm text-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">distance</span>
+              Morelos · 1 h 40 min desde CDMX
+            </p>
+</div>
+<!-- Botón Seguir / Guardar estilo Píldora moderna -->
+<button class="px-3.5 py-2 rounded-full bg-surface-container-lowest text-on-surface font-label-md text-label-md flex items-center gap-1 shadow-sm active:scale-95 transition-transform duration-150 hover:bg-surface-container-low">
+<span class="material-symbols-outlined text-[16px] text-primary" style="font-variation-settings: 'FILL' 1;">bookmark</span>
+<span>Siguiendo</span>
+</button>
+</div>
+</section>
+<!-- Fila de Chips de Datos -->
+<section class="px-space-md py-space-md border-b border-surface-variant/40 bg-surface-container-lowest">
+<div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5">
+<div class="flex-shrink-0 px-3 py-1.5 rounded-full bg-surface-container-low border border-surface-variant/70 text-on-surface font-label-md text-label-md flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[15px] text-primary">calendar_month</span>
+<span>23 eventos este mes</span>
+</div>
+<div class="flex-shrink-0 px-3 py-1.5 rounded-full bg-surface-container-low border border-surface-variant/70 text-on-surface font-label-md text-label-md flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[15px] text-tertiary">loyalty</span>
+<span>Gratis: 14</span>
+</div>
+<div class="flex-shrink-0 px-3 py-1.5 rounded-full bg-surface-container-low border border-surface-variant/70 text-on-surface font-label-md text-label-md flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[15px] text-on-surface-variant">payments</span>
+<span>Desde $80</span>
+</div>
+</div>
+</section>
+<!-- Sección: Sucediendo Ahora (Live Card) -->
+<section class="px-space-md pt-space-lg">
+<div class="flex items-center justify-between mb-3">
+<div class="flex items-center gap-2">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary-container text-on-primary-container font-label-sm text-label-sm font-semibold tracking-wider uppercase">
+<span class="relative flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+</span>
+              En Vivo
+            </span>
+<h2 class="font-headline-sm text-headline-sm font-semibold text-on-surface">Sucediendo ahora</h2>
+</div>
+</div>
+<!-- Tarjeta Destacada Proporción 4:3 Airbnb Style -->
+<article class="bg-surface-container-lowest rounded-xl border border-surface-variant/60 overflow-hidden shadow-xs active:scale-[0.99] transition-transform duration-150">
+<div class="relative w-full aspect-[4/3] bg-surface-container overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Authentic traditional Mexican red clay pottery market stalls in Tlayacapan Morelos with master artisans arranging handmade glazed ceramic vessels and burnished pitchers under natural bright daylight in a historical town square." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCE4ZqhJdqNKL5xIgnHpJZmdzYGR-CelAKWwCnAwvT2izQpfL7gVWomkH_7efIjiVXLLFMD5AVaHlMfLWw3lXBT8uHjV2k0GHnCQpLtsERbcjX5xOKe4d1LOixtJTxJFl7NVnYXWmQGBMk7YTRCa4CsP5a2XOcbMt7l7Ite5qJW3vUw7W2nwLB7ikCHKGr8VdWMn2P_kXWPl3lHGzMhvgd2x-Jb9vchL7rMp3q87WCRdLq-3vbvUHIoxtH6FXdfPinGB8sHtkAmlxk"/>
+<div class="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-surface-container-lowest/90 backdrop-blur-sm text-tertiary font-label-sm text-label-sm font-semibold uppercase">
+              Entrada libre
+            </div>
+<div class="absolute bottom-3 right-3 px-2.5 py-1 rounded-full bg-inverse-surface/85 backdrop-blur-sm text-surface font-label-sm text-label-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px]">schedule</span>
+              Termina hoy 19:00 hrs
+            </div>
+</div>
+<div class="p-space-md">
+<h3 class="font-headline-sm text-headline-sm font-bold text-on-surface mb-1 leading-snug">
+              Tianguis de Barro y Alfarería Tradicional
+            </h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1 mb-2">
+<span class="material-symbols-outlined text-[15px] text-outline">location_on</span>
+              Plaza Cívica de Tlayacapan · Centro
+            </p>
+<div class="pt-2 border-t border-surface-variant/40 flex items-center justify-between text-on-surface font-label-md text-label-md">
+<span class="text-on-surface-variant">Exhibición y venta directa</span>
+<span class="text-primary font-semibold flex items-center">
+                Explorar detalles
+                <span class="material-symbols-outlined text-[16px] ml-0.5">chevron_right</span>
+</span>
+</div>
+</div>
+</article>
+</section>
+<!-- Sección: Próximos Eventos -->
+<section class="px-space-md pt-space-xl">
+<div class="flex items-center justify-between mb-3">
+<div>
+<h2 class="font-headline-sm text-headline-sm font-bold text-on-surface">Próximos eventos</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Festividades y talleres comunitarios</p>
+</div>
+<button class="font-label-md text-label-md text-primary font-semibold hover:underline">
+            Ver los 23
+          </button>
+</div>
+<div class="space-y-4">
+<!-- Evento 1 -->
+<article class="bg-surface-container-lowest rounded-xl border border-surface-variant/60 overflow-hidden shadow-xs">
+<div class="relative w-full aspect-[4/3] bg-surface-container overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Skilled hands of an indigenous artisan burnishing and polishing traditional barro bruñido clay vases in a sunlit atelier workshop in Morelos Mexico with fine artisan tools and natural warm tones." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBf76Up6SEL7rLJA4v44V7snKXWTc7aI_eszZMzEj4ig6OsMCz9C_mHujvCNfMOllzo9VtpEtt-th676uRw7LDvFBUs8MS-iAY1n5lY_LWbeug92RYL7qOd6FgFfBmJneuGMxAXL6baszr4nTcs1PkNTwI0muKr1AV9yZcoUh_Lvo2I3zRdtLPE6ATS6tvydM58hiiWqByxXAwbzme77ZHdJNqH5mVtuR48rc0nibKrD2LRP7h3prShY25_zV92_lF7t0fhLpqctBc"/>
+<span class="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-surface-container-lowest/95 backdrop-blur-xs font-label-md text-label-md font-bold text-on-surface shadow-xs">
+                $120 MXN
+              </span>
+<span class="absolute bottom-3 left-3 px-2.5 py-1 rounded-full bg-surface-container-lowest/90 backdrop-blur-xs font-label-sm text-label-sm font-semibold text-primary">
+                Sáb 24 May · 11:00 hrs
+              </span>
+</div>
+<div class="p-space-md">
+<h3 class="font-headline-sm text-headline-sm font-bold text-on-surface mb-1">
+                Taller Abierto de Alfarería en Barro Bruñido
+              </h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[15px] text-outline">location_on</span>
+                Barrio de Santa Ana · 400 m del centro
+              </p>
+</div>
+</article>
+<!-- Evento 2 -->
+<article class="bg-surface-container-lowest rounded-xl border border-surface-variant/60 overflow-hidden shadow-xs">
+<div class="relative w-full aspect-[4/3] bg-surface-container overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Traditional Mexican brass wind orchestra musicians performing passionately with polished trumpets, tubas and clarinets wearing traditional attire in an open colonial courtyard in Morelos." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB8AliPz8DJwLuo0iMM2YbqRYyPZA1uXm_ndIT5vj3LaFJEfRbRlAbwWceLDqNB4UqNK7ZiODFItSdPYP3dYCnw5XgVWJVXds00dvFIPwVlNgSDWmsVUkEYuO1w57whjurb9gHjIfTJpQvT_tcqZKuyNbyCCGbu9yoDKiOgl84FAN2-Z1w_SS1Q5jA8seVY4wQIyaTgjC43Dlo9KI2JCyyONT8NB2YNJ-BYYAHHXoTzKCYvidCMu-OM-6EtFhzmnOo9LoWjbOAodcw"/>
+<span class="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-surface-container-lowest/95 backdrop-blur-xs font-label-md text-label-md font-bold text-tertiary shadow-xs">
+                Gratis
+              </span>
+<span class="absolute bottom-3 left-3 px-2.5 py-1 rounded-full bg-surface-container-lowest/90 backdrop-blur-xs font-label-sm text-label-sm font-semibold text-primary">
+                Dom 25 May · 17:30 hrs
+              </span>
+</div>
+<div class="p-space-md">
+<h3 class="font-headline-sm text-headline-sm font-bold text-on-surface mb-1">
+                Banda Tradicional de Viento Brígido Santamaría
+              </h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[15px] text-outline">location_on</span>
+                Atrio del Ex Convento · Explanada principal
+              </p>
+</div>
+</article>
+<!-- Evento 3 -->
+<article class="bg-surface-container-lowest rounded-xl border border-surface-variant/60 overflow-hidden shadow-xs">
+<div class="relative w-full aspect-[4/3] bg-surface-container overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Atmospheric evening view of a cobblestone street in an ancient colonial Mexican village illuminated by warm lantern light with historical barrio chapel arches in the background under twilight." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD-SPoJeoEvXmKjNllotIL2O5jvGxDQIQ2kk1yiGVZNan9Xz6g1Snr1W8LkKTdkFv7FDZyfMTkm-mbsdGfwu-XgSGYQVPSeLo4qRVnqAMG7buSTK-6nXtrWHCQamwqQTAHhaWROkAz2CC_iVpNMh6Ltbd0AWFBn2vgnyf8qLM3OiE0ojriJKxqRk-QnETUnzfHg_2U10WxLzLHMRUs5KVOq-96KgavBXvnUOhCDlqdicAylKSUUAAb2fRzQYZlgftCVjMtdUJvbOUA"/>
+<span class="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-surface-container-lowest/95 backdrop-blur-xs font-label-md text-label-md font-bold text-on-surface shadow-xs">
+                $80 MXN
+              </span>
+<span class="absolute bottom-3 left-3 px-2.5 py-1 rounded-full bg-surface-container-lowest/90 backdrop-blur-xs font-label-sm text-label-sm font-semibold text-primary">
+                Vie 30 May · 20:00 hrs
+              </span>
+</div>
+<div class="p-space-md">
+<h3 class="font-headline-sm text-headline-sm font-bold text-on-surface mb-1">
+                Recorrido Nocturno por las Capillas de Barrio
+              </h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[15px] text-outline">location_on</span>
+                Punto de reunión: Kiosco Municipal
+              </p>
+</div>
+</article>
+</div>
+</section>
+<!-- Sección: Fechas que no te puedes perder -->
+<section class="px-space-md pt-space-xl">
+<h2 class="font-headline-sm text-headline-sm font-bold text-on-surface mb-1">
+          Fechas que no te puedes perder
+        </h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-3">
+          Celebraciones anuales y patrimonio vivo
+        </p>
+<div class="bg-surface-container-lowest rounded-xl border border-surface-variant/60 divide-y divide-surface-variant/40">
+<div class="p-space-md flex items-center gap-4">
+<div class="w-12 text-center flex-shrink-0">
+<span class="block font-label-sm text-label-sm uppercase font-bold text-on-surface-variant">Feb</span>
+<span class="material-symbols-outlined text-[18px] text-primary mt-0.5">festival</span>
+</div>
+<div class="flex-1">
+<h4 class="font-headline-sm text-[16px] font-semibold text-on-surface leading-tight">Carnaval de chinelos</h4>
+<p class="font-body-sm text-[12px] text-on-surface-variant mt-0.5">Danza tradicional del brinco y comparsas</p>
+</div>
+</div>
+<div class="p-space-md flex items-center gap-4">
+<div class="w-12 text-center flex-shrink-0">
+<span class="block font-label-sm text-label-sm uppercase font-bold text-on-surface-variant">Jun</span>
+<span class="material-symbols-outlined text-[18px] text-primary mt-0.5">church</span>
+</div>
+<div class="flex-1">
+<h4 class="font-headline-sm text-[16px] font-semibold text-on-surface leading-tight">Fiesta de San Juan Bautista</h4>
+<p class="font-body-sm text-[12px] text-on-surface-variant mt-0.5">Patrono del pueblo, mañanitas y cohetes</p>
+</div>
+</div>
+<div class="p-space-md flex items-center gap-4">
+<div class="w-12 text-center flex-shrink-0">
+<span class="block font-label-sm text-label-sm uppercase font-bold text-on-surface-variant">Nov</span>
+<span class="material-symbols-outlined text-[18px] text-primary mt-0.5">nature_people</span>
+</div>
+<div class="flex-1">
+<h4 class="font-headline-sm text-[16px] font-semibold text-on-surface leading-tight">Día de Muertos en los cerros</h4>
+<p class="font-body-sm text-[12px] text-on-surface-variant mt-0.5">Ofrendas de cerería y velaciones ancestrales</p>
+</div>
+</div>
+<div class="p-space-md flex items-center gap-4">
+<div class="w-12 text-center flex-shrink-0">
+<span class="block font-label-sm text-label-sm uppercase font-bold text-on-surface-variant">Dic</span>
+<span class="material-symbols-outlined text-[18px] text-primary mt-0.5">local_fire_department</span>
+</div>
+<div class="flex-1">
+<h4 class="font-headline-sm text-[16px] font-semibold text-on-surface leading-tight">Feria de la cerería y el barro</h4>
+<p class="font-body-sm text-[12px] text-on-surface-variant mt-0.5">Velas escamadas y tianguis de artesanos</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Sección: Lugares Emblemáticos -->
+<section class="px-space-md pt-space-xl pb-space-lg">
+<div class="flex items-center justify-between mb-3">
+<div>
+<h2 class="font-headline-sm text-headline-sm font-bold text-on-surface">Lugares</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Puntos de interés imperdibles</p>
+</div>
+<span class="font-label-md text-label-md text-on-surface-variant">4 sitios</span>
+</div>
+<div class="grid grid-cols-1 gap-2.5">
+<!-- Lugar 1 -->
+<div class="p-3 bg-surface-container-lowest rounded-xl border border-surface-variant/60 flex items-center gap-3 active:bg-surface-container-low transition-colors duration-150">
+<div class="w-14 h-14 rounded-lg bg-surface-container overflow-hidden flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="Historic stone facade and fortified architecture of Ex Convento de San Juan Bautista UNESCO world heritage site in Tlayacapan with arched cloister and clear sky." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB4kebqQBMuT8-kDlVaLieCcfnL45eAutUi21rpqwvsYsHeFLjWdf_UhZrsJ_Q8seMtOjqUuBNxz7pBoIL6FlBcbAfojBRPSjaZELwzr3PHXdO5Y7C5aVpoQs4ldAyW6-nzAs-vC5gXZjHf7z-5S-M1CuwsfTupAFpy5bZTq6pcA5CwLcM3_DhDoyCNmc8n42AkA6pa51_Wv2L5BZYWcRwx66Pbrc_mKP4A1vMQh68330wm9FLONt_G25baKReJsiI9iKRQjfnJYog"/>
+</div>
+<div class="flex-1 min-w-0">
+<h4 class="font-headline-sm text-[14px] font-semibold text-on-surface truncate">Ex Convento de San Juan Bautista</h4>
+<p class="font-body-sm text-[12px] text-on-surface-variant truncate">Patrimonio UNESCO · Siglo XVI</p>
+</div>
+<span class="material-symbols-outlined text-outline-variant text-[18px]">chevron_right</span>
+</div>
+<!-- Lugar 2 -->
+<div class="p-3 bg-surface-container-lowest rounded-xl border border-surface-variant/60 flex items-center gap-3 active:bg-surface-container-low transition-colors duration-150">
+<div class="w-14 h-14 rounded-lg bg-surface-container overflow-hidden flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="Interior exhibition of intricate sculpted beeswax candles and cultural artifacts at Casa de Cultura La Cerería museum in Tlayacapan Morelos." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCNhXtg7wU1Py16NolPgzrozeVjsnpClJBDcMmFTnzgOM3bGbIcSaESqujySoW5ZwhmahXpo3_ZtfoTw_ij1_tKYZmoROhK8QCXw3zvv-zMSI1snZ2H4Hrcc1SdgMN-fufonG5SGkVo3ENTN2iaAUg4_pbZj5HeY2MHOenBSrxJ7dl-Q7EqK_u1p0-EdpaP3gGAwLFlP9sLrzYt2rsifXplf_QfpmjRzoFpsvc_0X9Sonejz4zbTtiOBqsjdNdemHz3Opu4ensNgRM"/>
+</div>
+<div class="flex-1 min-w-0">
+<h4 class="font-headline-sm text-[14px] font-semibold text-on-surface truncate">Casa de Cultura La Cerería</h4>
+<p class="font-body-sm text-[12px] text-on-surface-variant truncate">Museo de cerería tradicional</p>
+</div>
+<span class="material-symbols-outlined text-outline-variant text-[18px]">chevron_right</span>
+</div>
+<!-- Lugar 3 -->
+<div class="p-3 bg-surface-container-lowest rounded-xl border border-surface-variant/60 flex items-center gap-3 active:bg-surface-container-low transition-colors duration-150">
+<div class="w-14 h-14 rounded-lg bg-surface-container overflow-hidden flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="Scenic mountain peak view of Cerro del Sombrerito hiking trail overlooking the mystical valley of Tlayacapan Morelos with lush vegetation." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB670g_7xXztY2e0lo0iF4RIajKS_9OqZcEbt761O7en13zmIylI5gVYXjPT-kjFNWdJGIbW_4chZiA9pN7HQ2ErsfOnOmLtBcy7RWJKxCaggpOSpqyB86tYUcy7PKWTy-MtStprLkdQW9EN5wBEjvBVAVszYNdgacyNF6VsMpgTa0ddrBAQXGw14NHe18B_V2VGSGrlqrknYCF0uOfB9SegZOCy4oLcVr_RDsUSqY5HYZKroQ6Pq5HhtKVMLfaTatRoE28PYn5Wkc"/>
+</div>
+<div class="flex-1 min-w-0">
+<h4 class="font-headline-sm text-[14px] font-semibold text-on-surface truncate">Cerro del Sombrerito</h4>
+<p class="font-body-sm text-[12px] text-on-surface-variant truncate">Mirador panorámico y senderismo</p>
+</div>
+<span class="material-symbols-outlined text-outline-variant text-[18px]">chevron_right</span>
+</div>
+<!-- Lugar 4 -->
+<div class="p-3 bg-surface-container-lowest rounded-xl border border-surface-variant/60 flex items-center gap-3 active:bg-surface-container-low transition-colors duration-150">
+<div class="w-14 h-14 rounded-lg bg-surface-container overflow-hidden flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="Authentic traditional Mexican market food stall serving fresh cecina de Yecapixtla, handmade blue corn tortillas, and fresh local cheeses in Tlayacapan." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD-6v0ynO6dE0ca3gRCe766oM_7DdJ6QzdH1AzNVyuS7O36UGpM9_IOVxXfv3y9o9-S0uPV4jrmyNv3k_u-QsAQIfDIEVMc__2Q9XGHT1H35SFabsy9VS_pqStWlWstgdbVMHyjBHRzvR63fLyh4U2kmitsSFKG_gVl3B0QqJkptQxRMasZf6fkWamiArB2mFkCc51DOCjOtA4yuRWPIillpIuj3I-mT5QGwzr-0z8iEeEMLssqpLY8bkdiTAL0VWcFndXwkchMRk8"/>
+</div>
+<div class="flex-1 min-w-0">
+<h4 class="font-headline-sm text-[14px] font-semibold text-on-surface truncate">Mercado Municipal</h4>
+<p class="font-body-sm text-[12px] text-on-surface-variant truncate">Gastronomía local y cecina</p>
+</div>
+<span class="material-symbols-outlined text-outline-variant text-[18px]">chevron_right</span>
+</div>
+</div>
+</section>
+</main>
+<!-- Botón Flotante Inferior Central "Mapa" (Fixed Above Bottom Bar) -->
+<div class="fixed bottom-20 left-0 right-0 z-40 flex justify-center pointer-events-none max-w-[390px] mx-auto">
+<button class="pointer-events-auto px-4 py-2.5 bg-inverse-surface text-surface rounded-full shadow-lg flex items-center gap-2 font-label-md text-label-md active:scale-95 transition-transform duration-150 hover:bg-inverse-surface/90">
+<span class="material-symbols-outlined text-[18px] text-surface">map</span>
+<span>Mapa</span>
+</button>
+</div>
+<!-- BottomNavBar (Anchored JSON Component) -->
+<!-- Destination count: 3, Labels: ["Cerca", "Municipios", "Comunidad"] -->
+<!-- Active Destination: "Municipios" representing current destination hub context -->
+<nav class="fixed bottom-0 left-0 right-0 z-50 flex justify-around items-center px-gutter max-w-[390px] mx-auto h-16 bg-surface border-t border-surface-variant/50 pb-safe">
+<!-- Tab 1: Cerca (Inactive) -->
+<a aria-label="Cerca" class="flex flex-col items-center justify-center text-on-surface-variant py-1 hover:text-primary transition-colors duration-150 active:scale-95" href="#">
+<span class="material-symbols-outlined text-[22px]">near_me</span>
+<span class="font-label-sm text-label-sm mt-0.5">Cerca</span>
+</a>
+<!-- Tab 2: Municipios (Active according to JSON instruction & Style Guidance) -->
+<a aria-label="Municipios" class="flex flex-col items-center justify-center text-primary font-semibold py-1 hover:text-primary transition-colors duration-150 active:scale-95" href="#">
+<span class="material-symbols-outlined text-[22px]" style="font-variation-settings: 'FILL' 1;">location_city</span>
+<span class="font-label-sm text-label-sm mt-0.5">Municipios</span>
+</a>
+<!-- Tab 3: Comunidad (Inactive) -->
+<a aria-label="Comunidad" class="flex flex-col items-center justify-center text-on-surface-variant py-1 hover:text-primary transition-colors duration-150 active:scale-95" href="#">
+<span class="material-symbols-outlined text-[22px]">chat</span>
+<span class="font-label-sm text-label-sm mt-0.5">Comunidad</span>
+</a>
+</nav>
+</div>
+</body></html>

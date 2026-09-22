@@ -1,0 +1,60 @@
+{
+  "project": "projects/2941485489938692309",
+  "projectId": "2941485489938692309",
+  "title": "entrelugares",
+  "url": "https://stitch.withgoogle.com/projects/2941485489938692309",
+  "designSystem": "assets/1355268398849959232",
+  "screens": {
+    "01-explorar": {
+      "title": "Explorar (público, móvil)",
+      "name": "projects/2941485489938692309/screens/5a162945f9394295bef653fee3799cef",
+      "screenTitle": "Explorar · Entre Lugares",
+      "png": true,
+      "html": true
+    },
+    "02-mapa": {
+      "title": "Mapa (público, móvil)",
+      "name": "projects/2941485489938692309/screens/56abaad47ea240b8b76373e3d0f08353",
+      "screenTitle": "Mapa · Entre Lugares (layout corregido)",
+      "png": true,
+      "html": true
+    },
+    "03-detalle-evento": {
+      "title": "Detalle de evento (público, móvil)",
+      "name": "projects/2941485489938692309/screens/583638e83e884dfb9942c72227a5b8ee",
+      "screenTitle": "Detalle de Evento · Noche de Son Jarocho",
+      "png": true,
+      "html": true
+    },
+    "04-municipio": {
+      "title": "Destino: municipio (público, móvil)",
+      "name": "projects/2941485489938692309/screens/fcc25e32e9e749878d707c4da618b85c",
+      "screenTitle": "Destino: Tlayacapan",
+      "png": true,
+      "html": true
+    },
+    "05-admin-subir": {
+      "title": "Admin · Subir flyers (privado, escritorio)",
+      "name": "projects/2941485489938692309/screens/75d4697eb2df46f18762697da7b73837",
+      "screenTitle": "Admin · Subir flyers",
+      "png": true,
+      "html": true
+    },
+    "06-admin-revision": {
+      "title": "Admin · Revisión (privado, escritorio)",
+      "name": "projects/2941485489938692309/screens/331abe75ebf94157b6005df86206e80d",
+      "screenTitle": "Admin · Revisión de Eventos",
+      "png": true,
+      "html": true
+    },
+    "07-admin-fuentes": {
+      "title": "Admin · Fuentes (privado, escritorio)",
+      "name": "projects/2941485489938692309/screens/78b9ad5fcf3a454e957915c8318b3af8",
+      "screenTitle": "Admin · Fuentes",
+      "png": true,
+      "html": true
+    }
+  },
+  "designSystemUrl": "https://stitch.withgoogle.com/projects/2941485489938692309",
+  "theme": "v2 airbnb-like (2026-09-21)"
+}
