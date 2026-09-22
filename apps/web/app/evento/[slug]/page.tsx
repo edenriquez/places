@@ -5,6 +5,7 @@ import type { Metadata } from "next";
 import { ArrowLeft, CalendarDays, Flag, Heart, MapPin, Share2 } from "lucide-react";
 import { CompactCard } from "@/components/event-card";
 import { StaticMap } from "@/components/static-map";
+import { ZoomableImage } from "@/components/image-viewer";
 import { PriceTag } from "@/components/ui";
 import { flyerUrl, fmtPrice, fmtWhenLong } from "@/lib/format";
 import { eventBySlug, municipalityEvents } from "@/lib/queries";
@@ -43,7 +44,11 @@ export default async function EventPage({ params }: Params) {
   return (
     <main className="mx-auto max-w-screen-sm pb-28">
       <div className="relative aspect-[4/3] bg-bg-2">
-        {img && <Image src={img} alt={event.title} fill priority sizes="(max-width: 640px) 100vw, 640px" className="object-cover" />}
+        {img && (
+          <ZoomableImage src={img} alt={event.title}>
+            <Image src={img} alt={event.title} fill priority sizes="(max-width: 640px) 100vw, 640px" className="object-cover" />
+          </ZoomableImage>
+        )}
         <div className="absolute inset-x-4 top-[max(env(safe-area-inset-top),12px)] flex items-center justify-between">
           <Link href="/" aria-label="Volver" className="grid h-10 w-10 place-items-center rounded-full bg-white shadow-soft"><ArrowLeft size={20} /></Link>
           <div className="flex gap-2">

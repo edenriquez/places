@@ -5,6 +5,7 @@ import { useMemo, useState, useTransition } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import clsx from "clsx";
 import { flyerUrl } from "@/lib/format";
+import { ZoomableImage } from "@/components/image-viewer";
 import { CATEGORY_LABEL, type Category, type Event, type Occurrence, type RawIngestion } from "@/lib/types";
 import { approveIngestion, markDuplicate, rejectIngestion, saveCorrection } from "../../actions";
 
@@ -71,8 +72,13 @@ export function ReviewForm({ ingestion, event, occurrences, municipalities, plac
     <div className="mt-5 grid gap-6 lg:grid-cols-[minmax(0,460px)_1fr]">
       <div>
         <div className="relative aspect-[4/5] overflow-hidden rounded-card border border-line bg-bg-2">
-          {url && <Image src={url} alt="" fill sizes="460px" className="object-contain" />}
+          {url && (
+            <ZoomableImage src={url} alt="Flyer">
+              <Image src={url} alt="" fill sizes="460px" className="object-contain" />
+            </ZoomableImage>
+          )}
         </div>
+        <p className="mt-1 text-[12px] text-ink-3">Toca el flyer para verlo a tamaño real.</p>
         <p className="mt-3 text-[12px] text-ink-2">
           {ingestion.sources?.name ?? "manual"} · {new Date(ingestion.received_at).toLocaleString("es-MX")}
           {ingestion.origin_url && <> · <a href={ingestion.origin_url} target="_blank" rel="noreferrer" className="underline">{ingestion.origin_url.replace(/^https?:\/\//, "").slice(0, 48)}…</a></>}
