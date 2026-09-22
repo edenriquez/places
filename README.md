@@ -50,6 +50,17 @@ node apps/web/scripts/create-admin.mjs tu@correo.mx 'una-contraseña'
 
 Para dejarlo automático: `ops/launchd/*.plist` (process cada 10 min, scrape a las 03:00).
 
-## Producción (pendiente)
+## Producción
 
-Supabase cloud + Vercel para `apps/web`. El job de ingesta sigue corriendo solo en la Mac apuntando a la base de producción (`DATABASE_URL`, `SUPABASE_URL`, `SUPABASE_SERVICE_KEY`).
+Proyecto Supabase `entrelugares` (ref `swsdnphwstuvrjhrpmlw`, us-west-2). Las migraciones las aplica el workflow `.github/workflows/supabase.yml` en cada push a `main` que toque `supabase/`.
+
+```bash
+# copiar el seed local a producción (idempotente; requiere `supabase login` o SUPABASE_SERVICE_KEY)
+python3 ops/push_seed_to_prod.py
+
+# admin en producción
+SUPABASE_URL=https://swsdnphwstuvrjhrpmlw.supabase.co SUPABASE_SERVICE_ROLE_KEY=<service_role> \
+  node apps/web/scripts/create-admin.mjs tu@correo.mx 'contraseña'
+```
+
+Web: Vercel con `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` y `NEXT_PUBLIC_SITE_URL` (pendiente). El job de ingesta sigue corriendo solo en la Mac apuntando a producción (`DATABASE_URL`, `SUPABASE_URL`, `SUPABASE_SERVICE_KEY` en `packages/ingest/.env`).
