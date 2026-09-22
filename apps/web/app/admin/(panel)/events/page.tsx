@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { Search } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { flyerUrl, fmtWhenShort } from "@/lib/format";
 import { CATEGORY_LABEL, type Category } from "@/lib/types";
@@ -9,14 +10,29 @@ import { EventImageButton } from "./image-button";
 
 export const metadata = { title: "Eventos · Admin" };
 
-export default async function EventsAdminPage({ searchParams }: { searchParams: Promise<{ s?: string }> }) {
+export default async function EventsAdminPage({ searchParams }: { searchParams: Promise<{ s?: string; q?: string; m?: string }> }) {
   const sp = await searchParams;
+  const status = sp.s ?? "";
+  const search = (sp.q ?? "").trim();
+  const muni = sp.m ?? "";
   const sb = await createClient();
+  const { data: munis } = await sb.from("municipalities_view").select("cvegeo,name").order("name");
   let q = sb.from("events")
     .select("id, slug, title, category, status, is_free, price_min, image_path, municipalities:municipality_cvegeo(name), event_occurrences(starts_at)")
     .order("created_at", { ascending: false }).limit(100);
-  if (sp.s) q = q.eq("status", sp.s);
+  if (status) q = q.eq("status", status);
+  if (muni) q = q.eq("municipality_cvegeo", muni);
+  if (search) q = q.ilike("title", `%${search.replace(/[%_]/g, "\\$&")}%`);
   const { data } = await q;
+  const link = (over: Partial<{ s: string; q: string; m: string }>) => {
+    const params = new URLSearchParams();
+    const next = { s: status, q: search, m: muni, ...over };
+    if (next.s) params.set("s", next.s);
+    if (next.q) params.set("q", next.q);
+    if (next.m) params.set("m", next.m);
+    const qs = params.toString();
+    return qs ? `/admin/events?${qs}` : "/admin/events";
+  };
   const rows = (data ?? []) as unknown as { id: string; slug: string; title: string; category: Category; status: string; is_free: boolean; price_min: number | null; image_path: string | null; municipalities: { name: string } | null; event_occurrences: { starts_at: string }[] }[];
 
   return (
@@ -28,10 +44,29 @@ export default async function EventsAdminPage({ searchParams }: { searchParams: 
         </div>
         <div className="flex gap-2 text-[13px]">
           {[["", "Todos"], ["published", "Publicados"], ["pending", "Pendientes"], ["rejected", "Descartados"]].map(([k, l]) => (
-            <Link key={k} href={k ? `/admin/events?s=${k}` : "/admin/events"} className={`rounded-full border px-3 py-1.5 font-medium ${(sp.s ?? "") === k ? "border-ink bg-ink text-white" : "border-line-2"}`}>{l}</Link>
+            <Link key={k} href={link({ s: k })} className={`rounded-full border px-3 py-1.5 font-medium ${status === k ? "border-ink bg-ink text-white" : "border-line-2"}`}>{l}</Link>
           ))}
         </div>
       </div>
+
+      <form className="mt-4 flex flex-wrap items-center gap-2 text-[14px]">
+        {status && <input type="hidden" name="s" value={status} />}
+        <div className="relative min-w-[260px] flex-1">
+          <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-3" />
+          <input
+            name="q"
+            defaultValue={search}
+            placeholder="Buscar por nombre del evento"
+            className="w-full rounded-control border border-line-2 bg-white py-2 pl-9 pr-3 focus:border-ink focus:outline-none"
+          />
+        </div>
+        <select name="m" defaultValue={muni} className="rounded-control border border-line-2 bg-white px-3 py-2">
+          <option value="">Todos los municipios</option>
+          {(munis ?? []).map((m) => <option key={m.cvegeo} value={m.cvegeo}>{m.name}</option>)}
+        </select>
+        <button className="rounded-control border border-ink px-4 py-2 font-semibold">Filtrar</button>
+        {(search || muni) && <Link href={link({ q: "", m: "" })} className="px-2 py-2 text-[13px] text-ink-2 underline">Limpiar</Link>}
+      </form>
       <div className="mt-5 overflow-hidden rounded-card border border-line">
         <table className="w-full text-[14px]">
           <thead className="bg-bg-2 text-left text-[12px] uppercase tracking-[0.04em] text-ink-2">
@@ -60,7 +95,7 @@ export default async function EventsAdminPage({ searchParams }: { searchParams: 
                 </tr>
               );
             })}
-            {!rows.length && <tr><td colSpan={6} className="px-4 py-8 text-center text-ink-2">No hay eventos con ese filtro.</td></tr>}
+            {!rows.length && <tr><td colSpan={6} className="px-4 py-8 text-center text-ink-2">{search || muni ? "Ningún evento coincide con la búsqueda." : "No hay eventos con ese filtro."}</td></tr>}
           </tbody>
         </table>
       </div>
