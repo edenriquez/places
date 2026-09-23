@@ -5,7 +5,7 @@ import { BackButton } from "./back-button";
 import { DesktopOnly, MobileOnly } from "./desktop";
 import { CompactCard, EventCard } from "./event-card";
 import { ZoomableImage } from "./image-viewer";
-import { StaticMap } from "./static-map";
+import { StaticMap } from "./static-map-lazy";
 import { PriceTag } from "./ui";
 import { flyerUrl, fmtPhone, fmtWhenLong, waLink } from "@/lib/format";
 import type { eventBySlug } from "@/lib/queries";

@@ -1,6 +1,7 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
+import { EVENTS_TAG } from "@/lib/queries";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
@@ -156,6 +157,7 @@ export async function approveIngestion(input: ReviewInput) {
   await sb.from("raw_ingestions").update({ status: "approved", event_id: eventId, reviewed_at: new Date().toISOString(), correction: input }).eq("id", input.ingestionId);
   revalidatePath("/admin/review");
   revalidatePath("/");
+  updateTag(EVENTS_TAG);
   redirect("/admin/review");
 }
 
@@ -168,6 +170,7 @@ export async function saveCorrection(input: ReviewInput) {
   revalidatePath(`/admin/review/${input.ingestionId}`);
   revalidatePath("/admin/events");
   revalidatePath("/");
+  updateTag(EVENTS_TAG);
   return { ok: true };
 }
 
@@ -175,6 +178,7 @@ export async function rejectIngestion(ingestionId: string, eventId: string | nul
   const sb = await admin();
   if (eventId) await sb.from("events").update({ status: "rejected" }).eq("id", eventId);
   await sb.from("raw_ingestions").update({ status: "rejected", reviewed_at: new Date().toISOString() }).eq("id", ingestionId);
+  updateTag(EVENTS_TAG);
   revalidatePath("/admin/review");
   redirect("/admin/review");
 }
@@ -183,6 +187,7 @@ export async function markDuplicate(ingestionId: string, eventId: string | null,
   const sb = await admin();
   if (eventId && eventId !== canonicalEventId) await sb.from("events").update({ status: "rejected", canonical_of: canonicalEventId }).eq("id", eventId);
   await sb.from("raw_ingestions").update({ status: "duplicate", event_id: canonicalEventId, reviewed_at: new Date().toISOString() }).eq("id", ingestionId);
+  updateTag(EVENTS_TAG);
   revalidatePath("/admin/review");
   redirect("/admin/review");
 }
@@ -225,6 +230,7 @@ export async function setEventStatus(id: string, status: "published" | "pending"
   await sb.from("events").update({ status, published_at: status === "published" ? new Date().toISOString() : null }).eq("id", id);
   revalidatePath("/admin/events");
   revalidatePath("/");
+  updateTag(EVENTS_TAG);
 }
 
 /** Asigna imagen a un evento; si viene de una fiesta recurrente, la guarda también ahí para años futuros. */
@@ -235,5 +241,6 @@ export async function setEventImage(eventId: string, path: string) {
   if (ev?.festivity_id) await sb.from("festivities").update({ image_path: path }).eq("id", ev.festivity_id);
   revalidatePath("/admin/events");
   revalidatePath("/");
+  updateTag(EVENTS_TAG);
   return { ok: true as const };
 }

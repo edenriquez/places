@@ -6,7 +6,7 @@ import { CategoryRow } from "@/components/category-row";
 import { DesktopHeader, DesktopOnly } from "@/components/desktop";
 import { EventCard } from "@/components/event-card";
 import { EventPanel, eventCoords } from "@/components/event-detail";
-import { EventMap } from "@/components/event-map";
+import { EventMap } from "@/components/event-map-lazy";
 import { HomeFeed } from "@/components/home-feed";
 import { SearchBar } from "@/components/location-picker";
 import { LocationPrompt } from "@/components/location-prompt";
@@ -38,18 +38,18 @@ export async function ExploreView({ sp, split = false, basePath = "/" }: { sp: E
   //  1) "tu zona" en el rango de fechas, por fecha: tu municipio (o ≤ LOCAL_KM del GPS), o el estado elegido
   //  2) "Más eventos cerca de ti": todo lo demás que viene, del más cercano al más lejano
   const anywhere = { ...loc, radiusKm: 400 };
-  const [munis, liveAll, inRange, allUpcoming] = await Promise.all([
+  const [munis, liveAll, inRange, allUpcoming, suggestions] = await Promise.all([
     municipalities(),
     eventsLiveNear(isSet ? anywhere : { ...loc, radiusKm: 400, stateCve: undefined }),
     isSet ? eventsNear(anywhere, range, category) : Promise.resolve([] as NearRow[]),
     isSet ? eventsNear({ ...anywhere, stateCve: undefined }, "todo", category) : Promise.resolve([] as NearRow[]),
+    isSet ? Promise.resolve([] as NearRow[]) : eventsAround(loc, category),
   ]);
   const live = (category ? liveAll.filter((e) => e.category === category) : liveAll).sort((a, b) => a.distance_m - b.distance_m);
   const isLocal = (e: NearRow) => !!loc.stateCve || e.municipality_cvegeo === loc.cvegeo || e.distance_m <= LOCAL_KM * 1000;
   const upcoming = inRange.filter(isLocal);
   const shown = new Set(upcoming.map((e) => e.event_id));
   const nearby = allUpcoming.filter((e) => !shown.has(e.event_id)).sort((a, b) => a.distance_m - b.distance_m);
-  const suggestions = isSet ? [] : await eventsAround(loc, category);
   const rangeLabel = RANGES.find((r) => r.key === range)!.label;
   // GPS sin pueblo cercano: "tu zona"; GPS con pueblo: "Tlalmanalco" (setLocation ya lo nombró)
   const area = loc.stateCve || loc.cvegeo || loc.label !== "Tu ubicación" ? loc.label : "tu zona";

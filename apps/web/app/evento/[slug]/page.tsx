@@ -31,7 +31,7 @@ export default async function EventPage({ params }: Params) {
     getLoc(),
     hasLoc(),
     municipalities(),
-    data.municipality ? municipalityEvents(data.municipality.cvegeo, 7) : Promise.resolve([]),
+    data.municipality ? municipalityEvents(data.municipality.cvegeo, 7, data.municipality) : Promise.resolve([]),
   ]);
   const others = around.filter((e) => e.event_id !== data.event.id);
 

@@ -1,6 +1,42 @@
+import { cache } from "react";
+import { unstable_cache } from "next/cache";
 import { createAnonClient } from "./supabase/server";
 import type { Event, Festivity, Municipality, NearRow, Occurrence, Place } from "./types";
 import { EXPLORE, type Loc } from "./location";
+
+/**
+ * Caché de datos públicos (sin cookies): la BD vive en us-west-2 y cada viaje cuesta. Las acciones del admin
+ * invalidan con updateTag(EVENTS_TAG); lo que llega por el script de seed aparece al vencer el TTL.
+ */
+export const EVENTS_TAG = "events";
+const EVENTS_TTL = 300;
+const LIVE_TTL = 60;
+
+// "ahora" y las coordenadas se redondean para que visitas cercanas compartan entrada de caché
+const bucket = (d: Date) => new Date(Math.floor(d.getTime() / (EVENTS_TTL * 1000)) * EVENTS_TTL * 1000).toISOString();
+const round = (x: number) => Math.round(x * 1000) / 1000; // ~100 m
+
+type NearArgs = { lat: number; lng: number; radius_m: number; from_ts: string; to_ts: string };
+
+const rpcEventsNear = unstable_cache(
+  async (args: NearArgs) => {
+    const { data, error } = await createAnonClient().rpc("events_near", args);
+    if (error) throw error;
+    return (data ?? []) as NearRow[];
+  },
+  ["events_near"],
+  { tags: [EVENTS_TAG], revalidate: EVENTS_TTL },
+);
+
+const rpcEventsLiveNear = unstable_cache(
+  async (args: { lat: number; lng: number; radius_m: number }) => {
+    const { data, error } = await createAnonClient().rpc("events_live_near", args);
+    if (error) throw error;
+    return (data ?? []) as NearRow[];
+  },
+  ["events_live_near"],
+  { tags: [EVENTS_TAG], revalidate: LIVE_TTL },
+);
 
 function weekendRange(now = new Date()) {
   // viernes 00:00 → domingo 23:59 (hora local del servidor; suficiente para el MVP)
@@ -37,19 +73,17 @@ export function rangeBounds(range: Range, now = new Date()) {
 }
 
 export async function eventsNear(loc: Loc, range: Range = "finde", category?: string): Promise<NearRow[]> {
-  const sb = createAnonClient();
   const { from, to } = rangeBounds(range);
-  const { data, error } = await sb.rpc("events_near", {
-    lat: loc.lat,
-    lng: loc.lng,
+  const data = await rpcEventsNear({
+    lat: round(loc.lat),
+    lng: round(loc.lng),
     radius_m: radiusM(loc),
-    from_ts: from.toISOString(),
-    to_ts: to.toISOString(),
+    from_ts: bucket(from),
+    to_ts: bucket(to),
   });
-  if (error) throw error;
   // una fila por evento: la RPC ya viene ordenada por fecha asc, así que la primera es la próxima fecha
   const seen = new Set<string>();
-  const rows = inState(loc, (data ?? []) as NearRow[]).filter((r) => !seen.has(r.event_id) && !!seen.add(r.event_id));
+  const rows = inState(loc, data).filter((r) => !seen.has(r.event_id) && !!seen.add(r.event_id));
   return category ? rows.filter((r) => r.category === category) : rows;
 }
 
@@ -61,11 +95,19 @@ export async function eventsAround(loc: Loc, category?: string, limit = 8): Prom
 }
 
 /** Coordenadas por evento (lugar o centro del municipio) para pintar pines. */
+const eventPoints = unstable_cache(
+  async (ids: string[]) => {
+    const { data } = await createAnonClient().from("event_points_view").select("event_id,lat,lng").in("event_id", ids);
+    return (data ?? []) as { event_id: string; lat: number; lng: number }[];
+  },
+  ["event_points"],
+  { tags: [EVENTS_TAG], revalidate: EVENTS_TTL },
+);
+
 export async function withCoords(rows: NearRow[]): Promise<(NearRow & { lat: number; lng: number })[]> {
-  const ids = [...new Set(rows.map((r) => r.event_id))];
+  const ids = [...new Set(rows.map((r) => r.event_id))].sort();
   if (!ids.length) return [];
-  const { data } = await createAnonClient().from("event_points_view").select("event_id,lat,lng").in("event_id", ids);
-  const coord = new Map((data ?? []).map((p) => [p.event_id as string, p as { lat: number; lng: number }]));
+  const coord = new Map((await eventPoints(ids)).map((p) => [p.event_id, p]));
   return rows
     .map((r) => ({ ...r, lat: coord.get(r.event_id)?.lat ?? null, lng: coord.get(r.event_id)?.lng ?? null }))
     .filter((r): r is NearRow & { lat: number; lng: number } => r.lat != null && r.lng != null);
@@ -80,25 +122,24 @@ export function stateBox(munis: Municipality[], stateCve?: string): [[number, nu
 }
 
 export async function eventsLiveNear(loc: Loc): Promise<NearRow[]> {
-  const sb = createAnonClient();
-  const { data, error } = await sb.rpc("events_live_near", {
-    lat: loc.lat,
-    lng: loc.lng,
-    radius_m: radiusM(loc),
-  });
-  if (error) throw error;
-  return inState(loc, (data ?? []) as NearRow[]);
+  const data = await rpcEventsLiveNear({ lat: round(loc.lat), lng: round(loc.lng), radius_m: radiusM(loc) });
+  return inState(loc, data);
 }
 
-export async function municipalities(): Promise<Municipality[]> {
-  const sb = createAnonClient();
-  const { data, error } = await sb
-    .from("municipalities_view")
-    .select("*")
-    .order("name");
-  if (error) throw error;
-  return (data ?? []) as Municipality[];
-}
+// el catálogo de municipios casi no cambia: un día
+export const municipalities = unstable_cache(
+  async (): Promise<Municipality[]> => {
+    const sb = createAnonClient();
+    const { data, error } = await sb
+      .from("municipalities_view")
+      .select("*")
+      .order("name");
+    if (error) throw error;
+    return (data ?? []) as Municipality[];
+  },
+  ["municipalities"],
+  { revalidate: 86400 },
+);
 
 export async function municipalityBySlug(slug: string) {
   const sb = createAnonClient();
@@ -106,7 +147,7 @@ export async function municipalityBySlug(slug: string) {
   return data as Municipality | null;
 }
 
-export async function eventBySlug(slug: string) {
+const cachedEventBySlug = unstable_cache(async (slug: string) => {
   const sb = createAnonClient();
   const { data: event } = await sb.from("events").select("*").eq("slug", slug).eq("status", "published").maybeSingle();
   if (!event) return null;
@@ -123,18 +164,22 @@ export async function eventBySlug(slug: string) {
     municipality: muni as Municipality | null,
     organization: org as { id: string; name: string; kind: string; logo_url: string | null } | null,
   };
-}
+}, ["event_by_slug"], { tags: [EVENTS_TAG], revalidate: EVENTS_TTL });
 
-export async function municipalityEvents(cvegeo: string, limit = 12): Promise<NearRow[]> {
-  const sb = createAnonClient();
-  const { data: m } = await sb.from("municipalities_view").select("lat,lng").eq("cvegeo", cvegeo).maybeSingle();
+// cache(): generateMetadata, la página y la imagen OG comparten una sola llamada por request
+export const eventBySlug = cache((slug: string) => cachedEventBySlug(slug));
+
+/** `at`: centro del municipio si ya lo tienes (ahorra un viaje a la BD). */
+export async function municipalityEvents(cvegeo: string, limit = 12, at?: { lat: number; lng: number }): Promise<NearRow[]> {
+  const m = at ?? (await createAnonClient().from("municipalities_view").select("lat,lng").eq("cvegeo", cvegeo).maybeSingle()).data;
   if (!m) return [];
-  const { data } = await sb.rpc("events_near", {
-    lat: m.lat, lng: m.lng, radius_m: 25000,
-    from_ts: new Date().toISOString(),
-    to_ts: new Date(Date.now() + 90 * 86400000).toISOString(),
+  const now = new Date();
+  const data = await rpcEventsNear({
+    lat: round(m.lat), lng: round(m.lng), radius_m: 25000,
+    from_ts: bucket(now),
+    to_ts: bucket(new Date(now.getTime() + 90 * 86400000)),
   });
-  return ((data ?? []) as NearRow[]).filter((r) => r.municipality_cvegeo === cvegeo).slice(0, limit);
+  return data.filter((r) => r.municipality_cvegeo === cvegeo).slice(0, limit);
 }
 
 export async function municipalityFestivities(cvegeo: string): Promise<Festivity[]> {
