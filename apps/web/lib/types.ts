@@ -145,3 +145,56 @@ export type Source = {
   last_error: string | null;
   new_items_last_run: number;
 };
+
+export type JobKind = "process" | "scrape" | "festivities" | "seed" | "doctor";
+export type JobStatus = "queued" | "running" | "done" | "failed" | "cancelled";
+
+export const JOB_KIND_LABEL: Record<JobKind, string> = {
+  process: "Procesar flyers",
+  scrape: "Revisar fuentes",
+  festivities: "Publicar fiestas del año",
+  seed: "Cargar catálogo",
+  doctor: "Diagnóstico de la Mac",
+};
+
+export type Job = {
+  id: string;
+  kind: JobKind;
+  params: Record<string, unknown>;
+  status: JobStatus;
+  priority: number;
+  origin: "admin" | "auto" | "cli";
+  requested_by: string | null;
+  worker_id: string | null;
+  progress_done: number;
+  progress_total: number | null;
+  progress_message: string | null;
+  result: Record<string, unknown> | null;
+  error: string | null;
+  log: string[];
+  cancel_requested_at: string | null;
+  heartbeat_at: string | null;
+  created_at: string;
+  started_at: string | null;
+  finished_at: string | null;
+};
+
+export type Worker = {
+  id: string;
+  status: "online" | "busy" | "offline";
+  current_job_id: string | null;
+  hostname: string | null;
+  version: string | null;
+  meta: {
+    model?: string; ocr_engine?: string; ollama?: boolean; load?: number | null;
+    power?: "ac" | "battery" | null; uptime_s?: number; os?: string; python?: string; heartbeat_s?: number;
+  };
+  started_at: string;
+  last_seen_at: string;
+};
+
+/** Heartbeat cada ~15 s: sin señal en 45 s la damos por desconectada. */
+export const WORKER_ONLINE_WINDOW_MS = 45_000;
+export function workerIsOnline(w: Pick<Worker, "last_seen_at" | "status">) {
+  return w.status !== "offline" && Date.now() - new Date(w.last_seen_at).getTime() < WORKER_ONLINE_WINDOW_MS;
+}

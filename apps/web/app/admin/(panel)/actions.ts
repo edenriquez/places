@@ -213,10 +213,56 @@ export async function addSource(formData: FormData) {
   revalidatePath("/admin/sources");
 }
 
+/** "Correr ahora": encola una tarea de scrape para esa fuente; la Mac la toma en su siguiente vuelta. */
 export async function runSourceNow(id: string) {
   const sb = await admin();
+  const { data: { user } } = await sb.auth.getUser();
   await sb.from("sources").update({ run_requested_at: new Date().toISOString() }).eq("id", id);
+  await sb.from("jobs").insert({ kind: "scrape", params: { source_id: id, force: true }, origin: "admin", requested_by: user?.id, priority: 1 });
   revalidatePath("/admin/sources");
+  revalidatePath("/admin/jobs");
+}
+
+// ---------------------------------------------------------------------------
+// Tareas para la Mac (tabla jobs). La web solo escribe filas; el worker las reclama y reporta.
+// ---------------------------------------------------------------------------
+
+const JOB_KINDS = ["process", "scrape", "festivities", "seed", "doctor"] as const;
+
+export async function enqueueJob(input: { kind: string; params: Record<string, unknown>; priority?: number }) {
+  const sb = await admin();
+  if (!(JOB_KINDS as readonly string[]).includes(input.kind)) return { ok: false as const, error: "Tipo de tarea desconocido" };
+  const { data: { user } } = await sb.auth.getUser();
+  const { error } = await sb.from("jobs").insert({
+    kind: input.kind,
+    params: input.params ?? {},
+    origin: "admin",
+    requested_by: user?.id,
+    priority: input.priority ?? 0,
+  });
+  if (error) return { ok: false as const, error: error.message };
+  revalidatePath("/admin/jobs");
+  return { ok: true as const };
+}
+
+/** En cola: se cancela de inmediato. Corriendo: se le pide al worker parar tras el flyer/fuente en curso. */
+export async function cancelJob(id: string) {
+  const sb = await admin();
+  const { data: job } = await sb.from("jobs").select("status").eq("id", id).single();
+  if (job?.status === "queued") {
+    await sb.from("jobs").update({ status: "cancelled", progress_message: "cancelada antes de empezar", finished_at: new Date().toISOString() }).eq("id", id);
+  } else if (job?.status === "running") {
+    await sb.from("jobs").update({ cancel_requested_at: new Date().toISOString(), progress_message: "cancelación solicitada…" }).eq("id", id);
+  }
+  revalidatePath("/admin/jobs");
+}
+
+/** Vuelve a encolar una tarea (misma clase y parámetros) como tarea nueva. */
+export async function retryJob(id: string) {
+  const sb = await admin();
+  const { data: job } = await sb.from("jobs").select("kind, params, priority").eq("id", id).single();
+  if (!job) return;
+  await enqueueJob({ kind: job.kind, params: job.params, priority: job.priority });
 }
 
 export async function toggleSource(id: string, enabled: boolean) {

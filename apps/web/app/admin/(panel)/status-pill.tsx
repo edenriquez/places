@@ -11,6 +11,9 @@ const MAP: Record<string, { label: string; cls: string }> = {
   published: { label: "Publicado", cls: "bg-free-bg text-free" },
   pending: { label: "Pendiente", cls: "bg-accent-soft text-accent" },
   cancelled: { label: "Cancelado", cls: "bg-bg-2 text-ink-3" },
+  // jobs
+  running: { label: "Corriendo", cls: "bg-[#fff4e0] text-[#a86400]" },
+  done: { label: "Terminada", cls: "bg-free-bg text-free" },
 };
 
 export function StatusPill({ status }: { status: string }) {

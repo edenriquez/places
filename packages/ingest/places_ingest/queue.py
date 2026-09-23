@@ -8,6 +8,7 @@ from pathlib import Path
 from rich.console import Console
 
 from .db import connect, execute, fetch_all, fetch_one, jsonb
+from .jobs import JobCancelled, Progress, ShouldStop
 from .llm.ollama import OllamaServer
 from .pipeline import process_ingestion
 from .storage import sha256_of, upload_flyer
@@ -16,7 +17,12 @@ console = Console()
 IMAGE_EXT = {".jpg", ".jpeg", ".png", ".webp"}
 
 
-def process_queue(limit: int = 20, max_attempts: int = 3) -> dict[str, int]:
+def process_queue(limit: int = 20, max_attempts: int = 3, job_id: str | None = None,
+                  progress: Progress | None = None, should_stop: ShouldStop | None = None) -> dict[str, int]:
+    """Una pasada por la cola. Con `job_id` marca cada flyer con la tarea y reporta progreso.
+
+    `should_stop` se consulta entre flyers: si devuelve True se lanza JobCancelled (lo hecho se conserva).
+    """
     stats: dict[str, int] = {}
     with connect() as conn:
         rows = fetch_all(
@@ -28,9 +34,20 @@ def process_queue(limit: int = 20, max_attempts: int = 3) -> dict[str, int]:
         )
         if not rows:
             return stats
+        if job_id:
+            execute(conn, "update public.raw_ingestions set job_id=%s where id = any(%s)", (job_id, [r["id"] for r in rows]))
+            conn.commit()
+        total = len(rows)
+        if progress:
+            progress(0, total, f"{total} flyers en cola")
         # Ollama solo vive mientras haya trabajo; se apaga al salir del bloque.
         with OllamaServer():
-            for ing in rows:
+            for i, ing in enumerate(rows, start=1):
+                if should_stop and should_stop():
+                    raise JobCancelled(f"detenido tras {i - 1} de {total}")
+                name = str((ing.get("payload") or {}).get("filename") or ing["media_path"].split("/")[-1])
+                if progress:
+                    progress(i - 1, total, f"procesando {name}")
                 t0 = time.time()
                 try:
                     status = process_ingestion(conn, ing)
@@ -41,9 +58,13 @@ def process_queue(limit: int = 20, max_attempts: int = 3) -> dict[str, int]:
                     conn.commit()
                     status = "failed"
                     console.print(f"[red]✗[/] {ing['id']} {e}")
+                    line = f"✗ {name}: {str(e)[:200]}"
                 else:
                     console.print(f"[green]✓[/] {ing['id']} → {status} ({time.time() - t0:.1f}s)")
+                    line = f"✓ {name} → {status} ({time.time() - t0:.0f}s)"
                 stats[status] = stats.get(status, 0) + 1
+                if progress:
+                    progress(i, total, line)
     return stats
 
 

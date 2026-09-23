@@ -1,4 +1,4 @@
-"""CLI `places-ingest`: seed | process | upload | scrape | festivities | doctor."""
+"""CLI `places-ingest`: seed | process | upload | scrape | festivities | worker | enqueue | jobs | doctor."""
 
 from __future__ import annotations
 
@@ -101,6 +101,58 @@ def festivities(year: int = typer.Option(None, help="Año para listar fechas cal
     t = Table("Fecha", "Municipio", "Fiesta", "Días")
     for cvegeo, name, d, days in sorted(occurrences_for_year(year), key=lambda r: r[2]):
         t.add_row(d.isoformat(), cvegeo, name, str(days))
+    console.print(t)
+
+
+@app.command()
+def worker(once: bool = typer.Option(False, help="Una sola pasada (revisar cola, correr a lo más una tarea) y salir"),
+           name: str | None = typer.Option(None, help="Nombre del worker (default: hostname o WORKER_NAME)")):
+    """La Mac como worker remoto: heartbeat + reclama tareas de `jobs` y reporta progreso. Usa PLACES_ENV_FILE=.env.prod."""
+    from .worker import Worker
+
+    Worker(name).run(once=once)
+
+
+@app.command()
+def enqueue(kind: str = typer.Argument(..., help="process | scrape | festivities | seed | doctor"),
+            param: list[str] = typer.Option(None, "--param", "-p", help="clave=valor (p. ej. -p year=2027 -p force=true)"),  # noqa: B008
+            priority: int = typer.Option(0, help="Mayor = antes")):
+    """Encola una tarea para el worker (equivalente a /admin/jobs)."""
+    import json
+
+    from . import jobs as j
+    from .db import connect
+
+    params: dict = {}
+    for kv in param or []:
+        k, _, v = kv.partition("=")
+        try:
+            params[k] = json.loads(v)
+        except ValueError:
+            params[k] = v
+    with connect() as conn:
+        row = j.enqueue(conn, kind, params, origin="cli", priority=priority)
+    console.print(f"encolada {row['id']} ({kind} {params})")
+
+
+@app.command()
+def jobs(limit: int = 15):
+    """Lista las últimas tareas y el estado de los workers."""
+    from . import jobs as j
+    from .db import connect, fetch_all
+
+    with connect() as conn:
+        workers = fetch_all(conn, "select * from public.workers order by last_seen_at desc")
+        rows = j.recent(conn, limit)
+    t = Table("Worker", "Estado", "Visto", "Tarea actual", "Versión")
+    for w in workers:
+        t.add_row(w["id"], w["status"], w["last_seen_at"].strftime("%H:%M:%S"), str(w["current_job_id"] or "—"), w["version"] or "?")
+    console.print(t)
+    t = Table("Id", "Tipo", "Estado", "Progreso", "Mensaje", "Origen", "Creada")
+    for r in rows:
+        prog = f"{r['progress_done']}/{r['progress_total'] if r['progress_total'] is not None else '?'}"
+        t.add_row(str(r["id"])[:8], r["kind"], r["status"], prog, (r["progress_message"] or r["error"] or "")[:60], r["origin"],
+                  r["created_at"].strftime("%m-%d %H:%M"))
     console.print(t)
 
 

@@ -15,3 +15,9 @@ data/raw/
 data/cache/
 design/stitch/*.png
 packages/ingest/data/
+
+# respaldos de prod que hace ops/push_seed_to_prod.py --wipe
+ops/backups/
+
+# perfil de producción del worker (ops/worker.sh setup)
+packages/ingest/.env.prod

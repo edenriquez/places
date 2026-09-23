@@ -2,7 +2,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AdminNav } from "./nav";
-import { isWithinMinutes, relativeTime } from "@/lib/format";
+import { relativeTime } from "@/lib/format";
+import { JOB_KIND_LABEL, workerIsOnline, type Job, type Worker } from "@/lib/types";
 
 export const metadata = { title: "Admin" };
 export const dynamic = "force-dynamic";
@@ -12,13 +13,24 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const { data: { user } } = await sb.auth.getUser();
   if (!user) redirect("/admin/login");
 
-  const [{ count: pending }, { data: lastRun }] = await Promise.all([
+  const [{ count: pending }, { data: workerRow }] = await Promise.all([
     sb.from("raw_ingestions").select("id", { count: "exact", head: true }).eq("status", "needs_review"),
-    sb.from("sources").select("last_run_at").order("last_run_at", { ascending: false, nullsFirst: false }).limit(1).maybeSingle(),
+    sb.from("workers").select("*").order("last_seen_at", { ascending: false }).limit(1).maybeSingle(),
   ]);
-  const { data: lastProcessed } = await sb.from("raw_ingestions").select("processed_at").not("processed_at", "is", null).order("processed_at", { ascending: false }).limit(1).maybeSingle();
-  const lastJob = [lastRun?.last_run_at, lastProcessed?.processed_at].filter(Boolean).sort().pop() as string | undefined;
-  const jobActive = isWithinMinutes(lastJob, 30);
+  const worker = workerRow as Worker | null;
+  const online = !!worker && workerIsOnline(worker);
+  let currentJob: Job | null = null;
+  if (online && worker?.current_job_id) {
+    const { data } = await sb.from("jobs").select("kind, progress_done, progress_total").eq("id", worker.current_job_id).maybeSingle();
+    currentJob = data as Job | null;
+  }
+  const headerText = !worker
+    ? "Mac sin conectar"
+    : !online
+      ? `Mac sin conexión · vista ${relativeTime(worker.last_seen_at)}`
+      : currentJob
+        ? `Mac ocupada · ${JOB_KIND_LABEL[currentJob.kind].toLowerCase()} ${currentJob.progress_done}/${currentJob.progress_total ?? "?"}`
+        : "Mac en línea · libre";
 
   return (
     <div className="flex min-h-dvh bg-white text-ink">
@@ -39,10 +51,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       <div className="min-w-0 flex-1">
         <header className="flex items-center justify-between border-b border-line px-6 py-3">
           <div className="text-[13px] text-ink-2 md:hidden"><AdminNav pending={pending ?? 0} inline /></div>
-          <div className="ml-auto flex items-center gap-2 text-[12px] font-medium">
-            <span className={`h-2 w-2 rounded-full ${jobActive ? "bg-free" : "bg-ink-3"}`} />
-            {jobActive ? `Job local activo · última corrida ${relativeTime(lastJob!)}` : `Job local sin actividad reciente${lastJob ? ` · ${relativeTime(lastJob)}` : ""}`}
-          </div>
+          <Link href="/admin/jobs" className="ml-auto flex items-center gap-2 text-[12px] font-medium hover:underline">
+            <span className={`h-2 w-2 rounded-full ${!online ? "bg-ink-3" : currentJob ? "bg-warn live-dot" : "bg-free"}`} />
+            {headerText}
+          </Link>
         </header>
         <div className="p-6">{children}</div>
       </div>

@@ -7,7 +7,7 @@ apps/web/          Next.js 16 (App Router, Tailwind v4, MapLibre). Público + /a
 packages/ingest/   Job local en Python: seed, OCR + modelo local (Ollama), scraping. Corre en la Mac
 supabase/          Migraciones (Postgres + PostGIS, RLS, bucket flyers) y seed.sql
 design/stitch/     Mocks de Stitch (HTML + PNG), DESIGN.md y PROMPTS.md
-ops/launchd/       Plists para correr el job local en la Mac
+ops/               worker.sh (instala el worker en la Mac) y el plist de launchd; push_seed_to_prod.py
 ```
 
 Plan y decisiones: `~/.claude/plans/rippling-painting-hamming.md`.
@@ -48,7 +48,7 @@ node apps/web/scripts/create-admin.mjs tu@correo.mx 'una-contraseña'
 4. Lo publicado aparece en `/` (Explorar, "Sucediendo ahora"), `/mapa`, `/evento/<slug>` y `/municipio/<slug>`.
 5. `places-ingest scrape` recorre las fuentes de `/admin/sources` y encola imágenes nuevas.
 
-Para dejarlo automático: `ops/launchd/*.plist` (process cada 10 min, scrape a las 03:00).
+Para dejarlo automático contra producción: el worker (abajo). En local basta `places-ingest process --loop`.
 
 ## Producción
 
@@ -63,4 +63,21 @@ SUPABASE_URL=https://swsdnphwstuvrjhrpmlw.supabase.co SUPABASE_SERVICE_ROLE_KEY=
   node apps/web/scripts/create-admin.mjs tu@correo.mx 'contraseña'
 ```
 
-Web: Vercel con `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` y `NEXT_PUBLIC_SITE_URL` (pendiente). El job de ingesta sigue corriendo solo en la Mac apuntando a producción (`DATABASE_URL`, `SUPABASE_URL`, `SUPABASE_SERVICE_KEY` en `packages/ingest/.env`).
+Web: Vercel con `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` y `NEXT_PUBLIC_SITE_URL`.
+
+### La Mac como worker remoto
+
+El OCR y el modelo siguen corriendo solo en la Mac, pero contra producción. La Mac hace polling a la tabla `jobs`
+y manda heartbeat a `workers` (solo conexiones salientes; sin puertos abiertos). En `/admin/jobs` se ve si la Mac está
+en línea, qué está haciendo, y se encolan tareas (procesar flyers, revisar fuentes, publicar fiestas, seed, diagnóstico)
+con progreso y log por tarea. El worker encola solo `process` cuando hay flyers en cola y `scrape` cuando una fuente toca.
+
+```bash
+ops/worker.sh setup      # crea packages/ingest/.env.prod (pide la contraseña de la BD; la service_role la saca la CLI)
+ops/worker.sh check      # doctor contra producción
+ops/worker.sh install    # agente de launchd: arranca al iniciar sesión, se reinicia solo, caffeinate -s con corriente
+ops/worker.sh status     # / logs / restart / uninstall
+```
+
+El `.env` normal sigue apuntando a Supabase local: `places-ingest` sin `PLACES_ENV_FILE` trabaja en local; el agente
+usa `PLACES_ENV_FILE=.env.prod`. Desde la terminal: `places-ingest enqueue doctor`, `places-ingest jobs`.

@@ -37,18 +37,24 @@ uv run places-ingest festivities --year 2027          # lista fechas calculadas 
 uv run places-ingest festivities --publish --year 2027  # crea un evento publicado por fiesta (idempotente)
 ```
 
-## Como job de launchd
-
-Los plists están en `ops/launchd/`. Ajusta las rutas y:
+## Worker remoto (la Mac conectada a producción)
 
 ```bash
-cp ops/launchd/mx.entrelugares.ingest.process.plist ~/Library/LaunchAgents/
-cp ops/launchd/mx.entrelugares.ingest.scrape.plist ~/Library/LaunchAgents/
-launchctl load ~/Library/LaunchAgents/mx.entrelugares.ingest.process.plist
-launchctl load ~/Library/LaunchAgents/mx.entrelugares.ingest.scrape.plist
+uv run places-ingest worker            # bucle: heartbeat + reclama tareas de `jobs` (Ctrl-C termina el flyer en curso y devuelve la tarea a la cola)
+uv run places-ingest worker --once     # una pasada, útil para probar
+uv run places-ingest enqueue scrape -p force=true -p source_id=<uuid>
+uv run places-ingest jobs              # workers y últimas tareas
 ```
 
-`process` corre cada 10 minutos; `scrape` a las 03:00. Logs en `packages/ingest/data/logs/`.
+- Perfil: `PLACES_ENV_FILE=.env.prod` (lo crea `ops/worker.sh setup`). Sin la variable usa `.env` (local).
+- Heartbeat cada `WORKER_HEARTBEAT_S` (15 s) a `public.workers` con modelo, OCR, Ollama, carga, energía y git sha.
+  La web da la Mac por desconectada a los 45 s sin señal.
+- Tareas: `process`, `scrape`, `festivities`, `seed`, `doctor`. Progreso (`progress_done/total`, mensaje) y `log` por
+  tarea; cancelación cooperativa entre flyers/fuentes; si el worker muere a media tarea, al arrancar la devuelve a la cola.
+- Automático: encola `process` si hay flyers en cola (`AUTO_PROCESS`) y `scrape` si alguna fuente toca (`AUTO_SCRAPE`).
+  Si la última automática falló, espera 30 min antes de volver a intentar.
+- Como servicio: `ops/worker.sh install` carga `ops/launchd/mx.entrelugares.worker.plist` (KeepAlive, RunAtLoad,
+  `caffeinate -s` para que la Mac no se duerma mientras esté conectada a la corriente). Logs en `data/logs/worker*.log`.
 
 ## Motores de OCR
 
