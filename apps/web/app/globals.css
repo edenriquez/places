@@ -77,3 +77,38 @@ h1, h2, h3, .font-display {
 }
 
 .maplibregl-ctrl-attrib { font-size: 10px; }
+
+/* Cambio de vista Ahora ⇄ Próximos */
+@keyframes feed-from-right { from { opacity: 0; transform: translateX(24px); } to { opacity: 1; transform: none; } }
+@keyframes feed-from-left { from { opacity: 0; transform: translateX(-24px); } to { opacity: 1; transform: none; } }
+.feed-from-right { animation: feed-from-right 180ms ease-out; }
+.feed-from-left { animation: feed-from-left 180ms ease-out; }
+@media (prefers-reduced-motion: reduce) { .feed-from-right, .feed-from-left { animation: none; } }
+
+/* Explorar ⇄ Mapa (escritorio). Una sola curva y duración para todo:
+   - las tarjetas se deslizan a su lugar (por debajo del mapa)
+   - el resto de la página (categorías, filtros, títulos) se desvanece y reaparece ya en su sitio, sin cruzar la pantalla
+   - el mapa entra por encima deslizándose desde la derecha, sin fundido; el encabezado no se mueve */
+:root { --vt-ease: cubic-bezier(0.22, 1, 0.36, 1); --vt-dur: 520ms; }
+::view-transition-group(.slide-move) { animation-duration: var(--vt-dur); animation-timing-function: var(--vt-ease); z-index: 1; }
+::view-transition-old(.slide-move) { animation: none; opacity: 0; }
+::view-transition-new(.slide-move) { animation: none; height: 100%; object-fit: cover; object-position: top left; }
+::view-transition-group(map-panel) { z-index: 5; }
+::view-transition-new(map-panel):only-child { animation: var(--vt-dur) var(--vt-ease) both vt-map-in; }
+::view-transition-old(map-panel):only-child { animation: 380ms cubic-bezier(0.55, 0, 0.75, 0.2) both vt-map-out; }
+::view-transition-group(site-header) { z-index: 10; }
+::view-transition-old(root) { animation: 140ms ease-out both vt-fade-out; }
+::view-transition-new(root) { animation: 260ms var(--vt-ease) 160ms both vt-fade-in; }
+/* el mapa entra y sale deslizándose completo desde el borde derecho, sólido (sin fundido) */
+@keyframes vt-map-in { from { transform: translateX(100%); } }
+@keyframes vt-map-out { to { transform: translateX(100%); } }
+@keyframes vt-fade-out { to { opacity: 0; } }
+@keyframes vt-fade-in { from { opacity: 0; transform: translateY(4px); } }
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
+}
+
+/* Hoja inferior (móvil): entra deslizándose desde abajo */
+@keyframes sheet-in { from { transform: translateY(100%); } }
+.sheet-in { animation: sheet-in 320ms cubic-bezier(0.22, 1, 0.36, 1); }
+@media (prefers-reduced-motion: reduce) { .sheet-in { animation: none; } }

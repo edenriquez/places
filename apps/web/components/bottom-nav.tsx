@@ -15,7 +15,7 @@ const ITEMS = [
 export function BottomNav() {
   const path = usePathname();
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80">
+    <nav className="fixed inset-x-0 bottom-0 z-40 border-t lg:hidden border-line bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80">
       <ul className="mx-auto flex max-w-screen-sm items-stretch justify-around px-2 pb-[max(env(safe-area-inset-bottom),8px)] pt-2">
         {ITEMS.map(({ href, label, icon: Icon }) => {
           const active = href === "/" ? path === "/" : path.startsWith(href);

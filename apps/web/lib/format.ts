@@ -46,6 +46,7 @@ export function fmtPrice(isFree: boolean, min: number | null, max: number | null
 }
 
 export function fmtDistance(m: number) {
+  if (m < 300) return "Muy cerca";
   if (m < 950) return `${Math.round(m / 50) * 50} m`;
   return `${Math.round(m / 1000)} km`;
 }
@@ -57,6 +58,18 @@ export function relativeTime(iso: string | null) {
   if (diff < 3600) return `hace ${Math.round(diff / 60)} min`;
   if (diff < 86400) return `hace ${Math.round(diff / 3600)} h`;
   return `hace ${Math.round(diff / 86400)} d`;
+}
+
+/** 5512345678 → "55 1234 5678"; otros largos se dejan como vienen. */
+export function fmtPhone(digits: string) {
+  const d = digits.replace(/\D/g, "");
+  return d.length === 10 ? `${d.slice(0, 2)} ${d.slice(2, 6)} ${d.slice(6)}` : digits;
+}
+
+/** wa.me necesita código de país; los de 10 dígitos se asumen de México. */
+export function waLink(digits: string) {
+  const d = digits.replace(/\D/g, "");
+  return `https://wa.me/${d.length === 10 ? `52${d}` : d}`;
 }
 
 export function flyerUrl(path: string | null) {

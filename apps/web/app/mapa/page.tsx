@@ -1,47 +1,57 @@
 import Link from "next/link";
 import { List } from "lucide-react";
 import { BottomNav } from "@/components/bottom-nav";
+import { BottomSheet } from "@/components/bottom-sheet";
+import { MobileOnly } from "@/components/desktop";
+import { EventPanel, eventCoords } from "@/components/event-detail";
+import { ExploreView, type ExploreParams } from "../explore-view";
 import { EventMap } from "@/components/event-map";
 import { SearchBar } from "@/components/location-picker";
 import { getLoc } from "@/lib/location-server";
-import { eventsNear, municipalities } from "@/lib/queries";
-import { createAnonClient } from "@/lib/supabase/server";
-import type { NearRow } from "@/lib/types";
+import { eventBySlug, eventsNear, municipalities, stateBox, withCoords, type Range } from "@/lib/queries";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Mapa" };
 
-export default async function MapPage() {
+export default async function MapPage({ searchParams }: { searchParams: Promise<ExploreParams> }) {
+  const sp = await searchParams;
   const loc = await getLoc();
-  const [munis, rows] = await Promise.all([municipalities(), eventsNear(loc, "15d")]);
+  // móvil: el mapa sigue el rango elegido en la lista; sin rango, todo lo que viene
+  const range: Range = sp.r === "finde" || sp.r === "15d" ? sp.r : "todo";
+  const [munis, rows] = await Promise.all([municipalities(), eventsNear(loc, range)]);
+  // si no hay nada en el radio, sugerir lo más cercano fuera de él
+  const nearest = rows.length ? null : (await eventsNear({ ...loc, radiusKm: 400, stateCve: undefined }, range)).sort((a, b) => a.distance_m - b.distance_m)[0] ?? null;
 
-  // coordenadas por evento desde la vista de puntos
-  const sb = createAnonClient();
-  const ids = [...new Set(rows.map((r) => r.event_id))];
-  const { data: pts } = ids.length
-    ? await sb.from("event_points_view").select("event_id,lat,lng").in("event_id", ids)
-    : { data: [] as { event_id: string; lat: number; lng: number }[] };
-  const coord = new Map((pts ?? []).map((p) => [p.event_id, p]));
-  const events = rows
-    .map((r) => ({ ...r, lat: coord.get(r.event_id)?.lat ?? null, lng: coord.get(r.event_id)?.lng ?? null }))
-    .filter((r): r is NearRow & { lat: number; lng: number } => r.lat != null && r.lng != null);
+  const events = await withCoords(rows);
+
+  const stateBounds = stateBox(munis, loc.stateCve);
+  // móvil: ?e=slug abre el evento en una hoja inferior sobre el mapa
+  const detail = sp.e ? await eventBySlug(sp.e) : null;
+  const coords = detail ? eventCoords(detail) : null;
+  const focus = detail && coords ? { id: detail.event.id, ...coords } : null;
+  const listQs = new URLSearchParams(Object.entries({ r: sp.r, c: sp.c }).filter((kv): kv is [string, string] => !!kv[1])).toString();
+  const closeHref = listQs ? `/mapa?${listQs}` : "/mapa";
 
   return (
-    <main className="fixed inset-0 mx-auto max-w-screen-sm">
-      <EventMap events={events} center={{ lat: loc.lat, lng: loc.lng }} radiusKm={loc.radiusKm} />
+    <>
+    {/* escritorio: lista + mapa (split) */}
+    <div className="hidden lg:block"><ExploreView sp={sp} split basePath="/mapa" /></div>
+    {/* móvil: mapa a pantalla completa */}
+    <main className="fixed inset-0 mx-auto max-w-screen-sm lg:hidden">
+      <MobileOnly><EventMap events={events} loc={loc} stateBounds={stateBounds} focus={focus} nearest={nearest} /></MobileOnly>
       <div className="absolute inset-x-0 top-0 z-20">
         <SearchBar loc={loc} municipalities={munis} compact />
       </div>
-      <Link href="/" className="absolute right-5 top-[62px] z-20 flex items-center gap-2 rounded-full bg-white px-4 py-2 text-[14px] font-semibold shadow-float">
+      <Link href="/" className="absolute bottom-[calc(82px+env(safe-area-inset-bottom))] left-1/2 z-20 flex -translate-x-1/2 items-center gap-2 rounded-full bg-ink px-5 py-3 text-[15px] font-semibold text-white shadow-float">
         <List size={16} /> Lista
       </Link>
-      {!events.length && (
-        <div className="absolute inset-x-5 top-1/2 z-10 -translate-y-1/2 rounded-card bg-white/95 p-5 text-center shadow-float">
-          <p className="text-[15px] font-semibold">No hay eventos con ubicación en este radio</p>
-          <p className="mt-1 text-[13px] text-ink-2">Amplía el radio o cambia de pueblo desde la barra de búsqueda.</p>
-        </div>
-      )}
       <BottomNav />
+      {detail && (
+        <BottomSheet key={detail.event.id} closeHref={closeHref} label={detail.event.title}>
+          <EventPanel d={detail} backHref={closeHref} sheet />
+        </BottomSheet>
+      )}
     </main>
+    </>
   );
 }

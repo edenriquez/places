@@ -1,6 +1,6 @@
 import { createAnonClient } from "./supabase/server";
 import type { Event, Festivity, Municipality, NearRow, Occurrence, Place } from "./types";
-import type { Loc } from "./location";
+import { EXPLORE, type Loc } from "./location";
 
 function weekendRange(now = new Date()) {
   // viernes 00:00 → domingo 23:59 (hora local del servidor; suficiente para el MVP)
@@ -16,14 +16,15 @@ function weekendRange(now = new Date()) {
   return { from: dow >= 5 || dow === 0 ? now : fri, to: sun };
 }
 
-export type Range = "hoy" | "finde" | "15d" | "todo";
+// en modo estado se trae todo lo cercano al centro del estado y se filtra por la clave del estado
+const radiusM = (loc: Loc) => (loc.stateCve || loc.radiusKm === EXPLORE ? 400_000 : loc.radiusKm * 1000);
+const inState = (loc: Loc, rows: NearRow[]) => (loc.stateCve ? rows.filter((r) => r.municipality_cvegeo.startsWith(loc.stateCve!)) : rows);
+
+export type Range = "finde" | "15d" | "todo";
 
 export function rangeBounds(range: Range, now = new Date()) {
   const end = new Date(now);
   switch (range) {
-    case "hoy":
-      end.setHours(23, 59, 59, 999);
-      return { from: now, to: end };
     case "finde":
       return weekendRange(now);
     case "15d":
@@ -41,13 +42,41 @@ export async function eventsNear(loc: Loc, range: Range = "finde", category?: st
   const { data, error } = await sb.rpc("events_near", {
     lat: loc.lat,
     lng: loc.lng,
-    radius_m: loc.radiusKm * 1000,
+    radius_m: radiusM(loc),
     from_ts: from.toISOString(),
     to_ts: to.toISOString(),
   });
   if (error) throw error;
-  const rows = (data ?? []) as NearRow[];
+  // una fila por evento: la RPC ya viene ordenada por fecha asc, así que la primera es la próxima fecha
+  const seen = new Set<string>();
+  const rows = inState(loc, (data ?? []) as NearRow[]).filter((r) => !seen.has(r.event_id) && !!seen.add(r.event_id));
   return category ? rows.filter((r) => r.category === category) : rows;
+}
+
+/** Sugerencias cuando no hay ubicación o no hay nada cerca: una muestra al azar de lo que viene en toda la región, por fecha. */
+export async function eventsAround(loc: Loc, category?: string, limit = 8): Promise<NearRow[]> {
+  const rows = await eventsNear({ ...loc, radiusKm: 400, stateCve: undefined }, "todo", category);
+  const pick = rows.length > limit ? [...rows].sort(() => Math.random() - 0.5).slice(0, limit) : rows;
+  return pick.sort((a, b) => a.starts_at.localeCompare(b.starts_at));
+}
+
+/** Coordenadas por evento (lugar o centro del municipio) para pintar pines. */
+export async function withCoords(rows: NearRow[]): Promise<(NearRow & { lat: number; lng: number })[]> {
+  const ids = [...new Set(rows.map((r) => r.event_id))];
+  if (!ids.length) return [];
+  const { data } = await createAnonClient().from("event_points_view").select("event_id,lat,lng").in("event_id", ids);
+  const coord = new Map((data ?? []).map((p) => [p.event_id as string, p as { lat: number; lng: number }]));
+  return rows
+    .map((r) => ({ ...r, lat: coord.get(r.event_id)?.lat ?? null, lng: coord.get(r.event_id)?.lng ?? null }))
+    .filter((r): r is NearRow & { lat: number; lng: number } => r.lat != null && r.lng != null);
+}
+
+/** Caja [[oeste, sur], [este, norte]] de los municipios de un estado, con margen. */
+export function stateBox(munis: Municipality[], stateCve?: string): [[number, number], [number, number]] | undefined {
+  const ms = stateCve ? munis.filter((m) => m.cvegeo.startsWith(stateCve)) : [];
+  if (!ms.length) return undefined;
+  const lngs = ms.map((m) => m.lng), lats = ms.map((m) => m.lat);
+  return [[Math.min(...lngs) - 0.15, Math.min(...lats) - 0.15], [Math.max(...lngs) + 0.15, Math.max(...lats) + 0.15]];
 }
 
 export async function eventsLiveNear(loc: Loc): Promise<NearRow[]> {
@@ -55,10 +84,10 @@ export async function eventsLiveNear(loc: Loc): Promise<NearRow[]> {
   const { data, error } = await sb.rpc("events_live_near", {
     lat: loc.lat,
     lng: loc.lng,
-    radius_m: loc.radiusKm * 1000,
+    radius_m: radiusM(loc),
   });
   if (error) throw error;
-  return (data ?? []) as NearRow[];
+  return inState(loc, (data ?? []) as NearRow[]);
 }
 
 export async function municipalities(): Promise<Municipality[]> {
