@@ -63,6 +63,13 @@ export type Event = {
   org_id: string | null;
   place_id: string | null;
   place_text: string | null;
+  departure_text: string | null;
+  contact_phone: string | null;
+  contact_whatsapp: boolean;
+  instagram_url: string | null;
+  facebook_url: string | null;
+  tiktok_url: string | null;
+  website_url: string | null;
   municipality_cvegeo: string;
   price_min: number | null;
   price_max: number | null;

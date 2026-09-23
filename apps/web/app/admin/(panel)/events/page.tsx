@@ -18,7 +18,7 @@ export default async function EventsAdminPage({ searchParams }: { searchParams: 
   const sb = await createClient();
   const { data: munis } = await sb.from("municipalities_view").select("cvegeo,name").order("name");
   let q = sb.from("events")
-    .select("id, slug, title, category, status, is_free, price_min, image_path, municipalities:municipality_cvegeo(name), event_occurrences(starts_at)")
+    .select("id, slug, title, category, status, is_free, price_min, image_path, raw_ingestion_id, municipalities:municipality_cvegeo(name), event_occurrences(starts_at)")
     .order("created_at", { ascending: false }).limit(100);
   if (status) q = q.eq("status", status);
   if (muni) q = q.eq("municipality_cvegeo", muni);
@@ -33,7 +33,7 @@ export default async function EventsAdminPage({ searchParams }: { searchParams: 
     const qs = params.toString();
     return qs ? `/admin/events?${qs}` : "/admin/events";
   };
-  const rows = (data ?? []) as unknown as { id: string; slug: string; title: string; category: Category; status: string; is_free: boolean; price_min: number | null; image_path: string | null; municipalities: { name: string } | null; event_occurrences: { starts_at: string }[] }[];
+  const rows = (data ?? []) as unknown as { id: string; slug: string; title: string; category: Category; status: string; is_free: boolean; price_min: number | null; image_path: string | null; raw_ingestion_id: string | null; municipalities: { name: string } | null; event_occurrences: { starts_at: string }[] }[];
 
   return (
     <div className="mx-auto max-w-[1100px]">
@@ -88,6 +88,7 @@ export default async function EventsAdminPage({ searchParams }: { searchParams: 
                   <td className="px-4 py-2"><StatusPill status={e.status} /></td>
                   <td className="px-4 py-2 text-right">
                     <div className="flex items-center justify-end gap-2">
+                      {e.raw_ingestion_id && <Link href={`/admin/review/${e.raw_ingestion_id}`} className="rounded-control border border-line-2 px-3 py-1.5 text-[13px] font-semibold">Editar</Link>}
                       <EventImageButton eventId={e.id} hasImage={!!e.image_path} />
                       <EventStatusButtons id={e.id} status={e.status} />
                     </div>

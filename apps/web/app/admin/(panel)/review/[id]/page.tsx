@@ -25,19 +25,21 @@ export default async function ReviewDetailPage({ params }: { params: Promise<{ i
 
   // lugares del municipio (para autocompletar) y eventos cercanos en fecha (para "duplicado de")
   const cvegeo = event?.municipality_cvegeo ?? ing.municipality_hint ?? null;
-  const [{ data: places }, { data: candidates }] = await Promise.all([
+  const [{ data: places }, { data: candidates }, { data: org }] = await Promise.all([
     cvegeo ? sb.from("places_view").select("id,name,kind").eq("municipality_cvegeo", cvegeo).order("name") : Promise.resolve({ data: [] }),
     cvegeo
       ? sb.from("events").select("id,title,slug,status").eq("municipality_cvegeo", cvegeo).in("status", ["published", "pending"]).neq("id", ing.event_id ?? "00000000-0000-0000-0000-000000000000").order("created_at", { ascending: false }).limit(30)
       : Promise.resolve({ data: [] }),
+    event?.org_id ? sb.from("organizations").select("name").eq("id", event.org_id).maybeSingle() : Promise.resolve({ data: null }),
   ]);
+  const editing = event?.status === "published";
 
   return (
     <div className="mx-auto max-w-[1200px]">
       <div className="flex items-center justify-between">
         <div>
           <Link href="/admin/review" className="text-[13px] text-ink-2 underline">Revisión</Link>
-          <h1 className="text-[24px] font-bold">Revisar evento{idx >= 0 ? ` · ${idx + 1} de ${ids.length}` : ""}</h1>
+          <h1 className="text-[24px] font-bold">{editing ? "Editar evento publicado" : `Revisar evento${idx >= 0 ? ` · ${idx + 1} de ${ids.length}` : ""}`}</h1>
         </div>
         <div className="flex gap-2">
           <Link aria-disabled={!prev} href={prev ? `/admin/review/${prev}` : "#"} className={`grid h-9 w-9 place-items-center rounded-full border border-line ${!prev && "pointer-events-none opacity-40"}`}><ChevronLeft size={18} /></Link>
@@ -47,6 +49,7 @@ export default async function ReviewDetailPage({ params }: { params: Promise<{ i
       <ReviewForm
         ingestion={ing}
         event={event}
+        organizerName={org?.name ?? null}
         occurrences={occ ?? []}
         municipalities={(munis ?? []) as { cvegeo: string; name: string }[]}
         places={(places ?? []) as { id: string; name: string; kind: string }[]}

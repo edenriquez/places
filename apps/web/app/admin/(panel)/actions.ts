@@ -48,6 +48,13 @@ type ReviewInput = {
   description: string;
   placeId: string | null;
   placeText: string;
+  departureText: string;
+  contactPhone: string;
+  contactWhatsapp: boolean;
+  instagram: string;
+  facebook: string;
+  tiktok: string;
+  website: string;
   municipality: string;
   isFree: boolean;
   priceMin: number | null;
@@ -55,6 +62,20 @@ type ReviewInput = {
   organizer: string;
   dates: { date: string; start: string; end: string }[];
 };
+
+/** Acepta "@usuario", "usuario" o la URL completa y devuelve la URL de la red. */
+function socialUrl(v: string, base: string) {
+  const s = v.trim();
+  if (!s) return null;
+  if (/^https?:\/\//i.test(s)) return s;
+  if (/^[\w.-]+\.[a-z]{2,}\//i.test(s)) return `https://${s}`;
+  return `${base}${s.replace(/^@/, "")}`;
+}
+
+function phoneDigits(v: string) {
+  const d = v.replace(/\D/g, "").replace(/^52(?=\d{10}$)/, "");
+  return d || null;
+}
 
 function toIso(date: string, time: string) {
   // hora local de México (UTC-6 sin horario de verano desde 2022)
@@ -69,23 +90,33 @@ async function upsertEvent(sb: Awaited<ReturnType<typeof admin>>, input: ReviewI
     description: input.description || null,
     place_id: input.placeId,
     place_text: input.placeText || null,
+    departure_text: input.departureText.trim() || null,
+    contact_phone: phoneDigits(input.contactPhone),
+    contact_whatsapp: input.contactWhatsapp,
+    instagram_url: socialUrl(input.instagram, "https://instagram.com/"),
+    facebook_url: socialUrl(input.facebook, "https://facebook.com/"),
+    tiktok_url: socialUrl(input.tiktok, "https://tiktok.com/@"),
+    website_url: input.website.trim() ? (/^https?:\/\//i.test(input.website.trim()) ? input.website.trim() : `https://${input.website.trim()}`) : null,
     municipality_cvegeo: input.municipality,
     is_free: input.isFree,
     price_min: input.isFree ? null : input.priceMin,
     price_max: input.isFree ? null : input.priceMax,
     status,
     verified_at: new Date().toISOString(),
-    published_at: status === "published" ? new Date().toISOString() : null,
   };
   let eventId = input.eventId;
   if (eventId) {
-    const { error } = await sb.from("events").update(base).eq("id", eventId);
+    // editar un evento ya publicado conserva su fecha de publicación original
+    const { data: cur } = await sb.from("events").select("published_at").eq("id", eventId).single();
+    const published_at = status === "published" ? (cur?.published_at ?? new Date().toISOString()) : null;
+    const { error } = await sb.from("events").update({ ...base, published_at }).eq("id", eventId);
     if (error) throw error;
     await sb.from("event_occurrences").delete().eq("event_id", eventId);
   } else {
     const { data: ing } = await sb.from("raw_ingestions").select("media_path, source_id").eq("id", input.ingestionId).single();
     const { data, error } = await sb.from("events").insert({
       ...base,
+      published_at: status === "published" ? new Date().toISOString() : null,
       slug: `${slugBase}-${input.ingestionId.slice(0, 8)}`,
       image_path: ing?.media_path,
       source_id: ing?.source_id,
@@ -128,11 +159,15 @@ export async function approveIngestion(input: ReviewInput) {
   redirect("/admin/review");
 }
 
+/** Guarda sin cambiar el estado: un evento publicado sigue publicado, uno nuevo queda pending. */
 export async function saveCorrection(input: ReviewInput) {
   const sb = await admin();
-  const eventId = await upsertEvent(sb, input, "pending");
+  const { data: cur } = input.eventId ? await sb.from("events").select("status").eq("id", input.eventId).single() : { data: null };
+  const eventId = await upsertEvent(sb, input, cur?.status === "published" ? "published" : "pending");
   await sb.from("raw_ingestions").update({ event_id: eventId, correction: input }).eq("id", input.ingestionId);
   revalidatePath(`/admin/review/${input.ingestionId}`);
+  revalidatePath("/admin/events");
+  revalidatePath("/");
   return { ok: true };
 }
 
