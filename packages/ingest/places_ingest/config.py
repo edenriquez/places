@@ -43,15 +43,6 @@ class Settings(BaseSettings):
     auto_publish_min_confidence: float = 1.01  # MVP: nada se publica solo, todo pasa por /admin/review. Bajar a ~0.95 después
     review_min_confidence: float = 0.0
 
-    # Scraping
-    scrape_user_agent: str = (
-        "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 "
-        "(KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1"
-    )
-    scrape_min_delay_s: float = 4.0
-    playwright_headless: bool = True
-    facebook_storage_state: str | None = None  # ruta a storage_state.json de una cuenta dedicada (opcional)
-
     timezone: str = "America/Mexico_City"
 
     # Worker (`places-ingest worker`): la Mac hace polling a la tabla jobs y manda heartbeat a workers
@@ -59,7 +50,6 @@ class Settings(BaseSettings):
     worker_poll_s: int = 10              # cada cuánto busca tareas
     worker_heartbeat_s: int = 15         # cada cuánto reporta que sigue viva
     auto_process: bool = True            # encolar `process` solo cuando hay flyers en cola
-    auto_scrape: bool = True             # encolar `scrape` solo cuando alguna fuente toca por intervalo
 
 
 settings = Settings()

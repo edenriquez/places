@@ -28,7 +28,6 @@ function paramsSummary(job: Job) {
   const p = job.params ?? {};
   const bits: string[] = [];
   if (job.kind === "process" && p.limit) bits.push(`máx. ${p.limit}`);
-  if (job.kind === "scrape") bits.push(p.source_id ? "una fuente" : "las que toquen", ...(p.force ? ["forzado"] : []));
   if (job.kind === "festivities") bits.push(String(p.year ?? ""), p.status === "pending" ? "pendientes" : "publicados");
   if (job.kind === "seed") bits.push(["municipalities", "sic", "denue", "festivities"].filter((k) => p[k] !== false).join(", "));
   return bits.filter(Boolean).join(" · ");
@@ -38,10 +37,9 @@ const ORIGIN_LABEL = { admin: "Admin", auto: "Automática", cli: "Terminal" } as
 
 export default async function JobsPage() {
   const sb = await createClient();
-  const [{ data: workerRows }, { data: jobRows }, { data: sourceRows }, { count: queuedFlyers }] = await Promise.all([
+  const [{ data: workerRows }, { data: jobRows }, { count: queuedFlyers }] = await Promise.all([
     sb.from("workers").select("*").order("last_seen_at", { ascending: false }),
     sb.from("jobs").select("*").order("created_at", { ascending: false }).limit(60),
-    sb.from("sources").select("id,name").in("kind", ["facebook_page", "instagram", "website"]).eq("enabled", true).order("name"),
     sb.from("raw_ingestions").select("id", { count: "exact", head: true }).eq("status", "queued"),
   ]);
   const workers = (workerRows ?? []) as Worker[];
@@ -103,7 +101,7 @@ export default async function JobsPage() {
       {/* ---------------------------------------------------------------- encolar */}
       <h2 className="mt-8 text-[18px] font-bold">Encolar tarea</h2>
       <div className="mt-3">
-        <EnqueueForm sources={(sourceRows ?? []) as { id: string; name: string }[]} disabled={!anyOnline} />
+        <EnqueueForm disabled={!anyOnline} />
       </div>
 
       {/* ---------------------------------------------------------------- lista */}

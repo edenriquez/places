@@ -4,7 +4,7 @@ Qué está pasando cerca este fin de semana en pueblos de Morelos y Estado de M�
 
 ```
 apps/web/          Next.js 16 (App Router, Tailwind v4, MapLibre). Público + /admin
-packages/ingest/   Job local en Python: seed, OCR + modelo local (Ollama), scraping. Corre en la Mac
+packages/ingest/   Job local en Python: seed, OCR + modelo local (Ollama). Corre en la Mac
 supabase/          Migraciones (Postgres + PostGIS, RLS, bucket flyers) y seed.sql
 design/stitch/     Mocks de Stitch (HTML + PNG), DESIGN.md y PROMPTS.md
 ops/               worker.sh (instala el worker en la Mac) y el plist de launchd; push_seed_to_prod.py
@@ -17,11 +17,11 @@ Plan y decisiones: `~/.claude/plans/rippling-painting-hamming.md`.
 ```bash
 # 1. Base de datos (Supabase local en puertos 5436x para no chocar con otros proyectos)
 supabase start
-supabase db reset            # migraciones + supabase/seed.sql (fuentes de ejemplo)
+supabase db reset            # migraciones
 
 # 2. Datos del corredor (municipios, lugares SIC + DENUE, fiestas)
 cd packages/ingest && cp .env.example .env   # pega SUPABASE_SERVICE_KEY de `supabase status`
-uv sync && uv run playwright install webkit chromium
+uv sync
 uv run places-ingest seed
 uv run places-ingest festivities --publish          # Capa 1: un evento por fiesta para lo que resta del año
 uv run places-ingest festivities --publish --year 2027
@@ -46,7 +46,7 @@ node apps/web/scripts/create-admin.mjs tu@correo.mx 'una-contraseña'
 2. En la Mac, `places-ingest process` toma la cola: OCR (Apple Vision) → Qwen 3.5 por Ollama → reglas de fecha/precio → match de lugar → evento `pending`. Ollama se arranca y apaga bajo demanda.
 3. Revisas en `/admin/review`: corregir, aprobar y publicar, marcar duplicado o descartar.
 4. Lo publicado aparece en `/` (Explorar, "Sucediendo ahora"), `/mapa`, `/evento/<slug>` y `/municipio/<slug>`.
-5. `places-ingest scrape` recorre las fuentes de `/admin/sources` y encola imágenes nuevas.
+5. Los organizadores también envían flyers desde `/publicar`; entran a la misma cola.
 
 Para dejarlo automático contra producción: el worker (abajo). En local basta `places-ingest process --loop`.
 
@@ -69,8 +69,8 @@ Web: Vercel con `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` y `N
 
 El OCR y el modelo siguen corriendo solo en la Mac, pero contra producción. La Mac hace polling a la tabla `jobs`
 y manda heartbeat a `workers` (solo conexiones salientes; sin puertos abiertos). En `/admin/jobs` se ve si la Mac está
-en línea, qué está haciendo, y se encolan tareas (procesar flyers, revisar fuentes, publicar fiestas, seed, diagnóstico)
-con progreso y log por tarea. El worker encola solo `process` cuando hay flyers en cola y `scrape` cuando una fuente toca.
+en línea, qué está haciendo, y se encolan tareas (procesar flyers, publicar fiestas, seed, diagnóstico)
+con progreso y log por tarea. El worker encola solo `process` cuando hay flyers en cola.
 
 ```bash
 ops/worker.sh setup      # crea packages/ingest/.env.prod (pide la contraseña de la BD; la service_role la saca la CLI)

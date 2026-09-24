@@ -15,7 +15,7 @@ import psycopg
 
 from .db import execute, fetch_all, fetch_one, jsonb
 
-KINDS = ("process", "scrape", "festivities", "seed", "doctor")
+KINDS = ("process", "festivities", "seed", "doctor")
 LOG_MAX_LINES = 300
 
 # Callback de progreso: (hechos, total, mensaje). total puede ser None si aún no se conoce.

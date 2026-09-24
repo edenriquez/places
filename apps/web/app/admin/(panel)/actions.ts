@@ -199,35 +199,11 @@ export async function requeueIngestion(ingestionId: string) {
   revalidatePath("/admin/review");
 }
 
-export async function addSource(formData: FormData) {
-  const sb = await admin();
-  const { error } = await sb.from("sources").insert({
-    name: String(formData.get("name") ?? "").trim(),
-    kind: String(formData.get("kind") ?? "facebook_page"),
-    url: String(formData.get("url") ?? "").trim() || null,
-    municipality_cvegeo: String(formData.get("municipality") ?? "") || null,
-    interval_hours: Number(formData.get("interval_hours") ?? 24) || 24,
-    trust_score: 0.7,
-  });
-  if (error) throw error;
-  revalidatePath("/admin/sources");
-}
-
-/** "Correr ahora": encola una tarea de scrape para esa fuente; la Mac la toma en su siguiente vuelta. */
-export async function runSourceNow(id: string) {
-  const sb = await admin();
-  const { data: { user } } = await sb.auth.getUser();
-  await sb.from("sources").update({ run_requested_at: new Date().toISOString() }).eq("id", id);
-  await sb.from("jobs").insert({ kind: "scrape", params: { source_id: id, force: true }, origin: "admin", requested_by: user?.id, priority: 1 });
-  revalidatePath("/admin/sources");
-  revalidatePath("/admin/jobs");
-}
-
 // ---------------------------------------------------------------------------
 // Tareas para la Mac (tabla jobs). La web solo escribe filas; el worker las reclama y reporta.
 // ---------------------------------------------------------------------------
 
-const JOB_KINDS = ["process", "scrape", "festivities", "seed", "doctor"] as const;
+const JOB_KINDS = ["process", "festivities", "seed", "doctor"] as const;
 
 export async function enqueueJob(input: { kind: string; params: Record<string, unknown>; priority?: number }) {
   const sb = await admin();
@@ -245,7 +221,7 @@ export async function enqueueJob(input: { kind: string; params: Record<string, u
   return { ok: true as const };
 }
 
-/** En cola: se cancela de inmediato. Corriendo: se le pide al worker parar tras el flyer/fuente en curso. */
+/** En cola: se cancela de inmediato. Corriendo: se le pide al worker parar tras el flyer en curso. */
 export async function cancelJob(id: string) {
   const sb = await admin();
   const { data: job } = await sb.from("jobs").select("status").eq("id", id).single();
@@ -263,12 +239,6 @@ export async function retryJob(id: string) {
   const { data: job } = await sb.from("jobs").select("kind, params, priority").eq("id", id).single();
   if (!job) return;
   await enqueueJob({ kind: job.kind, params: job.params, priority: job.priority });
-}
-
-export async function toggleSource(id: string, enabled: boolean) {
-  const sb = await admin();
-  await sb.from("sources").update({ enabled }).eq("id", id);
-  revalidatePath("/admin/sources");
 }
 
 export async function setEventStatus(id: string, status: "published" | "pending" | "cancelled" | "rejected") {

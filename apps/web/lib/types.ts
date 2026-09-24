@@ -131,27 +131,11 @@ export type RawIngestion = {
   processed_at: string | null;
 };
 
-export type Source = {
-  id: string;
-  name: string;
-  kind: "facebook_page" | "instagram" | "website" | "manual" | "public_form" | "sic" | "denue" | "user_report" | "correspondent";
-  url: string | null;
-  municipality_cvegeo: string | null;
-  interval_hours: number;
-  enabled: boolean;
-  run_requested_at: string | null;
-  last_run_at: string | null;
-  last_success_at: string | null;
-  last_error: string | null;
-  new_items_last_run: number;
-};
-
-export type JobKind = "process" | "scrape" | "festivities" | "seed" | "doctor";
+export type JobKind = "process" | "festivities" | "seed" | "doctor";
 export type JobStatus = "queued" | "running" | "done" | "failed" | "cancelled";
 
 export const JOB_KIND_LABEL: Record<JobKind, string> = {
   process: "Procesar flyers",
-  scrape: "Revisar fuentes",
   festivities: "Publicar fiestas del año",
   seed: "Cargar catálogo",
   doctor: "Diagnóstico de la Mac",

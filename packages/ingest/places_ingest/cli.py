@@ -1,4 +1,4 @@
-"""CLI `places-ingest`: seed | process | upload | scrape | festivities | worker | enqueue | jobs | doctor."""
+"""CLI `places-ingest`: seed | process | upload | festivities | worker | enqueue | jobs | doctor."""
 
 from __future__ import annotations
 
@@ -73,19 +73,6 @@ def upload(folder: Path, municipio: str | None = typer.Option(None, "--municipio
 
 
 @app.command()
-def scrape(force: bool = typer.Option(False, help="Ignorar intervalos"),
-           only: str | None = typer.Option(None, help="id o parte del nombre de una fuente"),
-           process_now: bool = typer.Option(True)):
-    """Corre los scrapers de `sources` que toquen y encola imágenes nuevas."""
-    from .queue import process_queue
-    from .scrape.runner import run_scrapers
-
-    console.print(run_scrapers(force=force, only=only))
-    if process_now:
-        console.print(process_queue())
-
-
-@app.command()
 def festivities(year: int = typer.Option(None, help="Año para listar fechas calculadas"),
                 publish: bool = typer.Option(False, help="Crear un evento por fiesta para lo que resta del año"),
                 status: str = typer.Option("published", help="published | pending (con --publish)")):
@@ -114,7 +101,7 @@ def worker(once: bool = typer.Option(False, help="Una sola pasada (revisar cola,
 
 
 @app.command()
-def enqueue(kind: str = typer.Argument(..., help="process | scrape | festivities | seed | doctor"),
+def enqueue(kind: str = typer.Argument(..., help="process | festivities | seed | doctor"),
             param: list[str] = typer.Option(None, "--param", "-p", help="clave=valor (p. ej. -p year=2027 -p force=true)"),  # noqa: B008
             priority: int = typer.Option(0, help="Mayor = antes")):
     """Encola una tarea para el worker (equivalente a /admin/jobs)."""

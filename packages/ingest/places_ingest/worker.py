@@ -1,7 +1,7 @@
 """`places-ingest worker`: la Mac como worker remoto.
 
 - Heartbeat a `workers` cada pocos segundos (hilo aparte) para que el admin vea si la Mac está en línea.
-- Encola tareas automáticas cuando hace falta (flyers en cola → `process`; fuentes que tocan → `scrape`).
+- Encola tareas automáticas cuando hace falta (flyers en cola → `process`).
 - Reclama tareas de `jobs`, las corre reportando progreso y log, y respeta cancelaciones.
 - Al recibir SIGTERM/SIGINT termina el flyer/fuente en curso, devuelve la tarea a la cola y se marca offline.
 
@@ -122,13 +122,6 @@ class Worker:
                 jobs.enqueue(conn, "process", {"limit": max(20, n)}, origin="auto")
                 conn.commit()
                 console.print(f"[cyan]auto[/] process ({n} en cola)")
-        if settings.auto_scrape and not jobs.has_open(conn, "scrape") and not jobs.recently_failed(conn, "scrape"):
-            from .scrape.runner import due_sources
-
-            if due_sources(conn):
-                jobs.enqueue(conn, "scrape", {}, origin="auto")
-                conn.commit()
-                console.print("[cyan]auto[/] scrape")
 
     def recover(self, conn: psycopg.Connection) -> None:
         """Tareas que quedaron `running` a nombre de esta máquina (crash, reinicio): a la cola otra vez."""
@@ -197,12 +190,6 @@ class Worker:
             from .queue import process_queue
 
             return process_queue(limit=int(params.get("limit", 20)), job_id=self.current_job_id, progress=report, should_stop=should_stop)
-
-        if kind == "scrape":
-            from .scrape.runner import run_scrapers
-
-            return run_scrapers(force=bool(params.get("force", False)), only=params.get("source_id") or params.get("only"),
-                                progress=report, should_stop=should_stop)
 
         if kind == "festivities":
             from .seed.festivities import publish_year
