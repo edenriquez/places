@@ -15,12 +15,12 @@ export const CATEGORIES = [
 
 export function CategoryRow({ active, range, basePath = "/" }: { active?: string; range: string; basePath?: string }) {
   return (
-    <div className="no-scrollbar mt-4 flex gap-6 overflow-x-auto px-5">
+    <div className="no-scrollbar mt-4 flex gap-6 overflow-x-auto px-5 lg:justify-between lg:gap-3">
       {CATEGORIES.map(({ key, label, icon: Icon }) => {
         const isActive = active === key;
         const href = isActive ? `${basePath}?r=${range}` : `${basePath}?r=${range}&c=${key}`;
         return (
-          <Link key={key} href={href} className={clsx("flex shrink-0 flex-col items-center gap-1.5 pb-2 text-[12px] font-medium", isActive ? "border-b-2 border-ink text-ink" : "text-ink-2")}>
+          <Link key={key} href={href} data-track="filter" data-label={`categoria:${key}`} className={clsx("flex shrink-0 flex-col items-center gap-1.5 pb-2 text-[12px] font-medium", isActive ? "border-b-2 border-ink text-ink" : "text-ink-2")}>
             <Icon size={22} strokeWidth={1.8} />
             {label}
           </Link>

@@ -38,11 +38,12 @@ function derive(d: EventData) {
     { url: event.tiktok_url, label: "TikTok" },
   ].filter((s): s is { url: string; label: string } => !!s.url);
   return {
+    id: event.id,
     img: flyerUrl(event.image_path),
     next,
     when,
     coords: eventCoords(d),
-    shareHref: `https://wa.me/?text=${encodeURIComponent(`${event.title} · ${when} · ${siteUrl}/evento/${event.slug}`)}`,
+    shareHref: `https://wa.me/?text=${encodeURIComponent(`${event.title} · ${when} · ${siteUrl}/evento/${event.slug}?utm_source=whatsapp&utm_medium=share`)}`,
     socials,
     hasContact: !!(event.contact_phone || socials.length || event.website_url),
     mapsQuery: encodeURIComponent(place ? `${place.name}, ${municipality?.name ?? ""}` : `${event.place_text ?? ""} ${municipality?.name ?? ""}`),
@@ -141,9 +142,9 @@ function ContactButtons({ d }: { d: EventData }) {
   if (!event.contact_phone) return null;
   return (
     <div className="flex gap-2">
-      <a href={`tel:${event.contact_phone}`} className="flex items-center gap-1.5 rounded-control border border-ink px-3 py-2 text-[14px] font-semibold"><Phone size={16} /> Llamar</a>
+      <a href={`tel:${event.contact_phone}`} data-track="call" data-event={event.id} className="flex items-center gap-1.5 rounded-control border border-ink px-3 py-2 text-[14px] font-semibold"><Phone size={16} /> Llamar</a>
       {event.contact_whatsapp && (
-        <a href={`${waLink(event.contact_phone)}?text=${encodeURIComponent(`Hola, vi "${event.title}" en entrelugares`)}`} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 rounded-control bg-whatsapp px-3 py-2 text-[14px] font-semibold text-white"><MessageCircle size={16} /> WhatsApp</a>
+        <a href={`${waLink(event.contact_phone)}?text=${encodeURIComponent(`Hola, vi "${event.title}" en entrelugares`)}`} target="_blank" rel="noreferrer" data-track="whatsapp_contact" data-event={event.id} className="flex items-center gap-1.5 rounded-control bg-whatsapp px-3 py-2 text-[14px] font-semibold text-white"><MessageCircle size={16} /> WhatsApp</a>
       )}
     </div>
   );
@@ -164,10 +165,10 @@ function Contact({ d, x }: { d: EventData; x: Derived }) {
       {(x.socials.length > 0 || event.website_url) && (
         <div className="mt-3 flex flex-wrap gap-2">
           {x.socials.map((s) => (
-            <a key={s.label} href={s.url} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 rounded-full border border-line-2 px-3 py-1.5 text-[13px] font-medium"><AtSign size={14} /> {s.label}</a>
+            <a key={s.label} href={s.url} target="_blank" rel="noreferrer" data-track="social" data-event={event.id} data-label={s.label} className="flex items-center gap-1.5 rounded-full border border-line-2 px-3 py-1.5 text-[13px] font-medium"><AtSign size={14} /> {s.label}</a>
           ))}
           {event.website_url && (
-            <a href={event.website_url} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 rounded-full border border-line-2 px-3 py-1.5 text-[13px] font-medium"><Globe size={14} /> Sitio web</a>
+            <a href={event.website_url} target="_blank" rel="noreferrer" data-track="website" data-event={event.id} className="flex items-center gap-1.5 rounded-full border border-line-2 px-3 py-1.5 text-[13px] font-medium"><Globe size={14} /> Sitio web</a>
           )}
         </div>
       )}
@@ -198,8 +199,8 @@ function Directions({ x, title = true }: { x: Derived; title?: boolean }) {
     <section>
       {title && <H2>Cómo llegar</H2>}
       <div className={`grid grid-cols-2 gap-3 ${title ? "mt-3" : ""}`}>
-        <a href={`https://www.google.com/maps/search/?api=1&query=${c ? `${c.lat},${c.lng}` : x.mapsQuery}`} target="_blank" rel="noreferrer" className="rounded-control border border-ink py-3 text-center text-[14px] font-semibold">Abrir en Maps</a>
-        <a href={c ? `https://waze.com/ul?ll=${c.lat},${c.lng}&navigate=yes` : `https://waze.com/ul?q=${x.mapsQuery}`} target="_blank" rel="noreferrer" className="rounded-control border border-ink py-3 text-center text-[14px] font-semibold">Waze</a>
+        <a href={`https://www.google.com/maps/search/?api=1&query=${c ? `${c.lat},${c.lng}` : x.mapsQuery}`} target="_blank" rel="noreferrer" data-track="maps" data-event={x.id} className="rounded-control border border-ink py-3 text-center text-[14px] font-semibold">Abrir en Maps</a>
+        <a href={c ? `https://waze.com/ul?ll=${c.lat},${c.lng}&navigate=yes` : `https://waze.com/ul?q=${x.mapsQuery}`} target="_blank" rel="noreferrer" data-track="waze" data-event={x.id} className="rounded-control border border-ink py-3 text-center text-[14px] font-semibold">Waze</a>
       </div>
     </section>
   );
@@ -225,7 +226,7 @@ function Price({ d, big }: { d: EventData; big?: boolean }) {
 
 function ShareButton({ x, className }: { x: Derived; className?: string }) {
   return (
-    <a href={x.shareHref} target="_blank" rel="noreferrer" className={`flex items-center justify-center gap-2 rounded-control bg-whatsapp px-5 py-3 text-[15px] font-semibold text-white ${className ?? ""}`}>
+    <a href={x.shareHref} target="_blank" rel="noreferrer" data-track="share_whatsapp" data-event={x.id} className={`flex items-center justify-center gap-2 rounded-control bg-whatsapp px-5 py-3 text-[15px] font-semibold text-white ${className ?? ""}`}>
       <Share2 size={18} /> Compartir por WhatsApp
     </a>
   );
@@ -235,7 +236,7 @@ function Flyer({ x, alt, sizes, className, contain }: { x: Derived; alt: string;
   return (
     <div className={`relative overflow-hidden bg-bg-2 ${className}`}>
       {x.img && (
-        <ZoomableImage src={x.img} alt={alt}>
+        <ZoomableImage src={x.img} alt={alt} eventId={x.id}>
           <Image src={x.img} alt={alt} fill priority sizes={sizes} className={contain ? "object-contain" : "object-cover"} />
         </ZoomableImage>
       )}
@@ -257,7 +258,7 @@ export function EventMobile({ d, nearby }: { d: EventData; nearby: NearRow[] }) 
         <div className="pointer-events-none fixed inset-x-0 top-[max(env(safe-area-inset-top),12px)] z-40 mx-auto flex max-w-screen-sm items-center justify-between px-4 [&>*]:pointer-events-auto">
           <BackButton className="grid h-10 w-10 place-items-center rounded-full bg-white shadow-soft" />
           <div className="flex gap-2">
-            <a href={x.shareHref} aria-label="Compartir" className="grid h-10 w-10 place-items-center rounded-full bg-white shadow-soft"><Share2 size={18} /></a>
+            <a href={x.shareHref} aria-label="Compartir" data-track="share_whatsapp" data-event={x.id} className="grid h-10 w-10 place-items-center rounded-full bg-white shadow-soft"><Share2 size={18} /></a>
             <SaveButton eventId={d.event.id} variant="icon" />
           </div>
         </div>
@@ -307,7 +308,7 @@ export function EventDesktop({ d, nearby }: { d: EventData; nearby: NearRow[] })
       <div className="flex items-center justify-between">
         <BackButton className="grid h-10 w-10 place-items-center rounded-full border border-line hover:bg-bg-2" />
         <div className="flex gap-2">
-          <a href={x.shareHref} target="_blank" rel="noreferrer" className="flex items-center gap-2 rounded-full px-3 py-2 text-[14px] font-semibold underline-offset-2 hover:bg-bg-2 hover:underline"><Share2 size={16} /> Compartir</a>
+          <a href={x.shareHref} target="_blank" rel="noreferrer" data-track="share_whatsapp" data-event={x.id} className="flex items-center gap-2 rounded-full px-3 py-2 text-[14px] font-semibold underline-offset-2 hover:bg-bg-2 hover:underline"><Share2 size={16} /> Compartir</a>
           <SaveButton eventId={event.id} variant="label" />
         </div>
       </div>

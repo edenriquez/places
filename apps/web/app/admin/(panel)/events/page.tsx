@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Search } from "lucide-react";
+import { BarChart3, Search } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { flyerUrl, fmtWhenShort } from "@/lib/format";
 import { CATEGORY_LABEL, type Category } from "@/lib/types";
@@ -88,6 +88,7 @@ export default async function EventsAdminPage({ searchParams }: { searchParams: 
                   <td className="px-4 py-2"><StatusPill status={e.status} /></td>
                   <td className="px-4 py-2 text-right">
                     <div className="flex items-center justify-end gap-2">
+                      {e.status === "published" && <Link href={`/admin/events/${e.id}/metricas`} className="flex items-center gap-1.5 rounded-control border border-line-2 px-3 py-1.5 text-[13px] font-semibold"><BarChart3 size={14} /> Métricas</Link>}
                       {e.raw_ingestion_id && <Link href={`/admin/review/${e.raw_ingestion_id}`} className="rounded-control border border-line-2 px-3 py-1.5 text-[13px] font-semibold">Editar</Link>}
                       <EventImageButton eventId={e.id} hasImage={!!e.image_path} />
                       <EventStatusButtons id={e.id} status={e.status} />

@@ -157,3 +157,21 @@ h1, h2, h3, .font-display {
   .anim-heart-pop, .anim-star-spin, .anim-shrink, .anim-text-in { animation: none; }
   .anim-ring, .anim-sparks { display: none; }
 }
+
+/* deslizador del radio del mapa (components/radius-slider.tsx): riel propio detrás, aquí solo el pulgar */
+.el-range { -webkit-appearance: none; appearance: none; width: 100%; height: 28px; background: transparent; cursor: pointer; touch-action: pan-y; margin: 0; }
+.el-range:focus { outline: none; }
+.el-range::-webkit-slider-runnable-track { height: 28px; background: transparent; }
+.el-range::-moz-range-track { height: 28px; background: transparent; }
+.el-range::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 26px; height: 26px; margin-top: 1px; border-radius: 9999px;
+  background: #fff; border: 2px solid var(--ink); box-shadow: 0 2px 8px rgba(0,0,0,.18); transition: transform .15s ease;
+}
+.el-range::-moz-range-thumb {
+  width: 22px; height: 22px; border-radius: 9999px; background: #fff; border: 2px solid var(--ink);
+  box-shadow: 0 2px 8px rgba(0,0,0,.18); transition: transform .15s ease;
+}
+.el-range:active::-webkit-slider-thumb { transform: scale(1.12); }
+.el-range:active::-moz-range-thumb { transform: scale(1.12); }
+.el-range:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px var(--accent-soft), 0 2px 8px rgba(0,0,0,.18); }
+.el-range:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 4px var(--accent-soft), 0 2px 8px rgba(0,0,0,.18); }

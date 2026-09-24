@@ -4,6 +4,8 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2, LocateFixed } from "lucide-react";
 import { setLocation } from "@/app/actions";
+import { DEFAULT_RADIUS } from "@/lib/location";
+import { track } from "@/lib/track";
 
 type State = "locating" | "idle" | "denied";
 
@@ -19,7 +21,8 @@ export function LocationPrompt() {
     setState("locating");
     navigator.geolocation.getCurrentPosition(
       (pos) => start(async () => {
-        await setLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude, radiusKm: 30, label: "Tu ubicación", gps: true });
+        await setLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude, radiusKm: DEFAULT_RADIUS, label: "Tu ubicación", gps: true });
+        track("search", { props: { mode: "gps" } });
         router.refresh();
       }),
       () => setState("denied"),

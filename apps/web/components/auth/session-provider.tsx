@@ -4,6 +4,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import { useRouter } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
+import { setTrackUser, track } from "@/lib/track";
 import { LoginSheet } from "./login-sheet";
 
 /** Qué quería hacer la persona cuando le pedimos entrar; el callback lo completa al volver de Google. */
@@ -75,6 +76,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const { data } = sb.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
+      setTrackUser(session?.user?.id ?? null);
       setReady(true);
     });
     return () => data.subscription.unsubscribe();
@@ -123,6 +125,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   }, [sb]);
 
   const signIn = useCallback(async (intent?: Intent) => {
+    track("login_start", { event: intent?.eventId, props: intent ? { intent: intent.do } : undefined });
     const params = new URLSearchParams({ next: location.pathname + location.search });
     if (intent) {
       params.set("do", intent.do);
@@ -142,6 +145,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   const toggleSave = useCallback((eventId: string) => {
     if (!uid) return requireLogin({ do: "save", eventId });
     const on = !saved.has(eventId);
+    track(on ? "save" : "unsave", { event: eventId });
     setSaved((s) => toggled(s, eventId, on));
     const q = on
       ? sb.from("saved_events").insert({ user_id: uid, event_id: eventId })
@@ -155,6 +159,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   const toggleInterest = useCallback((eventId: string) => {
     if (!uid) return requireLogin({ do: "interest", eventId });
     const on = !interested.has(eventId);
+    track(on ? "interest" : "uninterest", { event: eventId });
     const bump = (d: number) => setCounts((c) => ({ ...c, [eventId]: Math.max(0, (c[eventId] ?? 0) + d) }));
     setInterested((s) => toggled(s, eventId, on));
     bump(on ? 1 : -1);

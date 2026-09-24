@@ -34,7 +34,7 @@ export async function ExploreView({ sp, split = false, basePath = "/" }: { sp: E
   const range = (RANGES.some((x) => x.key === sp.r) ? sp.r : "finde") as Range;
   const category = sp.c;
   const [loc, isSet] = await Promise.all([getLoc(), hasLoc()]);
-  // El radio (10/30/60/Explorar) solo aplica en el mapa. En la lista no hay límite de km:
+  // El radio (1 h/2 h/3 h/Explorar) solo aplica en el mapa. En la lista no hay límite de km:
   //  1) "tu zona" en el rango de fechas, por fecha: tu municipio (o ≤ LOCAL_KM del GPS), o el estado elegido
   //  2) "Más eventos cerca de ti": todo lo demás que viene, del más cercano al más lejano
   const anywhere = { ...loc, radiusKm: 400 };
@@ -78,7 +78,7 @@ export async function ExploreView({ sp, split = false, basePath = "/" }: { sp: E
             />
             <div className="no-scrollbar flex gap-2 overflow-x-auto px-5 pb-2 lg:pb-3">
               {RANGES.map((r) => (
-                <Chip key={r.key} active={r.key === range} href={`${basePath}?r=${r.key}${category ? `&c=${category}` : ""}`}>{r.label}</Chip>
+                <Chip key={r.key} active={r.key === range} track={`rango:${r.key}`} href={`${basePath}?r=${r.key}${category ? `&c=${category}` : ""}`}>{r.label}</Chip>
               ))}
             </div>
           </div>

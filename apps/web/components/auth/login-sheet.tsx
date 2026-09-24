@@ -59,7 +59,9 @@ export function LoginSheet({ intent, onClose, onGoogle }: { intent?: Intent; onC
         <h2 id="login-title" className="pr-10 text-[22px] font-bold leading-tight">{copy.title}</h2>
         <p className="mt-2 text-[14px] text-ink-2">{copy.body}</p>
         <GoogleButton onClick={onGoogle} className="mt-6" />
-        <p className="mt-4 text-center text-[12px] text-ink-3">Sin cuenta puedes seguir explorando todo.</p>
+        <p className="mt-4 text-center text-[12px] text-ink-3">
+          Sin cuenta puedes seguir explorando todo. Al continuar aceptas el <a href="/privacidad" className="underline">aviso de privacidad</a>.
+        </p>
       </section>
     </div>
   );

@@ -9,11 +9,11 @@ const MAX = 4;
 type Props = { src: string; alt: string; children: React.ReactNode; className?: string };
 
 /** Envuelve una imagen: al tocarla abre el visor a tamaño completo con zoom y arrastre. */
-export function ZoomableImage({ src, alt, children, className }: Props) {
+export function ZoomableImage({ src, alt, children, className, eventId }: Props & { eventId?: string }) {
   const [open, setOpen] = useState(false);
   return (
     <>
-      <button type="button" onClick={() => setOpen(true)} aria-label="Ver imagen completa" className={className ?? "block h-full w-full cursor-zoom-in"}>
+      <button type="button" onClick={() => setOpen(true)} aria-label="Ver imagen completa" data-track={eventId ? "flyer_zoom" : undefined} data-event={eventId} className={className ?? "block h-full w-full cursor-zoom-in"}>
         {children}
       </button>
       {open && <ImageViewer src={src} alt={alt} onClose={() => setOpen(false)} />}

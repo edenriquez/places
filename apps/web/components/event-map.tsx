@@ -5,12 +5,14 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import clsx from "clsx";
 import { Info, Loader2, LocateFixed } from "lucide-react";
-import { EXPLORE, RADII, type Loc } from "@/lib/location";
+import { EXPLORE, RADII, radiusLabel, type Loc } from "@/lib/location";
+import { RadiusSlider } from "./radius-slider";
 import { setLocation } from "@/app/actions";
 import { MAP_STYLE, maplibregl } from "@/lib/maplibre";
 import type { NearRow } from "@/lib/types";
 import { fmtDistance, fmtPrice } from "@/lib/format";
 import { CompactCard } from "./event-card";
+import { track } from "@/lib/track";
 
 
 type BBox = [[number, number], [number, number]];
@@ -18,6 +20,18 @@ const DEM_TILES = "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{
 /** overlay: mapa a pantalla completa con tarjetas encima (móvil). panel: columna derecha del split de escritorio; la lista vive a la izquierda. */
 /** focus: evento abierto en el panel; el mapa se centra en él. nearest: lo más cercano fuera del radio, para sugerirlo cuando no hay nada dentro. */
 type Props = { events: (NearRow & { lat: number; lng: number })[]; loc: Loc; stateBounds?: BBox; variant?: "overlay" | "panel"; focus?: { id: string; lat: number; lng: number } | null; nearest?: NearRow | null };
+
+/** Polígono del área cubierta (círculo de `km` alrededor del centro) para dibujarla en el mapa. */
+type Area = { type: "Feature"; properties: object; geometry: { type: "Polygon"; coordinates: [number, number][][] } };
+function circleGeo(lat: number, lng: number, km: number): Area {
+  const pts: [number, number][] = [];
+  for (let i = 0; i <= 64; i++) {
+    const a = (i / 64) * 2 * Math.PI;
+    pts.push([lng + (km / (111.32 * Math.cos((lat * Math.PI) / 180))) * Math.cos(a), lat + (km / 111.32) * Math.sin(a)]);
+  }
+  return { type: "Feature", properties: {}, geometry: { type: "Polygon", coordinates: [pts] } };
+}
+const EMPTY_GEO = { type: "FeatureCollection" as const, features: [] };
 
 /** Caja que contiene el círculo del radio (grados aprox., suficiente a esta escala). */
 function circleBox(lat: number, lng: number, km: number): BBox {
@@ -94,6 +108,10 @@ export function EventMap({ events, loc, stateBounds, variant = "overlay", focus,
       const firstLabel = map.getStyle().layers?.find((l) => l.type === "symbol")?.id;
       map.addLayer({ id: "hillshade", type: "hillshade", source: "dem-shade", paint: { "hillshade-exaggeration": 0.35, "hillshade-shadow-color": "#5b5b52", "hillshade-highlight-color": "#ffffff", "hillshade-accent-color": "#8a8a7a" } }, firstLabel);
       map.setTerrain({ source: "dem", exaggeration: 1.4 });
+      // área cubierta por el radio elegido (el deslizador la redibuja al arrastrar)
+      map.addSource("radius", { type: "geojson", data: explore || stateCve ? EMPTY_GEO : circleGeo(lat, lng, radiusKm) });
+      map.addLayer({ id: "radius-fill", type: "fill", source: "radius", paint: { "fill-color": "#ff385c", "fill-opacity": 0.06 } }, firstLabel);
+      map.addLayer({ id: "radius-line", type: "line", source: "radius", paint: { "line-color": "#ff385c", "line-width": 2, "line-opacity": 0.55, "line-dasharray": [2, 1.5] } }, firstLabel);
     });
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
     // el límite real de alejamiento es la caja (maxBounds), no minZoom; se iguala para que el control
@@ -210,10 +228,20 @@ export function EventMap({ events, loc, stateBounds, variant = "overlay", focus,
     return () => document.removeEventListener("mouseover", over);
   }, [panel]);
 
-  function apply(next: Loc) {
-    start(async () => { await setLocation(next); router.refresh(); });
+  // deslizador: mientras arrastra solo se redibuja el área y se mueve la cámara; al soltar se busca
+  function previewRadius(km: number) {
+    const map = mapRef.current;
+    if (!map) return;
+    (map.getSource("radius") as maplibregl.GeoJSONSource | undefined)?.setData(km === EXPLORE ? EMPTY_GEO : circleGeo(lat, lng, km));
+    map.setMaxBounds(null);
+    map.setMinZoom(0);
+    map.fitBounds(circleBox(lat, lng, km === EXPLORE ? 150 : km), { padding: panel ? 60 : { top: 260, bottom: 200, left: 24, right: 24 }, duration: 350 });
   }
-  // "mi ubicación": centra el mapa ahí con zoom de 10 km de inmediato, y guarda la búsqueda a 10 km
+
+  function apply(next: Loc) {
+    start(async () => { await setLocation(next); track("search", { props: { label: next.label, mode: "mapa" } }); router.refresh(); });
+  }
+  // "mi ubicación": centra el mapa ahí de inmediato y guarda la búsqueda al radio más corto (1 h)
   function locate() {
     navigator.geolocation?.getCurrentPosition((p) => {
       const { latitude: la, longitude: lo } = p.coords;
@@ -221,9 +249,9 @@ export function EventMap({ events, loc, stateBounds, variant = "overlay", focus,
       if (map) {
         map.setMaxBounds(null);
         map.setMinZoom(0);
-        map.fitBounds(circleBox(la, lo, 10), { padding: panel ? 40 : 24, duration: 600 });
+        map.fitBounds(circleBox(la, lo, RADII[0]), { padding: panel ? 40 : 24, duration: 600 });
       }
-      apply({ lat: la, lng: lo, radiusKm: 10, label: "Tu ubicación", gps: true });
+      apply({ lat: la, lng: lo, radiusKm: RADII[0], label: "Tu ubicación", gps: true });
     });
   }
 
@@ -242,18 +270,17 @@ export function EventMap({ events, loc, stateBounds, variant = "overlay", focus,
         {pending ? <Loader2 size={18} className="animate-spin" /> : <LocateFixed size={18} />}
       </button>
       {!stateCve && (
-        <div className={clsx("absolute z-10 flex w-max gap-1 whitespace-nowrap rounded-full bg-white p-1 shadow-float", panel ? "left-1/2 top-4 -translate-x-1/2" : "left-1/2 top-[84px] -translate-x-1/2")}>
-          {[...RADII, EXPLORE].map((r) => (
-            <button
-              key={r}
-              type="button"
-              disabled={pending}
-              onClick={() => r !== radiusKm && apply({ ...loc, radiusKm: r })}
-              className={clsx("h-8 rounded-full px-3 text-[13px] font-semibold", r === radiusKm ? "bg-ink text-white" : "text-ink-2")}
-            >
-              {r === EXPLORE ? "Explorar" : `${r} km`}
-            </button>
-          ))}
+        <div className={clsx("absolute left-1/2 z-10 -translate-x-1/2", panel ? "top-4" : "top-[84px]")}>
+          <RadiusSlider
+            value={radiusKm}
+            steps={[...RADII, EXPLORE]}
+            place={loc.label === "Tu ubicación" ? "tu ubicación" : loc.label}
+            onPreview={previewRadius}
+            onCommit={(km) => apply({ ...loc, radiusKm: km })}
+            pending={pending}
+            defaultOpen={panel}
+            closeOnCommit={!panel}
+          />
         </div>
       )}
       {pins.length === 0 && (
@@ -262,16 +289,16 @@ export function EventMap({ events, loc, stateBounds, variant = "overlay", focus,
           {nearest && !explore ? (
             <>
               <span className="min-w-0 truncate text-ink-2">
-                {stateCve ? `Nada en ${loc.label}` : `Nada a ${radiusKm} km`} · lo más cercano: <span className="font-semibold text-ink">{nearest.title}</span> · {fmtDistance(nearest.distance_m)}
+                {stateCve ? `Nada en ${loc.label}` : `Nada a ${radiusLabel(radiusKm)}`} · lo más cercano: <span className="font-semibold text-ink">{nearest.title}</span> · {fmtDistance(nearest.distance_m)}
               </span>
               <Link href={detailHref(nearest.slug)} scroll={false} className="shrink-0 rounded-full bg-ink px-3 py-1 text-[12px] font-semibold text-white">Ver</Link>
             </>
           ) : (
-            <span className="truncate text-ink-2">{stateCve ? `Sin eventos en ${loc.label} por ahora` : explore ? "Sin eventos por ahora" : `Nada a ${radiusKm} km por ahora`}</span>
+            <span className="truncate text-ink-2">{stateCve ? `Sin eventos en ${loc.label} por ahora` : explore ? "Sin eventos por ahora" : `Nada a ${radiusLabel(radiusKm)} por ahora`}</span>
           )}
           {!nearest && !stateCve && !explore && (
             <button type="button" disabled={pending} onClick={() => apply({ ...loc, radiusKm: RADII.find((r) => r > radiusKm) ?? EXPLORE })} className="shrink-0 rounded-full bg-ink px-3 py-1 text-[12px] font-semibold text-white disabled:opacity-60">
-              {RADII.find((r) => r > radiusKm) ? `Ver a ${RADII.find((r) => r > radiusKm)} km` : "Explorar"}
+              {RADII.find((r) => r > radiusKm) ? `Ver a ${radiusLabel(RADII.find((r) => r > radiusKm)!)}` : "Explorar"}
             </button>
           )}
         </div>

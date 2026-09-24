@@ -3,13 +3,13 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
-import { Activity, CalendarDays, ClipboardCheck, Rss, Upload } from "lucide-react";
+import { Activity, BarChart3, CalendarDays, ClipboardCheck, Upload } from "lucide-react";
 
 const ITEMS = [
   { href: "/admin/upload", label: "Subir", icon: Upload },
   { href: "/admin/review", label: "Revisión", icon: ClipboardCheck },
-  { href: "/admin/sources", label: "Fuentes", icon: Rss },
   { href: "/admin/events", label: "Eventos", icon: CalendarDays },
+  { href: "/admin/metricas", label: "Métricas", icon: BarChart3 },
   { href: "/admin/jobs", label: "Tareas", icon: Activity },
 ];
 

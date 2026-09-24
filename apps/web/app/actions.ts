@@ -11,7 +11,7 @@ function km(aLat: number, aLng: number, bLat: number, bLng: number) {
 }
 
 export async function setLocation(loc: Loc) {
-  // con GPS, nombrar la ubicación por el pueblo más cercano ("a 30 km de Tlalmanalco" en vez de "de Tu ubicación")
+  // con GPS, nombrar la ubicación por el pueblo más cercano ("a 1 h de Tlalmanalco" en vez de "de Tu ubicación")
   if (loc.gps) {
     const { data } = await createAnonClient().from("municipalities_view").select("name,lat,lng");
     const near = (data ?? [])

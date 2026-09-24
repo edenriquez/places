@@ -5,9 +5,10 @@ import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { ChevronLeft, ChevronRight, Loader2, LocateFixed, MapPin, Search, X } from "lucide-react";
 import clsx from "clsx";
-import type { Loc } from "@/lib/location";
+import { DEFAULT_RADIUS, EXPLORE, radiusLabel, type Loc } from "@/lib/location";
 import type { Municipality } from "@/lib/types";
 import { setLocation } from "@/app/actions";
+import { track } from "@/lib/track";
 
 type State = { cve: string; name: string; lat: number; lng: number; munis: Municipality[] };
 
@@ -59,7 +60,7 @@ export function LocationSheet({ loc, municipalities, onClose }: { loc: Loc | nul
   const [geo, setGeo] = useState<"idle" | "locating" | "error">("idle");
   const router = useRouter();
   const states = useMemo(() => groupStates(municipalities), [municipalities]);
-  const radiusKm = loc?.radiusKm ?? 30;
+  const radiusKm = loc?.radiusKm ?? DEFAULT_RADIUS;
 
   const results = useMemo(() => {
     const n = norm(q);
@@ -75,6 +76,7 @@ export function LocationSheet({ loc, municipalities, onClose }: { loc: Loc | nul
   function apply(next: Loc) {
     start(async () => {
       await setLocation(next);
+      track("search", { props: { label: next.label, mode: next.stateCve ? "estado" : next.radiusKm === EXPLORE ? "explorar" : radiusLabel(next.radiusKm) } });
       router.refresh();
       onClose();
     });
