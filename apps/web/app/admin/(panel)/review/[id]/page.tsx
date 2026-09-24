@@ -33,6 +33,7 @@ export default async function ReviewDetailPage({ params }: { params: Promise<{ i
     event?.org_id ? sb.from("organizations").select("name").eq("id", event.org_id).maybeSingle() : Promise.resolve({ data: null }),
   ]);
   const editing = event?.status === "published";
+  const sub = ing.payload?.submitted_via === "publicar" ? (ing.payload as Record<string, unknown>) : null;
 
   return (
     <div className="mx-auto max-w-[1200px]">
@@ -46,6 +47,17 @@ export default async function ReviewDetailPage({ params }: { params: Promise<{ i
           <Link aria-disabled={!next} href={next ? `/admin/review/${next}` : "#"} className={`grid h-9 w-9 place-items-center rounded-full border border-line ${!next && "pointer-events-none opacity-40"}`}><ChevronRight size={18} /></Link>
         </div>
       </div>
+      {sub && (
+        <section className="mt-4 rounded-card border border-line bg-bg-2/60 p-4 text-[14px]">
+          <p className="text-[12px] font-semibold uppercase tracking-[0.04em] text-ink-2">Enviado por el organizador desde /publicar</p>
+          <p className="mt-2 whitespace-pre-line">{String(sub.text ?? "")}</p>
+          <p className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[13px] text-ink-2">
+            {ing.organizer_hint && <span>Organiza: <b className="text-ink">{ing.organizer_hint}</b></span>}
+            {sub.contact ? <span>Contacto: <b className="text-ink">{String(sub.contact)}</b></span> : null}
+            {ing.origin_url && <a href={ing.origin_url} target="_blank" rel="noreferrer" className="underline">{ing.origin_url}</a>}
+          </p>
+        </section>
+      )}
       <ReviewForm
         ingestion={ing}
         event={event}

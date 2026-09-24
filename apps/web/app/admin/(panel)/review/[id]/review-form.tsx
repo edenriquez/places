@@ -54,7 +54,7 @@ export function ReviewForm({ ingestion, event, organizerName, occurrences, munic
   const [municipality, setMunicipality] = useState(event?.municipality_cvegeo ?? ingestion.municipality_hint ?? "");
   const [placeText, setPlaceText] = useState(event?.place_text ?? ex.place_text ?? "");
   const [departureText, setDepartureText] = useState(event?.departure_text ?? departureFromNotes(ex));
-  const [contactPhone, setContactPhone] = useState(event?.contact_phone ?? phoneFromOcr(ingestion.ocr_text));
+  const [contactPhone, setContactPhone] = useState(event?.contact_phone || phoneFromOcr(String(ingestion.payload?.contact ?? "")) || phoneFromOcr(ingestion.ocr_text));
   const [contactWhatsapp, setContactWhatsapp] = useState(event?.contact_whatsapp ?? true);
   const [instagram, setInstagram] = useState(handleFromUrl(event?.instagram_url, /instagram\.com\/([\w.]+)\/?$/));
   const [facebook, setFacebook] = useState(event?.facebook_url ?? "");

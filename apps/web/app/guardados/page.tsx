@@ -3,31 +3,11 @@ import { Heart } from "lucide-react";
 import { SignInButton } from "@/components/auth/account-buttons";
 import { BottomNav } from "@/components/bottom-nav";
 import { EventCard } from "@/components/event-card";
+import { eventRows } from "@/lib/account";
 import { createClient } from "@/lib/supabase/server";
-import type { NearRow } from "@/lib/types";
 
 export const metadata = { title: "Guardados" };
 export const dynamic = "force-dynamic";
-
-type Point = Omit<NearRow, "distance_m" | "place_id"> & { occurrence_id: string };
-
-/** Un evento por fila: su próxima fecha, o la última si ya pasó. */
-function pickOccurrence(points: Point[]) {
-  const now = Date.now();
-  const byEvent = new Map<string, Point[]>();
-  for (const p of points) byEvent.set(p.event_id, [...(byEvent.get(p.event_id) ?? []), p]);
-  const upcoming: NearRow[] = [];
-  const past: NearRow[] = [];
-  for (const occ of byEvent.values()) {
-    occ.sort((a, b) => a.starts_at.localeCompare(b.starts_at));
-    const next = occ.find((o) => new Date(o.ends_at ?? o.starts_at).getTime() >= now);
-    const row = { ...(next ?? occ[occ.length - 1]), distance_m: 0, place_id: null };
-    (next ? upcoming : past).push(row);
-  }
-  upcoming.sort((a, b) => a.starts_at.localeCompare(b.starts_at));
-  past.sort((a, b) => b.starts_at.localeCompare(a.starts_at));
-  return { upcoming, past };
-}
 
 function Empty({ title, body, children }: { title: string; body: string; children: React.ReactNode }) {
   return (
@@ -44,14 +24,10 @@ export default async function SavedPage() {
   const sb = await createClient();
   const { data: { user } } = await sb.auth.getUser();
 
-  let lists: ReturnType<typeof pickOccurrence> | null = null;
+  let lists: Awaited<ReturnType<typeof eventRows>> | null = null;
   if (user) {
     const { data: saved } = await sb.from("saved_events").select("event_id");
-    const ids = (saved ?? []).map((r) => r.event_id as string);
-    const { data: points } = ids.length
-      ? await sb.from("event_points_view").select("*").in("event_id", ids)
-      : { data: [] };
-    lists = pickOccurrence((points ?? []) as Point[]);
+    lists = await eventRows(sb, (saved ?? []).map((r) => r.event_id as string));
   }
 
   return (
