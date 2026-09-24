@@ -66,12 +66,17 @@ h1, h2, h3, .font-display {
   0%, 100% { transform: scale(1); opacity: 1; }
   50% { transform: scale(1.6); opacity: 0.35; }
 }
+.live-dot {
+  position: relative;
+  display: inline-block;
+  flex-shrink: 0;
+}
 .live-dot::after {
   content: "";
   position: absolute;
   inset: 0;
   border-radius: 9999px;
-  background: var(--live);
+  background: inherit;
   animation: pulse-live 1.4s ease-in-out infinite;
 }
 
@@ -111,3 +116,44 @@ h1, h2, h3, .font-display {
 @keyframes sheet-in { from { transform: translateY(100%); } }
 .sheet-in { animation: sheet-in 320ms cubic-bezier(0.22, 1, 0.36, 1); }
 @media (prefers-reduced-motion: reduce) { .sheet-in { animation: none; } }
+
+/* CTAs: guardar (corazón) y "me interesa" (estrella) */
+@keyframes heart-pop {
+  0% { transform: scale(1); }
+  15% { transform: scale(0.7); }
+  45% { transform: scale(1.4) translateY(-4px); }
+  65% { transform: scale(0.9); }
+  82% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+@keyframes star-spin {
+  0% { transform: rotate(0) scale(1); }
+  20% { transform: rotate(-25deg) scale(0.7); }
+  60% { transform: rotate(165deg) scale(1.45); }
+  100% { transform: rotate(144deg) scale(1); } /* 144° = dos puntas: la estrella queda igual que al inicio */
+}
+@keyframes cta-shrink { 50% { transform: scale(0.75); } }
+@keyframes cta-ring { from { transform: scale(0.3); opacity: 0.9; } to { transform: scale(1.7); opacity: 0; } }
+@keyframes cta-sparks { 0% { transform: scale(0.2); opacity: 1; } 70% { opacity: 1; } 100% { transform: scale(1.25); opacity: 0; } }
+@keyframes cta-text-in { from { opacity: 0; transform: translateY(6px); } }
+
+.anim-heart-pop { animation: heart-pop 650ms cubic-bezier(0.2, 0.8, 0.3, 1.2) both; }
+.anim-star-spin { animation: star-spin 700ms cubic-bezier(0.2, 0.8, 0.3, 1.1) both; }
+.anim-shrink { animation: cta-shrink 220ms ease-out; }
+.anim-text-in { animation: cta-text-in 260ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+/* anillo que se expande y chispas en seis direcciones (sombras de un punto central que escalan con él) */
+.anim-ring {
+  position: absolute; inset: 0; border-radius: 9999px; pointer-events: none;
+  border: 2px solid var(--burst, var(--accent));
+  animation: cta-ring 550ms ease-out both;
+}
+.anim-sparks {
+  position: absolute; left: 50%; top: 50%; width: 4px; height: 4px; margin: -2px; border-radius: 9999px; pointer-events: none;
+  --a: var(--burst, var(--accent)); --b: #ffb400;
+  box-shadow: 18px 0 var(--a), 9px 15.6px var(--b), -9px 15.6px var(--a), -18px 0 var(--b), -9px -15.6px var(--a), 9px -15.6px var(--b);
+  animation: cta-sparks 600ms ease-out 120ms both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .anim-heart-pop, .anim-star-spin, .anim-shrink, .anim-text-in { animation: none; }
+  .anim-ring, .anim-sparks { display: none; }
+}

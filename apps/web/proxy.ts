@@ -1,7 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-/** Refresca la sesión de Supabase y protege /admin (excepto /admin/login). */
+/** Refresca la sesión de Supabase (admin y páginas con cuenta) y protege /admin (excepto /admin/login). */
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
 
@@ -42,5 +42,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*"],
+  matcher: ["/admin/:path*", "/guardados", "/perfil", "/auth/:path*"],
 };

@@ -1,10 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, AtSign, CalendarDays, ExternalLink, Flag, Globe, Heart, MapPin, MessageCircle, Phone, Share2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, AtSign, CalendarDays, ExternalLink, Flag, Globe, MapPin, MessageCircle, Phone, Share2 } from "lucide-react";
 import { BackButton } from "./back-button";
 import { DesktopOnly, MobileOnly } from "./desktop";
 import { CompactCard, EventCard } from "./event-card";
 import { ZoomableImage } from "./image-viewer";
+import { InterestButton } from "./interest-button";
+import { SaveButton } from "./save-button";
 import { StaticMap } from "./static-map-lazy";
 import { PriceTag } from "./ui";
 import { flyerUrl, fmtPhone, fmtWhenLong, waLink } from "@/lib/format";
@@ -256,7 +258,7 @@ export function EventMobile({ d, nearby }: { d: EventData; nearby: NearRow[] }) 
           <BackButton className="grid h-10 w-10 place-items-center rounded-full bg-white shadow-soft" />
           <div className="flex gap-2">
             <a href={x.shareHref} aria-label="Compartir" className="grid h-10 w-10 place-items-center rounded-full bg-white shadow-soft"><Share2 size={18} /></a>
-            <span className="grid h-10 w-10 place-items-center rounded-full bg-white shadow-soft"><Heart size={18} /></span>
+            <SaveButton eventId={d.event.id} variant="icon" />
           </div>
         </div>
       </div>
@@ -268,6 +270,7 @@ export function EventMobile({ d, nearby }: { d: EventData; nearby: NearRow[] }) 
           <div className="mt-5">
             <InfoList d={d} x={x} map={x.coords && <MobileOnly><StaticMap lat={x.coords.lat} lng={x.coords.lng} className="mt-3 h-[140px] w-full overflow-hidden rounded-card border border-line" /></MobileOnly>} />
           </div>
+          <InterestButton eventId={d.event.id} className="mt-6 rounded-card border border-line p-4" />
         </div>
         <Description d={d} />
         <Contact d={d} x={x} />
@@ -305,7 +308,7 @@ export function EventDesktop({ d, nearby }: { d: EventData; nearby: NearRow[] })
         <BackButton className="grid h-10 w-10 place-items-center rounded-full border border-line hover:bg-bg-2" />
         <div className="flex gap-2">
           <a href={x.shareHref} target="_blank" rel="noreferrer" className="flex items-center gap-2 rounded-full px-3 py-2 text-[14px] font-semibold underline-offset-2 hover:bg-bg-2 hover:underline"><Share2 size={16} /> Compartir</a>
-          <span className="flex items-center gap-2 rounded-full px-3 py-2 text-[14px] font-semibold"><Heart size={16} /> Guardar</span>
+          <SaveButton eventId={event.id} variant="label" />
         </div>
       </div>
 
@@ -337,6 +340,7 @@ export function EventDesktop({ d, nearby }: { d: EventData; nearby: NearRow[] })
                 {d.occurrences.length > 1 && <p className="text-[13px] text-ink-2">y {d.occurrences.length - 1} más</p>}
               </div>
             )}
+            <InterestButton eventId={event.id} className="border-y border-line py-4" />
             <ShareButton x={x} className="w-full" />
             {event.contact_phone && <div className="[&>div]:grid [&>div]:grid-cols-2 [&_a]:justify-center"><ContactButtons d={d} /></div>}
             {x.coords && (
@@ -389,6 +393,7 @@ export function EventPanel({ d, backHref, sheet }: { d: EventData; backHref: str
         <Price d={d} />
         <ShareButton x={x} />
       </div>
+      <InterestButton eventId={d.event.id} className="-mt-2 px-1" />
 
       {sheet && <Flyer x={x} alt={d.event.title} sizes="640px" className="aspect-[4/3] rounded-card" contain />}
 

@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
+import { SessionProvider } from "@/components/auth/session-provider";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 const jakarta = Plus_Jakarta_Sans({
@@ -28,7 +29,7 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es-MX" className={`${inter.variable} ${jakarta.variable}`}>
-      <body className="min-h-dvh bg-bg text-ink">{children}</body>
+      <body className="min-h-dvh bg-bg text-ink"><SessionProvider>{children}</SessionProvider></body>
     </html>
   );
 }

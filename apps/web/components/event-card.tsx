@@ -1,9 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ViewTransition } from "react";
-import { Heart, Navigation } from "lucide-react";
+import { Navigation } from "lucide-react";
 import { CATEGORY_LABEL, type NearRow } from "@/lib/types";
 import { flyerUrl, fmtDistance, fmtTime, fmtWhenShort } from "@/lib/format";
+import { SaveButton } from "./save-button";
 import { LiveBadge, PriceTag } from "./ui";
 
 function Flyer({ path, alt, sizes, className }: { path: string | null; alt: string; sizes: string; className?: string }) {
@@ -46,9 +47,7 @@ export function EventCard({ e, live, hideDistance, vt, nearby, href }: { e: Near
             </span>
           )}
         </div>
-        <span className="absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full bg-white/90 text-ink">
-          <Heart size={18} />
-        </span>
+        <SaveButton eventId={e.event_id} variant="card" className="absolute right-3 top-3" />
       </div>
       <div className="mt-3 flex items-start justify-between gap-3">
         <div className="min-w-0">

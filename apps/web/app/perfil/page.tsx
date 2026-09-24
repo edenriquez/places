@@ -1,17 +1,43 @@
 import Link from "next/link";
 import { MessageCircle, Send } from "lucide-react";
+import { SignInButton, SignOutButton } from "@/components/auth/account-buttons";
 import { BottomNav } from "@/components/bottom-nav";
 import { municipalities } from "@/lib/queries";
+import { createClient } from "@/lib/supabase/server";
 
 export const metadata = { title: "Perfil" };
 export const dynamic = "force-dynamic";
 
 export default async function ProfilePage() {
-  const munis = await municipalities();
+  const sb = await createClient();
+  const [munis, { data: { user } }] = await Promise.all([municipalities(), sb.auth.getUser()]);
+  const meta = user?.user_metadata ?? {};
+  const name: string = meta.full_name ?? meta.name ?? user?.email ?? "";
+  const avatar: string | undefined = meta.avatar_url ?? meta.picture;
   return (
     <main className="mx-auto max-w-screen-sm px-5 pb-28 pt-8">
       <h1 className="text-[26px] font-bold">Perfil</h1>
-      <p className="mt-1 text-[14px] text-ink-2">Las cuentas llegan pronto. Mientras, síguenos donde ya estás.</p>
+      {user ? (
+        <section className="mt-5 flex flex-wrap items-center gap-4 rounded-card border border-line p-4">
+          {avatar ? (
+            // eslint-disable-next-line @next/next/no-img-element -- avatar externo de Google
+            <img src={avatar} alt="" referrerPolicy="no-referrer" className="h-14 w-14 rounded-full object-cover" />
+          ) : (
+            <span className="grid h-14 w-14 place-items-center rounded-full bg-bg-2 text-[18px] font-bold text-ink-2">{name.slice(0, 1).toUpperCase()}</span>
+          )}
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-[16px] font-semibold">{name}</p>
+            {user.email && <p className="truncate text-[13px] text-ink-2">{user.email}</p>}
+          </div>
+          <SignOutButton />
+        </section>
+      ) : (
+        <section className="mt-5 rounded-card border border-line p-5">
+          <p className="text-[17px] font-semibold">Entra a entrelugares</p>
+          <p className="mt-1 text-[14px] text-ink-2">Guarda eventos, marca a cuáles te interesa ir y encuéntralos en cualquier dispositivo.</p>
+          <SignInButton className="mt-4" />
+        </section>
+      )}
 
       <a href="https://whatsapp.com/channel/entrelugares" className="mt-6 flex items-center gap-4 rounded-card border border-line p-4">
         <span className="grid h-11 w-11 place-items-center rounded-full bg-whatsapp text-white"><MessageCircle size={22} /></span>
