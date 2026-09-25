@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { List } from "lucide-react";
+import { Compass } from "lucide-react";
 import { BottomNav } from "@/components/bottom-nav";
 import { BottomSheet } from "@/components/bottom-sheet";
 import { MobileOnly } from "@/components/desktop";
@@ -43,7 +43,7 @@ export default async function MapPage({ searchParams }: { searchParams: Promise<
         <SearchBar loc={loc} municipalities={munis} compact />
       </div>
       <Link href="/" className="absolute bottom-[calc(82px+env(safe-area-inset-bottom))] left-1/2 z-20 flex -translate-x-1/2 items-center gap-2 rounded-full bg-ink px-5 py-3 text-[15px] font-semibold text-white shadow-float">
-        <List size={16} /> Lista
+        <Compass size={16} /> Explorar
       </Link>
       <BottomNav />
       {detail && (

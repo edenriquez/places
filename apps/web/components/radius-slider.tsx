@@ -75,11 +75,11 @@ export function RadiusSlider({ value, steps, place, onPreview, onCommit, pending
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="flex h-10 items-center gap-2 rounded-full bg-white pl-3.5 pr-3 text-[14px] font-semibold shadow-float"
+        className="flex h-10 items-center gap-1.5 whitespace-nowrap rounded-full bg-white pl-3 pr-2.5 text-[13px] font-semibold shadow-float min-[400px]:gap-2 min-[400px]:pl-3.5 min-[400px]:pr-3 min-[400px]:text-[14px]"
         aria-expanded={false}
       >
         {pending ? <Loader2 size={16} className="animate-spin text-ink-2" /> : <Clock size={16} className="text-ink-2" />}
-        {value === EXPLORE ? "Toda la región" : `a ${radiusLabel(value)}`}
+        {value === EXPLORE ? "Toda la región" : `a ${radiusLabel(value, true)}`}
         {value !== EXPLORE && <span className="font-normal text-ink-2">· ≈{value} km</span>}
         <ChevronDown size={16} className="text-ink-2" />
       </button>

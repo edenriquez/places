@@ -202,7 +202,20 @@ export function EventMap({ events, loc, stateBounds, variant = "overlay", focus,
       setLimit(base);
     }
     // flyTo funciona aunque el estilo siga cargando; loaded() queda en false mientras bajan teselas
-    map.flyTo({ center: [focus.lng, focus.lat], zoom: Math.max(map.getZoom(), 12.5), duration: 900, essential: true, offset: panel ? [0, 0] : [0, -Math.round(map.getContainer().clientHeight * 0.25)] });
+    const offset: [number, number] = panel ? [0, 0] : [0, -Math.round(map.getContainer().clientHeight * 0.19)];
+    map.flyTo({ center: [focus.lng, focus.lat], zoom: Math.max(map.getZoom(), 12.5), duration: 900, essential: true, offset });
+    // con relieve 3D el punto sube al cargar la elevación y el pin se sale de cuadro: recentrar cuando termina
+    let tries = 0;
+    const settle = () => {
+      const c = map.getContainer();
+      const at = map.project([focus.lng, focus.lat]);
+      const dx = at.x - c.clientWidth / 2 - offset[0];
+      const dy = at.y - c.clientHeight / 2 - offset[1];
+      if ((Math.abs(dx) > 4 || Math.abs(dy) > 4) && ++tries <= 3) map.panBy([dx, dy], { duration: 300 });
+      else map.off("idle", settle);
+    };
+    map.on("idle", settle);
+    return () => { map.off("idle", settle); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [focusKey, limitKey]);
 
@@ -216,6 +229,34 @@ export function EventMap({ events, loc, stateBounds, variant = "overlay", focus,
     const m = new maplibregl.Marker({ element: el }).setLngLat([lng, lat]).addTo(map);
     return () => { m.remove(); };
   }, [loc.gps, lat, lng, limitKey, stateCve, explore]);
+
+  // móvil: la tarjeta que cruza el centro del carrusel pasa a ser la activa y el mapa se mueve a su evento
+  useEffect(() => {
+    const list = listRef.current;
+    if (panel || !list) return;
+    let frame = 0;
+    let last: string | null = null;
+    const onScroll = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const mid = list.scrollLeft + list.clientWidth / 2;
+        let id: string | undefined;
+        let best = Infinity;
+        for (const el of Array.from(list.children) as HTMLElement[]) {
+          const d = Math.abs(el.offsetLeft + el.offsetWidth / 2 - mid);
+          if (d < best) { best = d; id = el.dataset.id; }
+        }
+        const e = pins.find((p) => p.event_id === id);
+        if (!e || e.event_id === last) return;
+        last = e.event_id;
+        setActiveId(e.event_id);
+        // el pin queda en la franja visible entre la barra de búsqueda y el carrusel
+        mapRef.current?.easeTo({ center: [e.lng, e.lat], duration: 500, offset: [0, -48], essential: true });
+      });
+    };
+    list.addEventListener("scroll", onScroll, { passive: true });
+    return () => { cancelAnimationFrame(frame); list.removeEventListener("scroll", onScroll); };
+  }, [panel, pins]);
 
   // escritorio: pasar el mouse por una tarjeta de la lista resalta su pin
   useEffect(() => {
@@ -270,7 +311,7 @@ export function EventMap({ events, loc, stateBounds, variant = "overlay", focus,
         {pending ? <Loader2 size={18} className="animate-spin" /> : <LocateFixed size={18} />}
       </button>
       {!stateCve && (
-        <div className={clsx("absolute left-1/2 z-10 -translate-x-1/2", panel ? "top-4" : "top-[84px]")}>
+        <div className={clsx("absolute left-1/2 z-10 w-max -translate-x-1/2", panel ? "top-4" : "top-[84px]")}>
           <RadiusSlider
             value={radiusKm}
             steps={[...RADII, EXPLORE]}
@@ -303,9 +344,9 @@ export function EventMap({ events, loc, stateBounds, variant = "overlay", focus,
           )}
         </div>
       )}
-      <div ref={listRef} className={clsx(panel && "hidden", "no-scrollbar absolute inset-x-0 bottom-[calc(142px+env(safe-area-inset-bottom))] flex snap-x gap-3 overflow-x-auto px-5 pb-1")}>
+      <div ref={listRef} className={clsx(panel && "hidden", "no-scrollbar absolute inset-x-0 bottom-[calc(142px+env(safe-area-inset-bottom))] flex snap-x snap-mandatory gap-3 overflow-x-auto px-[max(20px,calc(50%-150px))] pb-1")}>
         {pins.map((e) => (
-          <div key={e.event_id} data-id={e.event_id} onMouseEnter={() => setActiveId(e.event_id)} onClick={() => setActiveId(e.event_id)}>
+          <div key={e.event_id} data-id={e.event_id} className={clsx("shrink-0 snap-center snap-always transition-transform duration-200", e.event_id !== shownActive && "scale-[0.95]")}>
             <CompactCard e={e} active={e.event_id === shownActive} href={detailHref(e.slug)} />
           </div>
         ))}
