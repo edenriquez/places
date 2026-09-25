@@ -80,7 +80,8 @@ function phoneDigits(v: string) {
 
 function toIso(date: string, time: string) {
   // hora local de México (UTC-6 sin horario de verano desde 2022)
-  return new Date(`${date}T${time || "00:00"}:00-06:00`).toISOString();
+  // el modelo a veces trae "17:00:00"; nos quedamos con HH:MM
+  return new Date(`${date}T${(time || "00:00").slice(0, 5)}:00-06:00`).toISOString();
 }
 
 async function upsertEvent(sb: Awaited<ReturnType<typeof admin>>, input: ReviewInput, status: "pending" | "published") {
@@ -106,6 +107,11 @@ async function upsertEvent(sb: Awaited<ReturnType<typeof admin>>, input: ReviewI
     verified_at: new Date().toISOString(),
   };
   let eventId = input.eventId;
+  if (!eventId) {
+    // si un guardado anterior creó el evento y falló después, reusarlo en vez de chocar con el slug
+    const { data: orphan } = await sb.from("events").select("id").eq("raw_ingestion_id", input.ingestionId).maybeSingle();
+    eventId = orphan?.id ?? null;
+  }
   if (eventId) {
     // editar un evento ya publicado conserva su fecha de publicación original
     const { data: cur } = await sb.from("events").select("published_at").eq("id", eventId).single();

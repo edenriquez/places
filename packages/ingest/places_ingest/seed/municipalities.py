@@ -33,6 +33,8 @@ CORRIDOR = [
     ("15089", "15", "089", "Estado de México", "Tenango del Aire", 19.1572, -98.8583, False, "1 h 05", 12470),
     ("15022", "15", "022", "Estado de México", "Cocotitlán", 19.2264, -98.8622, False, "1 h 00", 15107),
     ("15083", "15", "083", "Estado de México", "Temamatla", 19.2028, -98.8694, False, "1 h 00", 14130),
+    ("15025", "15", "025", "Estado de México", "Chalco", 19.2636, -98.8978, False, "0 h 50", 400057),
+    ("15039", "15", "039", "Estado de México", "Ixtapaluca", 19.3181, -98.8823, False, "0 h 45", 542211),
 ]
 
 

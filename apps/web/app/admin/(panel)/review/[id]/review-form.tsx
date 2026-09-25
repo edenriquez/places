@@ -68,7 +68,7 @@ export function ReviewForm({ ingestion, event, organizerName, occurrences, munic
   const [dates, setDates] = useState<DateRow[]>(
     occurrences.length
       ? occurrences.map((o) => ({ date: localDate(o.starts_at), start: o.is_all_day ? "" : localTime(o.starts_at), end: o.ends_at ? localTime(o.ends_at) : "" }))
-      : (ex.dates ?? []).map((d) => ({ date: d.date, start: d.start_time ?? "", end: d.end_time ?? "" })),
+      : (ex.dates ?? []).map((d) => ({ date: d.date, start: d.start_time?.slice(0, 5) ?? "", end: d.end_time?.slice(0, 5) ?? "" })),
   );
   const [dup, setDup] = useState("");
   const [ocrOpen, setOcrOpen] = useState(false);
