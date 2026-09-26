@@ -251,7 +251,7 @@ function Flyer({ x, alt, sizes, className, contain }: { x: Derived; alt: string;
 export function EventMobile({ d, nearby }: { d: EventData; nearby: NearRow[] }) {
   const x = derive(d);
   return (
-    <main className="mx-auto max-w-screen-sm pb-28">
+    <main className="mx-auto max-w-screen-sm pb-[max(env(safe-area-inset-bottom),24px)]">
       <div className="relative">
         <Flyer x={x} alt={d.event.title} sizes="(max-width: 640px) 100vw, 640px" className="aspect-[4/3]" />
         {/* fija: se puede volver o compartir desde cualquier punto del scroll */}
@@ -277,6 +277,11 @@ export function EventMobile({ d, nearby }: { d: EventData; nearby: NearRow[] }) 
         <Contact d={d} x={x} />
         <Program d={d} />
         <Directions x={x} />
+        {/* en flujo, no fija: precio y compartir cierran el contenido del evento */}
+        <div className="flex items-center justify-between gap-4 border-t border-line pt-5">
+          <Price d={d} />
+          <ShareButton x={x} />
+        </div>
       </div>
 
       {nearby.length > 0 && (
@@ -289,13 +294,6 @@ export function EventMobile({ d, nearby }: { d: EventData; nearby: NearRow[] }) 
       )}
 
       <p className="px-5 pt-8 text-center"><Report d={d} /></p>
-
-      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-white px-5 pb-[max(env(safe-area-inset-bottom),12px)] pt-3">
-        <div className="mx-auto flex max-w-screen-sm items-center justify-between gap-4">
-          <Price d={d} />
-          <ShareButton x={x} />
-        </div>
-      </div>
     </main>
   );
 }
