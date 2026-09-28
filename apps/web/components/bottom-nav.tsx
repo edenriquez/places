@@ -19,6 +19,7 @@ const SNAP_MS = 120; // sin scroll durante este tiempo -> la barra termina de es
  * La barra acompaña al scroll: baja los mismos píxeles que se desplaza la página y sube igual.
  * Al detenerse el scroll, remata hacia el estado más cercano (visible u oculta).
  * Solo scroll de la ventana; se escribe el transform directo en el nodo para no re-renderizar por frame.
+ * La distancia de ocultado es alto + `bottom` del elemento, así sirve también para botones flotantes.
  */
 function useFollowScroll<T extends HTMLElement>() {
   const ref = useRef<T>(null);
@@ -43,7 +44,7 @@ function useFollowScroll<T extends HTMLElement>() {
         raf = null;
         const y = window.scrollY;
         const max = document.documentElement.scrollHeight - window.innerHeight;
-        const h = el.offsetHeight;
+        const h = el.offsetHeight + (parseFloat(getComputedStyle(el).bottom) || 0);
         const delta = y - lastY;
         // rebote de iOS arriba/abajo: la barra no se mueve
         if (y >= 0 && y <= max) {
@@ -70,6 +71,18 @@ function useFollowScroll<T extends HTMLElement>() {
   }, []);
 
   return ref;
+}
+
+/** Botón flotante "Mapa" (móvil): se esconde al bajar junto con la barra inferior. */
+export function MapFab({ className }: { className: string }) {
+  const ref = useFollowScroll<HTMLDivElement>();
+  return (
+    <div ref={ref} className={clsx("pointer-events-none fixed inset-x-0 z-30 flex justify-center will-change-transform lg:hidden", className)}>
+      <Link href="/mapa" className="pointer-events-auto flex items-center gap-2 rounded-full bg-ink px-5 py-3 text-[15px] font-semibold text-white shadow-float">
+        Mapa <Map size={18} />
+      </Link>
+    </div>
+  );
 }
 
 export function BottomNav() {

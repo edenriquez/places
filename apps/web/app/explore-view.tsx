@@ -1,7 +1,5 @@
-import Link from "next/link";
 import { ViewTransition } from "react";
-import { Map } from "lucide-react";
-import { BottomNav } from "@/components/bottom-nav";
+import { BottomNav, MapFab } from "@/components/bottom-nav";
 import { CategoryRow } from "@/components/category-row";
 import { DesktopHeader, DesktopOnly } from "@/components/desktop";
 import { EventCard } from "@/components/event-card";
@@ -147,12 +145,7 @@ export async function ExploreView({ sp, split = false, basePath = "/" }: { sp: E
         </>
       )}
 
-      <Link
-        href="/mapa"
-        className="lg:hidden fixed bottom-[calc(82px+env(safe-area-inset-bottom))] left-1/2 z-30 flex -translate-x-1/2 items-center gap-2 rounded-full bg-ink px-5 py-3 text-[15px] font-semibold text-white shadow-float"
-      >
-        Mapa <Map size={18} />
-      </Link>
+      <MapFab className="bottom-[calc(82px+env(safe-area-inset-bottom))]" />
       <BottomNav />
     </main>
     {/* nombre de view transition directo en CSS: el navegador lo anima al entrar/salir (ver globals.css) */}

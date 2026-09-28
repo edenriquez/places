@@ -2,8 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { ArrowLeft, Heart, Landmark, Map } from "lucide-react";
-import { BottomNav } from "@/components/bottom-nav";
+import { ArrowLeft, Heart, Landmark } from "lucide-react";
+import { BottomNav, MapFab } from "@/components/bottom-nav";
 import { EventCard, LiveCard } from "@/components/event-card";
 import { EmptyState, SectionHeader } from "@/components/ui";
 import { fmtMonthShort } from "@/lib/format";
@@ -115,9 +115,7 @@ export default async function MunicipalityPage({ params }: Params) {
         </>
       )}
 
-      <Link href="/mapa" className="fixed bottom-[calc(72px+env(safe-area-inset-bottom))] left-1/2 z-30 flex -translate-x-1/2 items-center gap-2 rounded-full bg-ink px-5 py-3 text-[15px] font-semibold text-white shadow-float">
-        Mapa <Map size={18} />
-      </Link>
+      <MapFab className="bottom-[calc(72px+env(safe-area-inset-bottom))]" />
       <BottomNav />
     </main>
   );

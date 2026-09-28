@@ -33,7 +33,7 @@ export function HomeFeed({ liveCount, initial, now, upcoming }: { liveCount: num
         go(dx < 0 ? "proximos" : "ahora");
       }}
     >
-      <div className="sticky top-0 z-20 bg-white/95 px-5 pb-2 pt-4 backdrop-blur lg:top-[76px]">
+      <div className="sticky top-0 z-20 bg-white/95 px-5 pb-2 pt-4 backdrop-blur lg:static lg:bg-transparent lg:backdrop-blur-none">
         <div role="tablist" className="grid grid-cols-2 rounded-full bg-bg-2 p-1 text-[14px] font-semibold">
           <button role="tab" aria-selected={tab === "ahora"} type="button" onClick={() => go("ahora")} className={clsx("flex items-center justify-center gap-2 rounded-full py-2 transition", tab === "ahora" ? "bg-white shadow-soft" : "text-ink-2")}>
             <span className="relative inline-block h-2 w-2 rounded-full bg-live live-dot" />
