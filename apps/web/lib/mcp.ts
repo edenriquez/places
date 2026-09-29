@@ -372,7 +372,7 @@ export function registerTools(server: McpServer) {
     async ({ evento_id, imagen, reemplazar = false }, ctx) => {
       const sb = userClient(tokenOf(ctx));
       try {
-        const { data: ev, error } = await sb.from("events").select("id, slug, title, image_path, festivity_id").eq("id", evento_id).maybeSingle();
+        const { data: ev, error } = await sb.from("events").select("id, slug, title, image_path, festivity_id, raw_ingestion_id").eq("id", evento_id).maybeSingle();
         if (error) throw new Error(error.message);
         if (!ev) return fail("No existe un evento con ese evento_id.");
         if (ev.image_path && !reemplazar) return fail(`“${ev.title}” ya tiene imagen. Pasa reemplazar=true para cambiarla.`);
@@ -381,7 +381,10 @@ export function registerTools(server: McpServer) {
         const { error: upErr } = await sb.from("events").update({ image_path: path }).eq("id", ev.id);
         if (upErr) throw new Error(upErr.message);
         if (ev.festivity_id) await sb.from("festivities").update({ image_path: path }).eq("id", ev.festivity_id);
+        // /admin/review muestra la imagen de la ingesta; si llegó sin flyer, esta pasa a ser la suya
+        if (ev.raw_ingestion_id) await sb.from("raw_ingestions").update({ media_path: path }).eq("id", ev.raw_ingestion_id).is("media_path", null);
         revalidatePath("/admin/events");
+        revalidatePath("/admin/review");
         revalidatePath(`/evento/${ev.slug}`);
         revalidateTag(EVENTS_TAG, "max");
         return text({ ok: true, evento: ev.title, imagen: ev.image_path ? "reemplazada" : "agregada", url: `${siteUrl()}/evento/${ev.slug}` });
