@@ -1,4 +1,4 @@
-"""Municipios del corredor A (Morelos / Edomex sur). Códigos INEGI verificados contra el DENUE 05/2026.
+"""Municipios del corredor A (Morelos / Edomex sur) y Puebla. Códigos INEGI verificados contra el DENUE 05/2026.
 
 Centroides = plaza principal de la cabecera (aprox.). Los polígonos se pueden cargar después desde
 el Marco Geoestadístico de INEGI; el MVP funciona con centroides.
@@ -35,6 +35,47 @@ CORRIDOR = [
     ("15083", "15", "083", "Estado de México", "Temamatla", 19.2028, -98.8694, False, "1 h 00", 14130),
     ("15025", "15", "025", "Estado de México", "Chalco", 19.2636, -98.8978, False, "0 h 50", 400057),
     ("15039", "15", "039", "Estado de México", "Ixtapaluca", 19.3181, -98.8823, False, "0 h 45", 542211),
+    # Vecinos del corredor y Puebla (2026-09-28). Códigos y centroides salen del DENUE (sector 71):
+    # mediana de los establecimientos de la cabecera (cve_loc 0001). Sin tiempo desde CDMX ni población aún.
+    # Morelos: alrededores de Tepoztlán, Cuautla y el oriente
+    ("17009", "17", "009", "Morelos", "Huitzilac", 19.0326, -99.2653, False, None, None),
+    ("17023", "17", "023", "Morelos", "Tlalnepantla", 19.0076, -98.9970, False, None, None),
+    ("17030", "17", "030", "Morelos", "Yecapixtla", 18.8824, -98.8626, False, None, None),
+    ("17016", "17", "016", "Morelos", "Ocuituco", 18.8763, -98.7756, False, None, None),
+    ("17032", "17", "032", "Morelos", "Zacualpan de Amilpas", 18.7847, -98.7698, False, None, None),
+    ("17033", "17", "033", "Morelos", "Temoac", 18.7705, -98.7788, False, None, None),
+    ("17004", "17", "004", "Morelos", "Ayala", 18.7644, -98.9842, False, None, None),
+    ("17024", "17", "024", "Morelos", "Tlaltizapán de Zapata", 18.6849, -99.1187, False, None, None),
+    ("17010", "17", "010", "Morelos", "Jantetelco", 18.7162, -98.7763, False, None, None),
+    ("17013", "17", "013", "Morelos", "Jonacatepec de Leandro Valle", 18.6856, -98.8026, False, None, None),
+    # Estado de México: alrededores de Malinalco, Tenancingo y Ocuilan
+    ("15119", "15", "119", "Estado de México", "Zumpahuacán", 18.8357, -99.5774, False, None, None),
+    ("15113", "15", "113", "Estado de México", "Villa Guerrero", 18.9616, -99.6415, False, None, None),
+    ("15049", "15", "049", "Estado de México", "Joquicingo", 19.0498, -99.5334, False, None, None),
+    ("15090", "15", "090", "Estado de México", "Tenango del Valle", 19.1046, -99.5908, False, None, None),
+    ("15101", "15", "101", "Estado de México", "Tianguistenco", 19.1803, -99.4674, False, None, None),
+    ("15043", "15", "043", "Estado de México", "Xalatlaco", 19.1800, -99.4165, False, None, None),
+    ("15040", "15", "040", "Estado de México", "Ixtapan de la Sal", 18.8451, -99.6767, True, None, None),
+    ("15107", "15", "107", "Estado de México", "Tonatico", 18.8056, -99.6703, True, None, None),
+    # Puebla: Pueblos Mágicos y alrededores
+    ("21114", "21", "114", "Puebla", "Puebla", 19.0440, -98.2029, False, None, None),
+    ("21140", "21", "140", "Puebla", "San Pedro Cholula", 19.0674, -98.3037, True, None, None),
+    ("21119", "21", "119", "Puebla", "San Andrés Cholula", 19.0533, -98.2969, True, None, None),
+    ("21019", "21", "019", "Puebla", "Atlixco", 18.9072, -98.4347, True, None, None),
+    ("21074", "21", "074", "Puebla", "Huejotzingo", 19.1597, -98.4080, False, None, None),
+    ("21026", "21", "026", "Puebla", "Calpan", 19.1053, -98.4651, False, None, None),
+    ("21138", "21", "138", "Puebla", "San Nicolás de los Ranchos", 19.0726, -98.4862, False, None, None),
+    ("21188", "21", "188", "Puebla", "Tochimilco", 18.8893, -98.5814, False, None, None),
+    ("21043", "21", "043", "Puebla", "Cuetzalan del Progreso", 20.0190, -97.5233, True, None, None),
+    ("21207", "21", "207", "Puebla", "Zacapoaxtla", 19.8726, -97.5884, False, None, None),
+    ("21186", "21", "186", "Puebla", "Tlatlauquitepec", 19.8504, -97.4966, True, None, None),
+    ("21174", "21", "174", "Puebla", "Teziutlán", 19.8152, -97.3618, False, None, None),
+    ("21208", "21", "208", "Puebla", "Zacatlán", 19.9353, -97.9616, True, None, None),
+    ("21053", "21", "053", "Puebla", "Chignahuapan", 19.8367, -98.0327, True, None, None),
+    ("21172", "21", "172", "Puebla", "Tetela de Ocampo", 19.8166, -97.8059, True, None, None),
+    ("21071", "21", "071", "Puebla", "Huauchinango", 20.1731, -98.0542, True, None, None),
+    ("21109", "21", "109", "Puebla", "Pahuatlán", 20.2707, -98.1478, True, None, None),
+    ("21197", "21", "197", "Puebla", "Xicotepec", 20.2773, -97.9593, True, None, None),
 ]
 
 
