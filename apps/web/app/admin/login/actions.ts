@@ -10,5 +10,6 @@ export async function login(formData: FormData) {
   const sb = await createClient();
   const { error } = await sb.auth.signInWithPassword({ email, password });
   if (error) redirect(`/admin/login?error=bad&next=${encodeURIComponent(next)}`);
-  redirect(next.startsWith("/admin") ? next : "/admin/upload");
+  // /oauth/consent: autorizar a ChatGPT/Claude en el MCP después de entrar
+  redirect(next.startsWith("/admin") || next.startsWith("/oauth/consent?") ? next : "/admin/upload");
 }
