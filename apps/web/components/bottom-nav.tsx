@@ -73,18 +73,6 @@ function useFollowScroll<T extends HTMLElement>() {
   return ref;
 }
 
-/** Botón flotante "Mapa" (móvil): se esconde al bajar junto con la barra inferior. */
-export function MapFab({ className }: { className: string }) {
-  const ref = useFollowScroll<HTMLDivElement>();
-  return (
-    <div ref={ref} className={clsx("pointer-events-none fixed inset-x-0 z-30 flex justify-center will-change-transform lg:hidden", className)}>
-      <Link href="/mapa" className="pointer-events-auto flex items-center gap-2 rounded-full bg-ink px-5 py-3 text-[15px] font-semibold text-white shadow-float">
-        Mapa <Map size={18} />
-      </Link>
-    </div>
-  );
-}
-
 export function BottomNav() {
   const path = usePathname();
   // key por ruta: al navegar la barra vuelve a mostrarse y el estado de scroll se reinicia

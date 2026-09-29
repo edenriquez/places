@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { ArrowLeft, Heart, Landmark } from "lucide-react";
-import { BottomNav, MapFab } from "@/components/bottom-nav";
+import { BottomNav } from "@/components/bottom-nav";
 import { EventCard, LiveCard } from "@/components/event-card";
 import { EmptyState, SectionHeader } from "@/components/ui";
 import { fmtMonthShort } from "@/lib/format";
@@ -115,7 +115,6 @@ export default async function MunicipalityPage({ params }: Params) {
         </>
       )}
 
-      <MapFab className="bottom-[calc(72px+env(safe-area-inset-bottom))]" />
       <BottomNav />
     </main>
   );

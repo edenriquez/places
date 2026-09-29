@@ -1,5 +1,5 @@
 import { ViewTransition } from "react";
-import { BottomNav, MapFab } from "@/components/bottom-nav";
+import { BottomNav } from "@/components/bottom-nav";
 import { CategoryRow } from "@/components/category-row";
 import { DesktopHeader, DesktopOnly } from "@/components/desktop";
 import { EventCard } from "@/components/event-card";
@@ -145,7 +145,6 @@ export async function ExploreView({ sp, split = false, basePath = "/" }: { sp: E
         </>
       )}
 
-      <MapFab className="bottom-[calc(82px+env(safe-area-inset-bottom))]" />
       <BottomNav />
     </main>
     {/* nombre de view transition directo en CSS: el navegador lo anima al entrar/salir (ver globals.css) */}
