@@ -47,11 +47,11 @@ export function EventImageButton({ eventId, hasImage }: { eventId: string; hasIm
         type="button"
         disabled={busy}
         onClick={() => inputRef.current?.click()}
-        className="inline-flex items-center gap-1 rounded-control border border-line-2 px-3 py-1.5 text-[12px] font-semibold disabled:opacity-40"
+        className="grid h-8 w-8 place-items-center rounded-control border border-line-2 text-ink-2 hover:text-ink disabled:opacity-40"
         title={hasImage ? "Cambiar imagen" : "Subir imagen"}
+        aria-label={hasImage ? "Cambiar imagen" : "Subir imagen"}
       >
-        {busy ? <Loader2 size={14} className="animate-spin" /> : <ImagePlus size={14} />}
-        {hasImage ? "Cambiar" : "Imagen"}
+        {busy ? <Loader2 size={15} className="animate-spin" aria-hidden /> : <ImagePlus size={15} aria-hidden />}
       </button>
       <input ref={inputRef} type="file" accept="image/jpeg,image/png,image/webp" hidden onChange={(e) => onFile(e.target.files?.[0])} />
       {err && <span className="mt-1 text-[11px] text-error">{err}</span>}
