@@ -11,6 +11,7 @@ const handler = createMcpHandler(registerTools, {
   instructions:
     "Captura de eventos culturales de municipios de México para entrelugares. " +
     "Flujo: buscar_municipio → buscar_lugar → buscar_duplicados → crear_evento (con el flyer si lo tienes). " +
+    "Si el evento quedó sin imagen, agrégala con agregar_imagen (usa el evento_id); buscar_eventos_sin_imagen lista los que faltan. " +
     "Todo queda pendiente de revisión; no inventes datos que no estén en el flyer o el post.",
 });
 

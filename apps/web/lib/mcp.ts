@@ -1,7 +1,9 @@
 import "server-only";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import type { McpServer } from "@modelcontextprotocol/server";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { z } from "zod";
+import { EVENTS_TAG } from "@/lib/queries";
 
 /**
  * Servidor MCP para capturar eventos desde ChatGPT/Claude (solo admins).
@@ -64,17 +66,23 @@ async function readFlyer(input: FlyerInput): Promise<{ bytes: Uint8Array; type: 
   return { bytes, type };
 }
 
-/** Sube el flyer al bucket con la misma ruta que el uploader del admin (uploads/<sha[0:2]>/<sha>.<ext>). */
-async function storeFlyer(sb: SupabaseClient, input: FlyerInput) {
+/** Descarga/decodifica la imagen, la valida y la sube al bucket "flyers" en la ruta que arme `pathFor`. */
+async function uploadImage(sb: SupabaseClient, input: FlyerInput, pathFor: (sha: string, ext: string) => string) {
   const { bytes, type } = await readFlyer(input);
   const ext = FLYER_TYPES[type];
   if (!ext) throw new Error(`Tipo de imagen no soportado (${type || "desconocido"}); usa JPG, PNG o WebP.`);
-  if (bytes.byteLength > MAX_FLYER_BYTES) throw new Error("El flyer pesa más de 15 MB.");
+  if (bytes.byteLength > MAX_FLYER_BYTES) throw new Error("La imagen pesa más de 15 MB.");
   const digest = await crypto.subtle.digest("SHA-256", bytes as BufferSource);
   const sha = Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, "0")).join("");
-  const path = `uploads/${sha.slice(0, 2)}/${sha}${ext}`;
+  const path = pathFor(sha, ext);
   const { error } = await sb.storage.from("flyers").upload(path, bytes, { upsert: true, contentType: type });
-  if (error) throw new Error(`No se pudo guardar el flyer: ${error.message}`);
+  if (error) throw new Error(`No se pudo guardar la imagen: ${error.message}`);
+  return { path, sha };
+}
+
+/** Flyer de una ingesta: misma ruta que el uploader del admin (uploads/<sha[0:2]>/<sha>.<ext>) y aviso si ya existía. */
+async function storeFlyer(sb: SupabaseClient, input: FlyerInput) {
+  const { path, sha } = await uploadImage(sb, input, (sha, ext) => `uploads/${sha.slice(0, 2)}/${sha}${ext}`);
   const { data: dup } = await sb.from("raw_ingestions").select("id, status, event_id").eq("media_sha256", sha).maybeSingle();
   return { path, sha, dup };
 }
@@ -251,7 +259,14 @@ export function registerTools(server: McpServer) {
           note: d.nota ?? null,
         })));
         await sb.from("raw_ingestions").update({ status: "needs_review", event_id: ev.id, error: occErr?.message ?? null }).eq("id", ing.id);
-        return text({ ok: true, estado: "pendiente de revisión", revisar: `${siteUrl()}/admin/review/${ing.id}`, flyer: flyer ? "guardado" : "sin flyer" });
+        return text({
+          ok: true,
+          estado: "pendiente de revisión",
+          evento_id: ev.id,
+          slug: ev.slug,
+          revisar: `${siteUrl()}/admin/review/${ing.id}`,
+          imagen: flyer ? "guardada" : "sin imagen; súbela con agregar_imagen y este evento_id",
+        });
       } catch (e) {
         return fail(e instanceof Error ? e.message : String(e));
       }
@@ -289,6 +304,87 @@ export function registerTools(server: McpServer) {
         });
         if (error) throw new Error(error.message);
         return text({ ok: true, estado: "en cola; la Mac lo procesa cuando esté en línea", cola: `${siteUrl()}/admin/upload` });
+      } catch (e) {
+        return fail(e instanceof Error ? e.message : String(e));
+      }
+    },
+  );
+
+  server.registerTool(
+    "buscar_eventos_sin_imagen",
+    {
+      title: "Buscar eventos sin imagen",
+      description:
+        "Lista eventos pendientes o publicados que no tienen imagen, con su evento_id, fechas, municipio y la URL de origen (el post de donde salió, útil para encontrar el flyer). " +
+        "Después usa agregar_imagen con cada evento_id.",
+      inputSchema: z.object({
+        estado: z.enum(["pendiente", "publicado", "todos"]).optional().describe("por defecto: todos (pendientes y publicados)"),
+        municipio: z.string().regex(/^\d{5}$/).optional().describe("cvegeo para limitar a un municipio"),
+        limite: z.number().int().min(1).max(50).optional(),
+      }),
+      annotations: { readOnlyHint: true },
+    },
+    async ({ estado = "todos", municipio, limite = 20 }, ctx) => {
+      const sb = userClient(tokenOf(ctx));
+      let q = sb.from("events")
+        .select("id, slug, title, status, raw_ingestion_id, municipalities:municipality_cvegeo(name), event_occurrences(starts_at)", { count: "exact" })
+        .is("image_path", null)
+        .in("status", estado === "pendiente" ? ["pending"] : estado === "publicado" ? ["published"] : ["pending", "published"])
+        .order("created_at", { ascending: false })
+        .limit(limite);
+      if (municipio) q = q.eq("municipality_cvegeo", municipio);
+      const { data, count, error } = await q;
+      if (error) return fail(error.message);
+      const rows = (data ?? []) as unknown as { id: string; slug: string; title: string; status: string; raw_ingestion_id: string | null; municipalities: { name: string } | null; event_occurrences: { starts_at: string }[] }[];
+      if (!rows.length) return text("No hay eventos sin imagen con ese filtro.");
+      const ingIds = rows.map((r) => r.raw_ingestion_id).filter(Boolean) as string[];
+      const { data: ings } = ingIds.length ? await sb.from("raw_ingestions").select("id, origin_url").in("id", ingIds) : { data: [] };
+      const origin = new Map((ings ?? []).map((i) => [i.id as string, i.origin_url as string | null]));
+      return text({
+        total: count ?? rows.length,
+        eventos: rows.map((r) => ({
+          evento_id: r.id,
+          titulo: r.title,
+          estado: r.status === "published" ? "publicado" : "pendiente",
+          municipio: r.municipalities?.name ?? null,
+          fechas: r.event_occurrences.map((o) => o.starts_at).sort().slice(0, 3),
+          url_origen: r.raw_ingestion_id ? origin.get(r.raw_ingestion_id) ?? null : null,
+          url: `${siteUrl()}/evento/${r.slug}`,
+        })),
+      });
+    },
+  );
+
+  server.registerTool(
+    "agregar_imagen",
+    {
+      title: "Agregar imagen a un evento",
+      description:
+        "Sube la imagen (flyer o foto) de un evento que ya existe, usando el evento_id de crear_evento o buscar_eventos_sin_imagen. " +
+        "Si el evento ya tiene imagen no la cambia salvo que pases reemplazar=true. Si el evento es de una fiesta anual, la imagen también queda para los próximos años.",
+      inputSchema: z.object({
+        evento_id: z.string().uuid(),
+        imagen: flyerSchema,
+        reemplazar: z.boolean().optional(),
+      }),
+      _meta: { "openai/fileParams": ["imagen"] },
+    },
+    async ({ evento_id, imagen, reemplazar = false }, ctx) => {
+      const sb = userClient(tokenOf(ctx));
+      try {
+        const { data: ev, error } = await sb.from("events").select("id, slug, title, image_path, festivity_id").eq("id", evento_id).maybeSingle();
+        if (error) throw new Error(error.message);
+        if (!ev) return fail("No existe un evento con ese evento_id.");
+        if (ev.image_path && !reemplazar) return fail(`“${ev.title}” ya tiene imagen. Pasa reemplazar=true para cambiarla.`);
+        // misma ruta que el botón de imagen del admin (events/<id>/<sha16>.<ext>)
+        const { path } = await uploadImage(sb, imagen, (sha, ext) => `events/${ev.id}/${sha.slice(0, 16)}${ext}`);
+        const { error: upErr } = await sb.from("events").update({ image_path: path }).eq("id", ev.id);
+        if (upErr) throw new Error(upErr.message);
+        if (ev.festivity_id) await sb.from("festivities").update({ image_path: path }).eq("id", ev.festivity_id);
+        revalidatePath("/admin/events");
+        revalidatePath(`/evento/${ev.slug}`);
+        revalidateTag(EVENTS_TAG, "max");
+        return text({ ok: true, evento: ev.title, imagen: ev.image_path ? "reemplazada" : "agregada", url: `${siteUrl()}/evento/${ev.slug}` });
       } catch (e) {
         return fail(e instanceof Error ? e.message : String(e));
       }
