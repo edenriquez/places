@@ -128,7 +128,7 @@ export async function ExploreView({ sp, split = false, basePath = "/" }: { sp: E
     <div className={split ? "lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(440px,42%)]" : ""}>
     <main className={split
       ? "mx-auto max-w-screen-sm pb-28 lg:mx-0 lg:max-w-none lg:px-3 lg:pb-12"
-      : "mx-auto max-w-screen-sm pb-28 lg:w-fit lg:max-w-(--wrap) lg:pb-12 lg:[--card:288px] lg:[--cols:3] lg:[--wrap:calc(var(--cols)*var(--card)_+_(var(--cols)_-_1)*12px)] xl:[--card:292px] xl:[--cols:4] 2xl:[--card:328px]"}>
+      : "mx-auto max-w-screen-sm pb-28 lg:w-full lg:max-w-(--wrap) lg:pb-12 lg:[--card:288px] lg:[--cols:3] lg:[--wrap:calc(var(--cols)*var(--card)_+_(var(--cols)_-_1)*12px)] xl:[--card:292px] xl:[--cols:4] 2xl:[--card:328px]"}>
       {detail ? (
         <EventPanel d={detail} backHref={listHref} />
       ) : (
