@@ -3,6 +3,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { flyerUrl, relativeTime } from "@/lib/format";
 import { StatusPill } from "../status-pill";
+import { QuickReviewActions } from "./quick-actions";
 
 export const metadata = { title: "Revisión · Admin" };
 
@@ -35,12 +36,13 @@ export default async function ReviewListPage({ searchParams }: { searchParams: P
           const ex = (r.extraction ?? {}) as { title?: string; dates?: { date: string }[] };
           const muni = r.municipalities as unknown as { name: string } | null;
           const url = flyerUrl(r.media_path);
+          const title = ex.title ?? "Sin título";
           return (
-            <li key={r.id}>
-              <Link href={`/admin/review/${r.id}`} className="block overflow-hidden rounded-card border border-line hover:border-ink">
+            <li key={r.id} className="overflow-hidden rounded-card border border-line hover:border-ink">
+              <Link href={`/admin/review/${r.id}`} className="block">
                 <div className="relative aspect-[4/3] bg-bg-2">{url && <Image src={url} alt="" fill sizes="320px" className="object-cover" />}</div>
                 <div className="p-3">
-                  <p className="line-clamp-2 text-[14px] font-semibold">{ex.title ?? "Sin título"}</p>
+                  <p className="line-clamp-2 text-[14px] font-semibold">{title}</p>
                   <p className="mt-1 text-[12px] text-ink-2">{ex.dates?.[0]?.date ?? "sin fecha"} · {muni?.name ?? "sin municipio"}</p>
                   <div className="mt-2 flex items-center justify-between text-[12px] text-ink-2">
                     <span>Confianza {r.confidence ?? "—"}</span>
@@ -48,6 +50,7 @@ export default async function ReviewListPage({ searchParams }: { searchParams: P
                   </div>
                 </div>
               </Link>
+              <QuickReviewActions id={r.id} title={title} />
             </li>
           );
         })}

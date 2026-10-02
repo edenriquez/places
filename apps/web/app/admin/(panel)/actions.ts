@@ -189,6 +189,124 @@ export async function rejectIngestion(ingestionId: string, eventId: string | nul
   redirect("/admin/review");
 }
 
+const CATEGORIES = new Set(["feria", "fiesta_patronal", "concierto", "taller", "exposicion", "gastronomia", "deporte", "teatro", "danza", "cine", "mercado", "religioso", "infantil", "otro"]);
+const MX = "America/Mexico_City";
+
+type Extraction = {
+  title?: string;
+  dates?: { date: string; start_time?: string | null; end_time?: string | null; note?: string | null }[];
+  place_text?: string | null;
+  price_min?: number | null;
+  price_max?: number | null;
+  is_free?: boolean | null;
+  organizer?: string | null;
+  category?: string;
+  description?: string | null;
+};
+
+function mxDate(iso: string) {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: MX }).format(new Date(iso));
+}
+function mxTime(iso: string) {
+  return new Intl.DateTimeFormat("en-GB", { timeZone: MX, hour: "2-digit", minute: "2-digit", hour12: false }).format(new Date(iso));
+}
+function departureFromNotes(ex: Extraction) {
+  for (const d of ex.dates ?? []) {
+    const m = d.note?.match(/salida\s+(?:desde|de)\s+([^,.;]+)/i);
+    if (m) return m[1].trim();
+  }
+  return "";
+}
+function phoneFromText(text: string | null | undefined) {
+  const m = text?.match(/(?:\+?52[\s-]?)?(?:\(?\d{2,3}\)?[\s.-]?)\d{3,4}[\s.-]?\d{4}/);
+  const d = m?.[0].replace(/\D/g, "").replace(/^52(?=\d{10}$)/, "") ?? "";
+  return d.length === 10 ? d : "";
+}
+function asNumber(v: unknown) {
+  if (v == null || v === "") return null;
+  const n = Number(v);
+  return Number.isFinite(n) ? n : null;
+}
+
+/** Arma el mismo payload que el formulario de revisión, sin ediciones, para aprobar desde la lista. */
+async function reviewInputFrom(sb: Awaited<ReturnType<typeof admin>>, ingestionId: string): Promise<ReviewInput | { error: string }> {
+  const { data: ing } = await sb.from("raw_ingestions").select("*").eq("id", ingestionId).maybeSingle();
+  if (!ing) return { error: "No se encontró la ingesta." };
+  if (ing.status !== "needs_review") return { error: "Ya no está en revisión." };
+  const ex = (ing.extraction ?? {}) as Extraction;
+  const eventId = (ing.event_id as string | null) ?? null;
+  const [{ data: event }, { data: occ }] = await Promise.all([
+    eventId ? sb.from("events").select("*").eq("id", eventId).maybeSingle() : Promise.resolve({ data: null }),
+    eventId ? sb.from("event_occurrences").select("starts_at, ends_at, is_all_day").eq("event_id", eventId).order("starts_at") : Promise.resolve({ data: [] }),
+  ]);
+  let organizer = ing.organizer_hint ?? ex.organizer ?? "";
+  if (event?.org_id) {
+    const { data: org } = await sb.from("organizations").select("name").eq("id", event.org_id).maybeSingle();
+    if (org?.name) organizer = org.name;
+  }
+  const dates = (occ ?? []).length
+    ? (occ ?? []).map((o) => ({ date: mxDate(o.starts_at), start: o.is_all_day ? "" : mxTime(o.starts_at), end: o.ends_at ? mxTime(o.ends_at) : "" }))
+    : (ex.dates ?? []).map((d) => ({ date: d.date, start: d.start_time?.slice(0, 5) ?? "", end: d.end_time?.slice(0, 5) ?? "" }));
+  const title = (event?.title ?? ex.title ?? "").trim();
+  const municipality = event?.municipality_cvegeo ?? ing.municipality_hint ?? "";
+  if (title.length < 3 || !municipality || !dates.some((d) => d.date)) {
+    return { error: "Faltan título, municipio o fecha. Ábrelo para completar." };
+  }
+  const contact = typeof ing.payload?.contact === "string" ? ing.payload.contact : "";
+  return {
+    ingestionId,
+    eventId,
+    title,
+    category: CATEGORIES.has(event?.category ?? ex.category ?? "") ? (event?.category ?? ex.category ?? "otro") : "otro",
+    description: event?.description ?? ex.description ?? "",
+    placeId: event?.place_id ?? null,
+    placeText: event?.place_text ?? ex.place_text ?? "",
+    departureText: event?.departure_text ?? departureFromNotes(ex),
+    contactPhone: event?.contact_phone || phoneFromText(contact) || phoneFromText(ing.ocr_text),
+    contactWhatsapp: event?.contact_whatsapp ?? true,
+    instagram: event?.instagram_url ?? "",
+    facebook: event?.facebook_url ?? "",
+    tiktok: event?.tiktok_url ?? "",
+    website: event?.website_url ?? "",
+    municipality,
+    isFree: event?.is_free ?? ex.is_free ?? false,
+    priceMin: asNumber(event?.price_min ?? ex.price_min),
+    priceMax: asNumber(event?.price_max ?? ex.price_max),
+    organizer,
+    dates,
+  };
+}
+
+/** Publica desde la lista con los datos ya extraídos, sin abrir el formulario. */
+export async function quickApproveIngestion(ingestionId: string) {
+  const sb = await admin();
+  const input = await reviewInputFrom(sb, ingestionId);
+  if ("error" in input) return { ok: false as const, error: input.error };
+  try {
+    const eventId = await upsertEvent(sb, input, "published");
+    await sb.from("raw_ingestions").update({ status: "approved", event_id: eventId, reviewed_at: new Date().toISOString(), correction: input }).eq("id", ingestionId);
+  } catch (e) {
+    return { ok: false as const, error: e instanceof Error ? e.message : "No se pudo aprobar." };
+  }
+  revalidatePath("/admin/review");
+  revalidatePath("/");
+  updateTag(EVENTS_TAG);
+  return { ok: true as const };
+}
+
+/** Descarta desde la lista. */
+export async function quickRejectIngestion(ingestionId: string) {
+  const sb = await admin();
+  const { data: ing } = await sb.from("raw_ingestions").select("event_id, status").eq("id", ingestionId).maybeSingle();
+  if (!ing) return { ok: false as const, error: "No se encontró la ingesta." };
+  if (ing.status !== "needs_review") return { ok: false as const, error: "Ya no está en revisión." };
+  if (ing.event_id) await sb.from("events").update({ status: "rejected" }).eq("id", ing.event_id);
+  await sb.from("raw_ingestions").update({ status: "rejected", reviewed_at: new Date().toISOString() }).eq("id", ingestionId);
+  updateTag(EVENTS_TAG);
+  revalidatePath("/admin/review");
+  return { ok: true as const };
+}
+
 export async function markDuplicate(ingestionId: string, eventId: string | null, canonicalEventId: string) {
   const sb = await admin();
   if (eventId && eventId !== canonicalEventId) await sb.from("events").update({ status: "rejected", canonical_of: canonicalEventId }).eq("id", eventId);
