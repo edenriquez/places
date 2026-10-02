@@ -37,6 +37,12 @@ export default async function ReviewListPage({ searchParams }: { searchParams: P
           const muni = r.municipalities as unknown as { name: string } | null;
           const url = flyerUrl(r.media_path);
           const title = ex.title ?? "Sin título";
+          const missing = [
+            (ex.title ?? "").trim().length < 3 ? "título" : null,
+            !r.municipality_hint ? "municipio" : null,
+            !ex.dates?.some((d) => d.date) ? "fecha" : null,
+          ].filter((part): part is string => !!part);
+          const blocked = missing.length === 0 ? null : missing.length === 1 ? `Falta ${missing[0]}` : `Faltan ${missing.slice(0, -1).join(", ")} y ${missing.at(-1)}`;
           return (
             <li key={r.id} className="overflow-hidden rounded-card border border-line hover:border-ink">
               <Link href={`/admin/review/${r.id}`} className="block">
@@ -50,7 +56,7 @@ export default async function ReviewListPage({ searchParams }: { searchParams: P
                   </div>
                 </div>
               </Link>
-              <QuickReviewActions id={r.id} title={title} />
+              <QuickReviewActions id={r.id} blocked={blocked} />
             </li>
           );
         })}
