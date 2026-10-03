@@ -1,4 +1,4 @@
-"""Municipios del corredor A (Morelos / Edomex sur) y Puebla. Códigos INEGI verificados contra el DENUE 05/2026.
+"""Municipios del corredor A (Morelos / Edomex sur), Puebla y las alcaldías de la Ciudad de México. Códigos INEGI verificados contra el DENUE 05/2026.
 
 Centroides = plaza principal de la cabecera (aprox.). Los polígonos se pueden cargar después desde
 el Marco Geoestadístico de INEGI; el MVP funciona con centroides.
@@ -76,6 +76,24 @@ CORRIDOR = [
     ("21071", "21", "071", "Puebla", "Huauchinango", 20.1731, -98.0542, True, None, None),
     ("21109", "21", "109", "Puebla", "Pahuatlán", 20.2707, -98.1478, True, None, None),
     ("21197", "21", "197", "Puebla", "Xicotepec", 20.2773, -97.9593, True, None, None),
+    # Ciudad de México: las 16 alcaldías (2026-10-02). Centroides = mediana de los establecimientos del
+    # DENUE (sector 71) en la alcaldía; población del Censo 2020.
+    ("09002", "09", "002", "Ciudad de México", "Azcapotzalco", 19.4825, -99.1854, False, None, 432205),
+    ("09003", "09", "003", "Ciudad de México", "Coyoacán", 19.3241, -99.1534, False, None, 614447),
+    ("09004", "09", "004", "Ciudad de México", "Cuajimalpa de Morelos", 19.3617, -99.2864, False, None, 217686),
+    ("09005", "09", "005", "Ciudad de México", "Gustavo A. Madero", 19.4922, -99.1216, False, None, 1173351),
+    ("09006", "09", "006", "Ciudad de México", "Iztacalco", 19.3958, -99.0844, False, None, 404695),
+    ("09007", "09", "007", "Ciudad de México", "Iztapalapa", 19.3460, -99.0543, False, None, 1835486),
+    ("09008", "09", "008", "Ciudad de México", "La Magdalena Contreras", 19.3131, -99.2462, False, None, 247622),
+    ("09009", "09", "009", "Ciudad de México", "Milpa Alta", 19.1994, -99.0198, False, None, 152685),
+    ("09010", "09", "010", "Ciudad de México", "Álvaro Obregón", 19.3593, -99.2160, False, None, 759137),
+    ("09011", "09", "011", "Ciudad de México", "Tláhuac", 19.2899, -99.0343, False, None, 392313),
+    ("09012", "09", "012", "Ciudad de México", "Tlalpan", 19.2810, -99.1797, False, None, 699928),
+    ("09013", "09", "013", "Ciudad de México", "Xochimilco", 19.2591, -99.1055, False, None, 442178),
+    ("09014", "09", "014", "Ciudad de México", "Benito Juárez", 19.3801, -99.1647, False, None, 434153),
+    ("09015", "09", "015", "Ciudad de México", "Cuauhtémoc", 19.4323, -99.1501, False, None, 545884),
+    ("09016", "09", "016", "Ciudad de México", "Miguel Hidalgo", 19.4320, -99.1889, False, None, 414470),
+    ("09017", "09", "017", "Ciudad de México", "Venustiano Carranza", 19.4281, -99.1094, False, None, 443704),
 ]
 
 

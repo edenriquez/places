@@ -28,7 +28,8 @@ TABLES = {
     "casa_artesania": "otro",
 }
 
-_NAME_TO_CVEGEO = {(r[1], r[4]): r[0] for r in CORRIDOR}  # (estado_id, nom_mun) -> cvegeo
+# (estado_id, nom_mun) -> cvegeo; el SIC trae estado_id sin cero a la izquierda ("9" para CDMX)
+_NAME_TO_CVEGEO = {(str(int(r[1])), r[4]): r[0] for r in CORRIDOR}
 
 
 def _download(table: str) -> str:
@@ -59,7 +60,7 @@ def seed_sic() -> dict[str, int]:
             reader = csv.DictReader(io.StringIO(text))
             n = 0
             for row in reader:
-                key = (row.get("estado_id", ""), row.get("nom_mun", ""))
+                key = ((row.get("estado_id") or "").lstrip("0"), row.get("nom_mun", ""))
                 cvegeo = _NAME_TO_CVEGEO.get(key)
                 if not cvegeo:
                     continue
