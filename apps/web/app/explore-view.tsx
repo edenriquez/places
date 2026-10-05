@@ -64,6 +64,9 @@ export async function ExploreView({ sp, split = false, basePath = "/" }: { sp: E
   // escritorio: las secciones comparten filas; cada una ocupa tantas columnas como eventos tiene
   // sin split: filas centradas de secciones; con split: la columna izquierda en 2 columnas
   const shelves = split ? "lg:grid lg:grid-cols-2 lg:gap-x-2" : "lg:flex lg:flex-wrap lg:items-start lg:gap-x-3";
+  // la primera tarjeta es el LCP y se pide de inmediato; con split la lista va oculta en móvil (/mapa)
+  // y una imagen eager se bajaría aunque no se vea
+  const lead = (i: number, first = true) => !split && first && i === 0;
 
   const upcomingPane = (
     <>
@@ -91,14 +94,14 @@ export async function ExploreView({ sp, split = false, basePath = "/" }: { sp: E
         {/* una sola rejilla: primero tu zona (por fecha), luego sugerencias por cercanía con insignia */}
         {upcoming.length + nearby.length > 0 && (
           <Shelf id="events" count={upcoming.length + nearby.length} split={split}>
-            {upcoming.map((e) => <EventCard key={`${e.event_id}-${e.starts_at}`} vt={`ev-${e.event_id}`} href={cardHref(e.slug)} e={e} hideDistance={!!loc.stateCve} />)}
+            {upcoming.map((e, i) => <EventCard key={`${e.event_id}-${e.starts_at}`} vt={`ev-${e.event_id}`} href={cardHref(e.slug)} e={e} hideDistance={!!loc.stateCve} eager={lead(i)} />)}
             {/* "Cerca" solo para eventos fuera de tu zona; los de tu zona en otras fechas van sin insignia */}
-            {nearby.map((e) => <EventCard key={`${e.event_id}-${e.starts_at}`} vt={`ev-${e.event_id}`} href={cardHref(e.slug)} e={e} nearby={!isLocal(e)} />)}
+            {nearby.map((e, i) => <EventCard key={`${e.event_id}-${e.starts_at}`} vt={`ev-${e.event_id}`} href={cardHref(e.slug)} e={e} nearby={!isLocal(e)} eager={lead(i, !upcoming.length)} />)}
           </Shelf>
         )}
         {suggestions.length > 0 && (
           <Shelf id="suggestions" count={suggestions.length} split={split} title={isSet ? "Lo que viene en la región" : "Próximamente en la región"} subtitle="Una selección de lo que viene, por fecha">
-            {suggestions.map((e) => <EventCard key={`${e.event_id}-${e.starts_at}`} vt={`ev-${e.event_id}`} href={cardHref(e.slug)} e={e} hideDistance={!isSet || !!loc.stateCve} />)}
+            {suggestions.map((e, i) => <EventCard key={`${e.event_id}-${e.starts_at}`} vt={`ev-${e.event_id}`} href={cardHref(e.slug)} e={e} hideDistance={!isSet || !!loc.stateCve} eager={lead(i, !upcoming.length && !nearby.length)} />)}
           </Shelf>
         )}
       </div>
@@ -113,7 +116,7 @@ export async function ExploreView({ sp, split = false, basePath = "/" }: { sp: E
   const livePane = (
     <div className={shelves}>
       <Shelf id="live" count={live.length} split={split} live title="Sucediendo ahora" subtitle={isSet ? `Activos en este momento ${nearText(loc)}` : "Activos en este momento en la región"}>
-        {live.map((e) => <EventCard key={`${e.event_id}-${e.starts_at}`} vt={`live-${e.event_id}`} href={cardHref(e.slug)} e={e} live hideDistance={!isSet || !!loc.stateCve} />)}
+        {live.map((e, i) => <EventCard key={`${e.event_id}-${e.starts_at}`} vt={`live-${e.event_id}`} href={cardHref(e.slug)} e={e} live hideDistance={!isSet || !!loc.stateCve} eager={lead(i)} />)}
       </Shelf>
     </div>
   );

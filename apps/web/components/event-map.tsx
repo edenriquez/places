@@ -103,11 +103,15 @@ export function EventMap({ events, loc, stateBounds, variant = "overlay", focus,
     });
     // relieve: modelo de elevación abierto (Terrarium de Mapzen/AWS, sin llave) para terreno 3D y sombreado
     map.once("load", () => {
-      map.addSource("dem", { type: "raster-dem", tiles: [DEM_TILES], encoding: "terrarium", tileSize: 256, maxzoom: 14, attribution: "Elevación: Mapzen, AWS Terrain Tiles" });
-      map.addSource("dem-shade", { type: "raster-dem", tiles: [DEM_TILES], encoding: "terrarium", tileSize: 256, maxzoom: 14 });
+      map.addSource("dem-shade", { type: "raster-dem", tiles: [DEM_TILES], encoding: "terrarium", tileSize: 256, maxzoom: 14, attribution: "Elevación: Mapzen, AWS Terrain Tiles" });
       const firstLabel = map.getStyle().layers?.find((l) => l.type === "symbol")?.id;
       map.addLayer({ id: "hillshade", type: "hillshade", source: "dem-shade", paint: { "hillshade-exaggeration": 0.35, "hillshade-shadow-color": "#5b5b52", "hillshade-highlight-color": "#ffffff", "hillshade-accent-color": "#8a8a7a" } }, firstLabel);
-      map.setTerrain({ source: "dem", exaggeration: 1.4 });
+      // terreno 3D solo en escritorio: en un teléfono de gama media es la mitad de las teselas de elevación
+      // y una malla 3D que redibujar en cada cuadro; el sombreado ya da el relieve
+      if (panel) {
+        map.addSource("dem", { type: "raster-dem", tiles: [DEM_TILES], encoding: "terrarium", tileSize: 256, maxzoom: 14 });
+        map.setTerrain({ source: "dem", exaggeration: 1.4 });
+      }
       // área cubierta por el radio elegido (el deslizador la redibuja al arrastrar)
       map.addSource("radius", { type: "geojson", data: explore || stateCve ? EMPTY_GEO : circleGeo(lat, lng, radiusKm) });
       map.addLayer({ id: "radius-fill", type: "fill", source: "radius", paint: { "fill-color": "#ff385c", "fill-opacity": 0.06 } }, firstLabel);
@@ -131,7 +135,7 @@ export function EventMap({ events, loc, stateBounds, variant = "overlay", focus,
     if (process.env.NODE_ENV === "development") (window as unknown as { __map?: maplibregl.Map }).__map = map;
     mapRef.current = map;
     return () => { map.remove(); mapRef.current = null; };
-  }, [limitKey, lat, lng, radiusKm, stateCve, explore]);
+  }, [limitKey, lat, lng, radiusKm, stateCve, explore, panel]);
 
   // pines: se crean cuando cambia la lista (y se encuadran); el activo solo cambia de clase, sin mover el mapa
   useEffect(() => {
@@ -345,9 +349,9 @@ export function EventMap({ events, loc, stateBounds, variant = "overlay", focus,
         </div>
       )}
       <div ref={listRef} className={clsx(panel && "hidden", "no-scrollbar absolute inset-x-0 bottom-[calc(142px+env(safe-area-inset-bottom))] flex snap-x snap-mandatory gap-3 overflow-x-auto px-[max(20px,calc(50%-150px))] pb-1")}>
-        {pins.map((e) => (
+        {pins.map((e, i) => (
           <div key={e.event_id} data-id={e.event_id} className={clsx("shrink-0 snap-center snap-always transition-transform duration-200", e.event_id !== shownActive && "scale-[0.95]")}>
-            <CompactCard e={e} active={e.event_id === shownActive} href={detailHref(e.slug)} />
+            <CompactCard e={e} active={e.event_id === shownActive} href={detailHref(e.slug)} eager={!panel && i === 0} />
           </div>
         ))}
       </div>
