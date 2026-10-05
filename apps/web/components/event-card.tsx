@@ -7,12 +7,13 @@ import { flyerUrl, fmtDistance, fmtTime, fmtWhenShort } from "@/lib/format";
 import { SaveButton } from "./save-button";
 import { LiveBadge, PriceTag } from "./ui";
 
-function Flyer({ path, alt, sizes, className }: { path: string | null; alt: string; sizes: string; className?: string }) {
+/** `eager`: la primera tarjeta visible es el LCP; las demás esperan a acercarse al viewport. */
+function Flyer({ path, alt, sizes, className, eager }: { path: string | null; alt: string; sizes: string; className?: string; eager?: boolean }) {
   const url = flyerUrl(path);
   return (
     <div className={`relative overflow-hidden bg-bg-2 ${className ?? ""}`}>
       {url ? (
-        <Image src={url} alt={alt} fill sizes={sizes} className="object-cover" />
+        <Image src={url} alt={alt} fill sizes={sizes} className="object-cover" {...(eager && { loading: "eager", fetchPriority: "high" })} />
       ) : (
         <div className="absolute inset-0 grid place-items-center text-[12px] text-ink-3">Sin imagen</div>
       )}
@@ -23,11 +24,11 @@ function Flyer({ path, alt, sizes, className }: { path: string | null; alt: stri
 /** Tarjeta grande de lista ("Este fin de semana") */
 /** `vt`: nombre de view transition; la tarjeta se desliza a su nuevo lugar al navegar (Explorar ⇄ Mapa). */
 /** `nearby`: sugerido por cercanía (fuera de tu zona): lleva una insignia en vez de una sección aparte. */
-export function EventCard({ e, live, hideDistance, vt, nearby, href }: { e: NearRow; live?: boolean; hideDistance?: boolean; vt?: string; nearby?: boolean; href?: string }) {
+export function EventCard({ e, live, hideDistance, vt, nearby, href, eager }: { e: NearRow; live?: boolean; hideDistance?: boolean; vt?: string; nearby?: boolean; href?: string; eager?: boolean }) {
   const card = (
     <Link href={href ?? `/evento/${e.slug}`} scroll={!href} data-event-id={e.event_id} className="block px-5 py-3 lg:rounded-card lg:transition lg:hover:bg-bg-2/60">
       <div className="relative">
-        <Flyer path={e.image_path} alt={e.title} sizes="(max-width: 640px) 100vw, 640px" className="aspect-[4/3] rounded-card" />
+        <Flyer path={e.image_path} alt={e.title} sizes="(max-width: 640px) 100vw, 640px" className="aspect-[4/3] rounded-card" eager={eager} />
         <div className="absolute left-3 top-3 flex items-center gap-1.5">
           {live ? (
             <LiveBadge className="bg-white/95" />
@@ -87,14 +88,14 @@ export function LiveCard({ e }: { e: NearRow }) {
 }
 
 /** Tarjeta compacta horizontal (mapa, "Más cerca de aquí") */
-export function CompactCard({ e, active, href }: { e: NearRow; active?: boolean; href?: string }) {
+export function CompactCard({ e, active, href, eager }: { e: NearRow; active?: boolean; href?: string; eager?: boolean }) {
   return (
     <Link
       href={href ?? `/evento/${e.slug}`}
       scroll={!href}
       className={`flex w-[300px] shrink-0 snap-center gap-3 rounded-card border bg-white p-3 shadow-soft ${active ? "border-ink" : "border-line"}`}
     >
-      <Flyer path={e.image_path} alt={e.title} sizes="96px" className="h-[84px] w-[96px] shrink-0 rounded-[12px]" />
+      <Flyer path={e.image_path} alt={e.title} sizes="96px" className="h-[84px] w-[96px] shrink-0 rounded-[12px]" eager={eager} />
       <div className="min-w-0 flex-1">
         <h3 className="line-clamp-1 text-[15px] font-semibold">{e.title}</h3>
         <p className="mt-0.5 text-[13px] text-ink-2">{fmtWhenShort(e.starts_at, e.is_all_day)}</p>

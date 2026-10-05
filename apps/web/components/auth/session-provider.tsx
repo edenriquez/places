@@ -1,9 +1,9 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import type { User } from "@supabase/supabase-js";
-import { createClient } from "@/lib/supabase/client";
+import type { SupabaseClient, User } from "@supabase/supabase-js";
+import { whenIdle } from "@/lib/idle";
 import { setTrackUser, track } from "@/lib/track";
 import { LoginSheet } from "./login-sheet";
 
@@ -32,6 +32,11 @@ const LOGIN_DELAY_MS = 850;
 
 const SessionCtx = createContext<Ctx | null>(null);
 
+// supabase-js (~70 KB br, con Realtime y auth) va en su propio chunk: no compite con el flyer ni con la
+// hidratación; se baja cuando el navegador queda libre o al primer toque que lo necesite
+let client: Promise<SupabaseClient> | undefined;
+const getClient = () => (client ??= import("@/lib/supabase/client").then((m) => m.createClient()));
+
 export function useSession() {
   const ctx = useContext(SessionCtx);
   if (!ctx) throw new Error("useSession fuera de SessionProvider");
@@ -50,7 +55,6 @@ const toggled = (s: Set<string>, id: string, on: boolean) => {
  * así que guardados, "me interesa" y conteos se hidratan aquí.
  */
 export function SessionProvider({ children }: { children: React.ReactNode }) {
-  const sb = useMemo(() => createClient(), []);
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [ready, setReady] = useState(false);
@@ -74,13 +78,21 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    const { data } = sb.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-      setTrackUser(session?.user?.id ?? null);
-      setReady(true);
+    let unsubscribe: (() => void) | undefined;
+    let live = true;
+    const cancel = whenIdle(() => {
+      getClient().then((sb) => {
+        if (!live) return;
+        const { data } = sb.auth.onAuthStateChange((_event, session) => {
+          setUser(session?.user ?? null);
+          setTrackUser(session?.user?.id ?? null);
+          setReady(true);
+        });
+        unsubscribe = () => data.subscription.unsubscribe();
+      });
     });
-    return () => data.subscription.unsubscribe();
-  }, [sb]);
+    return () => { live = false; cancel(); unsubscribe?.(); };
+  }, []);
 
   const uid = user?.id;
   const current = mine && mine.uid === uid ? mine : null;
@@ -92,10 +104,10 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!uid) return;
     let live = true;
-    Promise.all([
+    getClient().then((sb) => Promise.all([
       sb.from("saved_events").select("event_id"),
       sb.from("event_interests").select("event_id"),
-    ]).then(([s, i]) => {
+    ])).then(([s, i]) => {
       if (!live) return;
       setMine({
         uid,
@@ -104,7 +116,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
       });
     });
     return () => { live = false; };
-  }, [sb, uid]);
+  }, [uid]);
 
   // conteos: se juntan las peticiones del mismo tick (móvil y escritorio montan el detalle a la vez)
   const requested = useRef(new Set<string>());
@@ -117,12 +129,12 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
       const batch = [...queued.current];
       queued.current.clear();
       if (!batch.length) return;
-      const { data } = await sb.rpc("interest_counts", { event_ids: batch });
+      const { data } = await (await getClient()).rpc("interest_counts", { event_ids: batch });
       const got: Record<string, number> = Object.fromEntries(batch.map((id) => [id, 0]));
       for (const r of (data ?? []) as { event_id: string; n: number }[]) got[r.event_id] = r.n;
       setCounts((c) => ({ ...c, ...got }));
     }, 0);
-  }, [sb]);
+  }, []);
 
   const signIn = useCallback(async (intent?: Intent) => {
     track("login_start", { event: intent?.eventId, props: intent ? { intent: intent.do } : undefined });
@@ -131,30 +143,30 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
       params.set("do", intent.do);
       params.set("event", intent.eventId);
     }
-    await sb.auth.signInWithOAuth({
+    await (await getClient()).auth.signInWithOAuth({
       provider: "google",
       options: { redirectTo: `${location.origin}/auth/callback?${params}` },
     });
-  }, [sb]);
+  }, []);
 
   const signOut = useCallback(async () => {
-    await sb.auth.signOut();
+    await (await getClient()).auth.signOut();
     router.refresh();
-  }, [sb, router]);
+  }, [router]);
 
   const toggleSave = useCallback((eventId: string) => {
     if (!uid) return requireLogin({ do: "save", eventId });
     const on = !saved.has(eventId);
     track(on ? "save" : "unsave", { event: eventId });
     setSaved((s) => toggled(s, eventId, on));
-    const q = on
+    getClient().then((sb) => on
       ? sb.from("saved_events").insert({ user_id: uid, event_id: eventId })
-      : sb.from("saved_events").delete().eq("user_id", uid).eq("event_id", eventId);
-    q.then(({ error }) => {
+      : sb.from("saved_events").delete().eq("user_id", uid).eq("event_id", eventId),
+    ).then(({ error }) => {
       if (error && error.code !== "23505") setSaved((s) => toggled(s, eventId, !on));
       else if (location.pathname === "/guardados") router.refresh(); // la lista es de servidor
     });
-  }, [sb, uid, saved, router, requireLogin]);
+  }, [uid, saved, router, requireLogin]);
 
   const toggleInterest = useCallback((eventId: string) => {
     if (!uid) return requireLogin({ do: "interest", eventId });
@@ -163,16 +175,16 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     const bump = (d: number) => setCounts((c) => ({ ...c, [eventId]: Math.max(0, (c[eventId] ?? 0) + d) }));
     setInterested((s) => toggled(s, eventId, on));
     bump(on ? 1 : -1);
-    const q = on
+    getClient().then((sb) => on
       ? sb.from("event_interests").insert({ user_id: uid, event_id: eventId })
-      : sb.from("event_interests").delete().eq("user_id", uid).eq("event_id", eventId);
-    q.then(({ error }) => {
+      : sb.from("event_interests").delete().eq("user_id", uid).eq("event_id", eventId),
+    ).then(({ error }) => {
       if (error && error.code !== "23505") {
         setInterested((s) => toggled(s, eventId, !on));
         bump(on ? -1 : 1);
       }
     });
-  }, [sb, uid, interested, requireLogin]);
+  }, [uid, interested, requireLogin]);
 
   const value: Ctx = {
     user, ready, saved, interested, counts, pending,

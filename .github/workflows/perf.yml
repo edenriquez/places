@@ -1,0 +1,64 @@
+# Carga en un teléfono de gama media (apps/web/perf/mobile.mjs) cada vez que Vercel termina un deploy.
+# Con el secreto VERCEL_AUTOMATION_BYPASS_SECRET (Vercel → Settings → Deployment Protection → Protection
+# Bypass for Automation) se mide la URL exacta del deploy, preview o producción. Sin él, producción se mide
+# en el dominio público y los previews (protegidos) se omiten.
+name: perf
+
+on:
+  deployment_status:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: URL a medir
+        default: https://entrelugares-web-mauve.vercel.app
+
+concurrency:
+  group: perf-${{ github.event.deployment.environment || 'manual' }}
+  cancel-in-progress: true
+
+env:
+  PROD_URL: https://entrelugares-web-mauve.vercel.app
+
+jobs:
+  target:
+    if: github.event_name == 'workflow_dispatch' || github.event.deployment_status.state == 'success'
+    runs-on: ubuntu-latest
+    outputs:
+      url: ${{ steps.url.outputs.url }}
+    steps:
+      - id: url
+        env:
+          INPUT_URL: ${{ inputs.url }}
+          DEPLOY_URL: ${{ github.event.deployment_status.environment_url }}
+          ENVIRONMENT: ${{ github.event.deployment.environment }}
+          HAS_BYPASS: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET != '' }}
+        run: |
+          if [ -n "$INPUT_URL" ]; then url="$INPUT_URL"
+          elif [ "$HAS_BYPASS" = true ]; then url="$DEPLOY_URL"
+          elif [ "$ENVIRONMENT" = Production ]; then url="$PROD_URL"
+          else echo "::notice::Preview protegido y sin VERCEL_AUTOMATION_BYPASS_SECRET: no se mide"; fi
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+
+  mobile:
+    needs: target
+    if: needs.target.outputs.url != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.deployment.sha || github.sha }}
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter web perf:mobile --url "$PERF_URL"
+        env:
+          PERF_URL: ${{ needs.target.outputs.url }}
+          PERF_BYPASS: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-mobile
+          path: apps/web/perf/reports
+          if-no-files-found: ignore

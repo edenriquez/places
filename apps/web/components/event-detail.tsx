@@ -1,9 +1,10 @@
-import Image from "next/image";
+import Image, { getImageProps } from "next/image";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, AtSign, CalendarDays, ExternalLink, Flag, Globe, MapPin, MessageCircle, Phone, Share2 } from "lucide-react";
 import { BackButton } from "./back-button";
 import { DesktopOnly, MobileOnly } from "./desktop";
 import { CompactCard, EventCard } from "./event-card";
+import { ImagePreload } from "./image-preload";
 import { ZoomableImage } from "./image-viewer";
 import { InterestButton } from "./interest-button";
 import { SaveButton } from "./save-button";
@@ -232,12 +233,21 @@ function ShareButton({ x, className }: { x: Derived; className?: string }) {
   );
 }
 
-function Flyer({ x, alt, sizes, className, contain }: { x: Derived; alt: string; sizes: string; className: string; contain?: boolean }) {
+const MOBILE = "(max-width: 1023.98px)";
+const DESKTOP = "(min-width: 1024px)";
+
+/**
+ * Teléfono y escritorio se pintan los dos y CSS esconde uno. El preload lleva `media` para que solo se baje
+ * el flyer del layout visible, y la imagen queda lazy: una eager dentro de display:none se descarga igual.
+ */
+function Flyer({ x, alt, sizes, className, contain, media }: { x: Derived; alt: string; sizes: string; className: string; contain?: boolean; media: string }) {
+  const img = x.img ? getImageProps({ src: x.img, alt, fill: true, sizes }).props : null;
   return (
     <div className={`relative overflow-hidden bg-bg-2 ${className}`}>
+      {img && <ImagePreload href={img.src} imageSrcSet={img.srcSet} imageSizes={img.sizes} fetchPriority="high" media={media} />}
       {x.img && (
         <ZoomableImage src={x.img} alt={alt} eventId={x.id}>
-          <Image src={x.img} alt={alt} fill priority sizes={sizes} className={contain ? "object-contain" : "object-cover"} />
+          <Image src={x.img} alt={alt} fill sizes={sizes} fetchPriority="high" className={contain ? "object-contain" : "object-cover"} />
         </ZoomableImage>
       )}
     </div>
@@ -253,7 +263,7 @@ export function EventMobile({ d, nearby }: { d: EventData; nearby: NearRow[] }) 
   return (
     <main className="mx-auto max-w-screen-sm pb-[max(env(safe-area-inset-bottom),24px)]">
       <div className="relative">
-        <Flyer x={x} alt={d.event.title} sizes="(max-width: 640px) 100vw, 640px" className="aspect-[4/3]" />
+        <Flyer x={x} alt={d.event.title} sizes="(max-width: 640px) 100vw, 640px" className="aspect-[4/3]" media={MOBILE} />
         {/* fija: se puede volver o compartir desde cualquier punto del scroll */}
         <div className="pointer-events-none fixed inset-x-0 top-[max(env(safe-area-inset-top),12px)] z-40 mx-auto flex max-w-screen-sm items-center justify-between px-4 [&>*]:pointer-events-auto">
           <BackButton className="grid h-10 w-10 place-items-center rounded-full bg-white shadow-soft" />
@@ -321,7 +331,7 @@ export function EventDesktop({ d, nearby }: { d: EventData; nearby: NearRow[] })
 
       <div className="mt-6 grid grid-cols-[minmax(0,1fr)_360px] gap-12">
         <div className="min-w-0 space-y-9">
-          <Flyer x={x} alt={event.title} sizes="720px" className="aspect-[4/3] rounded-card" contain />
+          <Flyer x={x} alt={event.title} sizes="720px" className="aspect-[4/3] rounded-card" contain media={DESKTOP} />
           <InfoList d={d} x={x} />
           <Description d={d} />
           <Program d={d} />
@@ -380,7 +390,7 @@ export function EventPanel({ d, backHref, sheet }: { d: EventData; backHref: str
         </Link>
       </div>
 
-      {!sheet && <Flyer x={x} alt={d.event.title} sizes="720px" className="aspect-[16/10] rounded-card" contain />}
+      {!sheet && <Flyer x={x} alt={d.event.title} sizes="720px" className="aspect-[16/10] rounded-card" contain media={DESKTOP} />}
 
       <div>
         {!sheet && <Category d={d} />}
@@ -394,7 +404,7 @@ export function EventPanel({ d, backHref, sheet }: { d: EventData; backHref: str
       </div>
       <InterestButton eventId={d.event.id} className="-mt-2 px-1" />
 
-      {sheet && <Flyer x={x} alt={d.event.title} sizes="640px" className="aspect-[4/3] rounded-card" contain />}
+      {sheet && <Flyer x={x} alt={d.event.title} sizes="640px" className="aspect-[4/3] rounded-card" contain media={MOBILE} />}
 
       <Description d={d} />
       <Contact d={d} x={x} />
