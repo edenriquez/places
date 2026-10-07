@@ -1,6 +1,6 @@
 import { login } from "./actions";
 
-export const metadata = { title: "Entrar · Admin" };
+export const metadata = { title: "Entrar · Admin", robots: { index: false, follow: false } };
 
 export default async function LoginPage({ searchParams }: { searchParams: Promise<{ error?: string; next?: string }> }) {
   const sp = await searchParams;

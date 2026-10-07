@@ -1,6 +1,11 @@
 import { BackButton } from "@/components/back-button";
+import { pageMetadata } from "@/lib/site";
 
-export const metadata = { title: "Aviso de privacidad" };
+export const metadata = pageMetadata({
+  title: "Aviso de privacidad",
+  description: "Qué datos personales trata Entre Lugares, para qué los usa, con quién los comparte y cómo ejercer tus derechos ARCO.",
+  path: "/privacidad",
+});
 
 const UPDATED = "24 de septiembre de 2026";
 

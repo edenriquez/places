@@ -6,10 +6,15 @@ import { DesktopHeader } from "@/components/desktop";
 import { SearchBar } from "@/components/location-picker";
 import { getLoc, hasLoc } from "@/lib/location-server";
 import { municipalities } from "@/lib/queries";
+import { pageMetadata } from "@/lib/site";
 import { createClient } from "@/lib/supabase/server";
 import { SubmitForm } from "./submit-form";
 
-export const metadata = { title: "Publicar un evento" };
+export const metadata = pageMetadata({
+  title: "Publica tu evento gratis",
+  description: "¿Organizas una feria, fiesta, concierto o taller en tu pueblo? Sube el flyer y nosotros armamos la ficha con fecha, lugar y precio para que la gente cerca de ti lo encuentre.",
+  path: "/publicar",
+});
 export const dynamic = "force-dynamic";
 
 export default async function PublishPage() {

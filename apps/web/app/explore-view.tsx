@@ -132,6 +132,8 @@ export async function ExploreView({ sp, split = false, basePath = "/" }: { sp: E
     <main className={split
       ? "mx-auto max-w-screen-sm pb-28 lg:mx-0 lg:max-w-none lg:px-3 lg:pb-12"
       : "mx-auto max-w-screen-sm pb-28 lg:w-full lg:max-w-(--wrap) lg:pb-12 lg:[--card:288px] lg:[--cols:3] lg:[--wrap:calc(var(--cols)*var(--card)_+_(var(--cols)_-_1)*12px)] xl:[--card:292px] xl:[--cols:4] 2xl:[--card:328px]"}>
+      {/* la página no tiene un título visible; el h1 le dice a buscadores y lectores de pantalla de qué trata */}
+      {!split && <h1 className="sr-only">Ferias, fiestas y eventos {isSet ? nearText(loc) : "en pueblos de Morelos, Estado de México, Puebla y CDMX"}</h1>}
       {detail ? (
         <EventPanel d={detail} backHref={listHref} />
       ) : (

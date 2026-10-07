@@ -8,10 +8,17 @@ import { ExploreView, type ExploreParams } from "../explore-view";
 import { EventMap } from "@/components/event-map";
 import { SearchBar } from "@/components/location-picker";
 import { getLoc } from "@/lib/location-server";
+import { nearText } from "@/lib/location";
+import { pageMetadata } from "@/lib/site";
 import { eventBySlug, eventsNear, municipalities, stateBox, withCoords, type Range } from "@/lib/queries";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Mapa" };
+// ?e=, ?r= y ?c= abren un evento o filtran: la página canónica es /mapa
+export const metadata = pageMetadata({
+  title: "Mapa de eventos cerca de ti",
+  description: "Mapa de ferias, fiestas, conciertos y mercados en pueblos de Morelos, Estado de México, Puebla y CDMX. Elige a cuánto tiempo de camino y ve qué hay hoy y este fin de semana.",
+  path: "/mapa",
+});
 
 export default async function MapPage({ searchParams }: { searchParams: Promise<ExploreParams> }) {
   const sp = await searchParams;
@@ -34,6 +41,7 @@ export default async function MapPage({ searchParams }: { searchParams: Promise<
 
   return (
     <>
+    <h1 className="sr-only">Mapa de eventos {nearText(loc)}</h1>
     {/* escritorio: lista + mapa (split) */}
     <div className="hidden lg:block"><ExploreView sp={sp} split basePath="/mapa" /></div>
     {/* móvil: mapa a pantalla completa */}

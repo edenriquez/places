@@ -1,42 +1,32 @@
-import { ImageResponse } from "next/og";
 import { eventBySlug } from "@/lib/queries";
-import { flyerUrl, fmtWhenLong } from "@/lib/format";
+import { flyerUrl, fmtPrice, fmtWhenLong } from "@/lib/format";
+import { OG_SIZE, ogPhoto, renderOg } from "@/lib/og";
+import { CATEGORY_LABEL } from "@/lib/types";
 
-export const size = { width: 1200, height: 630 };
-export const contentType = "image/png";
+export const alt = "Flyer, fecha, lugar y precio del evento";
+export const size = OG_SIZE;
+export const contentType = "image/jpeg";
 
-export default async function OgImage({ params }: { params: Promise<{ slug: string }> }) {
+/** Lo que se ve al compartir el evento por WhatsApp o redes: flyer, título, cuándo, dónde y precio. */
+export default async function Image({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const data = await eventBySlug(slug);
-  const title = data?.event.title ?? "Entre Lugares";
-  const when = data?.occurrences[0] ? fmtWhenLong(data.occurrences[0].starts_at, data.occurrences[0].ends_at, data.occurrences[0].is_all_day) : "";
-  const where = data ? [data.place?.name ?? data.event.place_text, data.municipality?.name].filter(Boolean).join(" · ") : "";
-  const img = data ? flyerUrl(data.event.image_path) : null;
-  const price = data ? (data.event.is_free ? "Gratis" : data.event.price_min != null ? `$${Math.round(data.event.price_min)}` : "") : "";
+  if (!data) return renderOg({ icon: "calendar", title: "Evento no disponible", subtitle: "Mira lo que viene cerca de ti" }, { jpeg: true });
 
-  return new ImageResponse(
-    (
-      <div style={{ display: "flex", width: "100%", height: "100%", background: "#fff", fontFamily: "sans-serif" }}>
-        <div style={{ width: 480, height: "100%", background: "#f7f7f7", display: "flex", overflow: "hidden" }}>
-          {img && <img src={img} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />}
-        </div>
-        <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "space-between", padding: 56 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 12, color: "#FF385C", fontSize: 26, fontWeight: 700 }}>
-            <div style={{ width: 20, height: 20, borderRadius: 999, background: "#FF385C" }} />
-            Entre Lugares
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-            <div style={{ fontSize: 56, fontWeight: 800, color: "#222", lineHeight: 1.1 }}>{title}</div>
-            <div style={{ fontSize: 30, color: "#6a6a6a" }}>{when}</div>
-            <div style={{ fontSize: 28, color: "#6a6a6a" }}>{where}</div>
-          </div>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <div style={{ fontSize: 34, fontWeight: 700, color: price === "Gratis" ? "#008A05" : "#222" }}>{price}</div>
-            <div style={{ fontSize: 22, color: "#9a9a9a" }}>entrelugares.mx</div>
-          </div>
-        </div>
-      </div>
-    ),
-    size,
-  );
+  const { event, occurrences, place, municipality } = data;
+  const next = occurrences.find((o) => new Date(o.ends_at ?? o.starts_at) >= new Date()) ?? occurrences[0];
+  const where = [place?.name ?? event.place_text, municipality?.name].filter(Boolean).join(" · ");
+  const price = fmtPrice(event.is_free, event.price_min, event.price_max);
+  const more = occurrences.length > 1 ? `${occurrences.length} fechas` : null;
+
+  return renderOg({
+    icon: "calendar",
+    photo: await ogPhoto(flyerUrl(event.image_path)),
+    photoSide: "left",
+    eyebrow: [CATEGORY_LABEL[event.category], municipality?.state].filter(Boolean).join(" · "),
+    title: event.title,
+    subtitle: [next ? fmtWhenLong(next.starts_at, next.ends_at, next.is_all_day) : null, where],
+    freeChip: event.is_free ? "Gratis" : undefined,
+    chips: [...(!event.is_free && price !== "Consultar" ? [price] : []), ...(more ? [more] : [])],
+  }, { jpeg: true });
 }

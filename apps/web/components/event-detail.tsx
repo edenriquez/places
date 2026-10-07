@@ -263,7 +263,7 @@ export function EventMobile({ d, nearby }: { d: EventData; nearby: NearRow[] }) 
   return (
     <main className="mx-auto max-w-screen-sm pb-[max(env(safe-area-inset-bottom),24px)]">
       <div className="relative">
-        <Flyer x={x} alt={d.event.title} sizes="(max-width: 640px) 100vw, 640px" className="aspect-[4/3]" media={MOBILE} />
+        <Flyer x={x} alt={`Flyer de ${d.event.title}`} sizes="(max-width: 640px) 100vw, 640px" className="aspect-[4/3]" media={MOBILE} />
         {/* fija: se puede volver o compartir desde cualquier punto del scroll */}
         <div className="pointer-events-none fixed inset-x-0 top-[max(env(safe-area-inset-top),12px)] z-40 mx-auto flex max-w-screen-sm items-center justify-between px-4 [&>*]:pointer-events-auto">
           <BackButton className="grid h-10 w-10 place-items-center rounded-full bg-white shadow-soft" />
@@ -331,7 +331,7 @@ export function EventDesktop({ d, nearby }: { d: EventData; nearby: NearRow[] })
 
       <div className="mt-6 grid grid-cols-[minmax(0,1fr)_360px] gap-12">
         <div className="min-w-0 space-y-9">
-          <Flyer x={x} alt={event.title} sizes="720px" className="aspect-[4/3] rounded-card" contain media={DESKTOP} />
+          <Flyer x={x} alt={`Flyer de ${event.title}`} sizes="720px" className="aspect-[4/3] rounded-card" contain media={DESKTOP} />
           <InfoList d={d} x={x} />
           <Description d={d} />
           <Program d={d} />
@@ -390,7 +390,7 @@ export function EventPanel({ d, backHref, sheet }: { d: EventData; backHref: str
         </Link>
       </div>
 
-      {!sheet && <Flyer x={x} alt={d.event.title} sizes="720px" className="aspect-[16/10] rounded-card" contain media={DESKTOP} />}
+      {!sheet && <Flyer x={x} alt={`Flyer de ${d.event.title}`} sizes="720px" className="aspect-[16/10] rounded-card" contain media={DESKTOP} />}
 
       <div>
         {!sheet && <Category d={d} />}
@@ -404,7 +404,7 @@ export function EventPanel({ d, backHref, sheet }: { d: EventData; backHref: str
       </div>
       <InterestButton eventId={d.event.id} className="-mt-2 px-1" />
 
-      {sheet && <Flyer x={x} alt={d.event.title} sizes="640px" className="aspect-[4/3] rounded-card" contain media={MOBILE} />}
+      {sheet && <Flyer x={x} alt={`Flyer de ${d.event.title}`} sizes="640px" className="aspect-[4/3] rounded-card" contain media={MOBILE} />}
 
       <Description d={d} />
       <Contact d={d} x={x} />
