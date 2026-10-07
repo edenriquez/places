@@ -3,7 +3,7 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { SupabaseClient, User } from "@supabase/supabase-js";
-import { whenIdle } from "@/lib/idle";
+import { afterLoad } from "@/lib/idle";
 import { setTrackUser, track } from "@/lib/track";
 import { LoginSheet } from "./login-sheet";
 
@@ -33,7 +33,7 @@ const LOGIN_DELAY_MS = 850;
 const SessionCtx = createContext<Ctx | null>(null);
 
 // supabase-js (~70 KB br, con Realtime y auth) va en su propio chunk: no compite con el flyer ni con la
-// hidratación; se baja cuando el navegador queda libre o al primer toque que lo necesite
+// hidratación; se baja después del load o al primer toque que lo necesite
 let client: Promise<SupabaseClient> | undefined;
 const getClient = () => (client ??= import("@/lib/supabase/client").then((m) => m.createClient()));
 
@@ -80,7 +80,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     let unsubscribe: (() => void) | undefined;
     let live = true;
-    const cancel = whenIdle(() => {
+    const cancel = afterLoad(() => {
       getClient().then((sb) => {
         if (!live) return;
         const { data } = sb.auth.onAuthStateChange((_event, session) => {

@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import clsx from "clsx";
-import { whenIdle } from "@/lib/idle";
+import { afterLoad } from "@/lib/idle";
 
 const Inner = dynamic(() => import("./static-map").then((m) => m.StaticMap), { ssr: false });
 
@@ -19,20 +19,15 @@ export function StaticMap({ lat, lng, className }: { lat: number; lng: number; c
     const el = ref.current;
     if (!el) return;
     let io: IntersectionObserver | undefined;
-    let cancel = () => {};
-    const watch = () => {
+    const cancel = afterLoad(() => {
       io = new IntersectionObserver(([e]) => {
         if (!e.isIntersecting) return;
         setShow(true);
         io?.disconnect();
       }, { rootMargin: "200px" });
       io.observe(el);
-    };
-    const start = () => { cancel = whenIdle(watch); };
-    if (document.readyState === "complete") start();
-    else window.addEventListener("load", start, { once: true });
+    });
     return () => {
-      window.removeEventListener("load", start);
       cancel();
       io?.disconnect();
     };
