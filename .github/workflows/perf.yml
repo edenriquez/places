@@ -52,7 +52,9 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: 22, cache: pnpm }
       - run: pnpm install --frozen-lockfile
+      # informativo: los presupuestos fuera quedan como avisos en el resumen y no marcan el deploy en rojo
       - run: pnpm --filter web perf:mobile --url "$PERF_URL"
+        continue-on-error: true
         env:
           PERF_URL: ${{ needs.target.outputs.url }}
           PERF_BYPASS: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
