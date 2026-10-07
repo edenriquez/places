@@ -166,6 +166,25 @@ const cachedEventBySlug = unstable_cache(async (slug: string) => {
   };
 }, ["event_by_slug"], { tags: [EVENTS_TAG], revalidate: EVENTS_TTL });
 
+/** Eventos publicados para sitemap.xml y llms.txt: slug, última edición, flyer y fechas. */
+export const publishedEventsIndex = unstable_cache(
+  async () => {
+    const { data, error } = await createAnonClient()
+      .from("events")
+      .select("slug, title, updated_at, image_path, is_free, municipality_cvegeo, event_occurrences(starts_at, ends_at)")
+      .eq("status", "published")
+      .order("updated_at", { ascending: false })
+      .limit(5000);
+    if (error) throw error;
+    return (data ?? []) as {
+      slug: string; title: string; updated_at: string; image_path: string | null; is_free: boolean; municipality_cvegeo: string;
+      event_occurrences: { starts_at: string; ends_at: string | null }[];
+    }[];
+  },
+  ["published_events_index"],
+  { tags: [EVENTS_TAG], revalidate: 3600 },
+);
+
 // cache(): generateMetadata, la página y la imagen OG comparten una sola llamada por request
 export const eventBySlug = cache((slug: string) => cachedEventBySlug(slug));
 

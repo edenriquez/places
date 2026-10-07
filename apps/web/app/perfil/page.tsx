@@ -1,5 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
+import type { Metadata } from "next";
+import { NO_INDEX } from "@/lib/site";
 import { ArrowRight, CalendarDays, Heart, Megaphone, Sparkles, Star } from "lucide-react";
 import clsx from "clsx";
 import { SignInButton, SignOutButton } from "@/components/auth/account-buttons";
@@ -14,7 +16,7 @@ import { createClient } from "@/lib/supabase/server";
 import { CATEGORY_LABEL } from "@/lib/types";
 import { Preferences } from "./preferences";
 
-export const metadata = { title: "Perfil" };
+export const metadata: Metadata = { title: "Perfil", robots: NO_INDEX };
 export const dynamic = "force-dynamic";
 
 function Section({ title, subtitle, action, children }: { title: string; subtitle?: string; action?: React.ReactNode; children: React.ReactNode }) {

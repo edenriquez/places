@@ -5,9 +5,12 @@ import type { Metadata } from "next";
 import { ArrowLeft, Heart, Landmark } from "lucide-react";
 import { BottomNav } from "@/components/bottom-nav";
 import { EventCard, LiveCard } from "@/components/event-card";
+import { JsonLd } from "@/components/json-ld";
 import { EmptyState, SectionHeader } from "@/components/ui";
 import { fmtMonthShort } from "@/lib/format";
 import { eventsLiveNear, municipalityBySlug, municipalityEvents, municipalityFestivities, municipalityPlaces } from "@/lib/queries";
+import { clip, pageMetadata } from "@/lib/site";
+import { breadcrumbs, municipalityGraph } from "@/lib/structured-data";
 
 export const dynamic = "force-dynamic";
 
@@ -16,7 +19,21 @@ type Params = { params: Promise<{ slug: string }> };
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { slug } = await params;
   const m = await municipalityBySlug(slug);
-  return { title: m ? `Qué hacer en ${m.name}` : "Municipio", description: m?.description ?? undefined };
+  if (!m) return { title: "Municipio no encontrado", robots: { index: false, follow: true } };
+  const kind = m.is_pueblo_magico ? `Pueblo Mágico de ${m.state}` : m.state;
+  const drive = m.drive_from_cdmx ? `, a ${m.drive_from_cdmx} de la CDMX` : "";
+  const title = `Qué hacer en ${m.name}, ${m.state}: eventos y fiestas`;
+  return pageMetadata({
+    title,
+    ogTitle: `Qué hacer en ${m.name}`,
+    description: clip(
+      m.description
+        ? `${m.description} Eventos, ferias y fiestas en ${m.name} (${kind}${drive}).`
+        : `Eventos, ferias, fiestas patronales y lugares para visitar en ${m.name} (${kind}${drive}). Fechas, precios y cómo llegar.`,
+    ),
+    path: `/municipio/${m.slug}`,
+    images: [{ url: `/municipio/${m.slug}/opengraph-image`, alt: `Qué hacer en ${m.name}, ${m.state}`, type: "image/jpeg" }],
+  });
 }
 
 const KIND_LABEL: Record<string, string> = {
@@ -46,8 +63,9 @@ export default async function MunicipalityPage({ params }: Params) {
 
   return (
     <main className="mx-auto max-w-screen-sm pb-28">
+      <JsonLd data={[...municipalityGraph(m, events), breadcrumbs([{ name: "Explorar", path: "/" }, { name: m.name, path: `/municipio/${m.slug}` }])]} />
       <div className="relative aspect-[4/3] bg-ink">
-        {m.cover_image_url && <Image src={m.cover_image_url} alt={m.name} fill priority sizes="640px" className="object-cover" />}
+        {m.cover_image_url && <Image src={m.cover_image_url} alt={`${m.name}, ${m.state}`} fill priority sizes="640px" className="object-cover" />}
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
         <div className="absolute inset-x-4 top-[max(env(safe-area-inset-top),12px)] flex justify-between">
           <Link href="/" aria-label="Volver" className="grid h-10 w-10 place-items-center rounded-full bg-white shadow-soft"><ArrowLeft size={20} /></Link>

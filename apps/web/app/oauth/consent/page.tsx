@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { decide } from "./actions";
 
-export const metadata = { title: "Conectar asistente · Admin" };
+export const metadata = { title: "Conectar asistente · Admin", robots: { index: false, follow: false } };
 
 /** Pantalla de consentimiento del servidor OAuth de Supabase: la usa ChatGPT/Claude para conectarse al MCP. */
 export default async function ConsentPage({ searchParams }: { searchParams: Promise<{ authorization_id?: string }> }) {

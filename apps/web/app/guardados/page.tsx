@@ -1,4 +1,6 @@
 import Link from "next/link";
+import type { Metadata } from "next";
+import { NO_INDEX } from "@/lib/site";
 import { Heart } from "lucide-react";
 import { SignInButton } from "@/components/auth/account-buttons";
 import { BottomNav } from "@/components/bottom-nav";
@@ -6,7 +8,7 @@ import { EventCard } from "@/components/event-card";
 import { eventRows } from "@/lib/account";
 import { createClient } from "@/lib/supabase/server";
 
-export const metadata = { title: "Guardados" };
+export const metadata: Metadata = { title: "Guardados", robots: NO_INDEX };
 export const dynamic = "force-dynamic";
 
 function Empty({ title, body, children }: { title: string; body: string; children: React.ReactNode }) {

@@ -1,11 +1,12 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AdminNav } from "./nav";
 import { relativeTime } from "@/lib/format";
 import { JOB_KIND_LABEL, workerIsOnline, type Job, type Worker } from "@/lib/types";
 
-export const metadata = { title: "Admin" };
+export const metadata: Metadata = { title: "Admin", robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
