@@ -1,6 +1,7 @@
 import Link from "next/link";
 import clsx from "clsx";
 import { Music, PartyPopper, Store, Palette, UtensilsCrossed, Sparkles, Mountain, Users } from "lucide-react";
+import { LinkPending } from "./link-pending";
 
 export const CATEGORIES = [
   { key: "concierto", label: "Conciertos", icon: Music },
@@ -20,9 +21,10 @@ export function CategoryRow({ active, range, basePath = "/" }: { active?: string
         const isActive = active === key;
         const href = isActive ? `${basePath}?r=${range}` : `${basePath}?r=${range}&c=${key}`;
         return (
-          <Link key={key} href={href} data-track="filter" data-label={`categoria:${key}`} className={clsx("flex shrink-0 flex-col items-center gap-1.5 pb-2 text-[12px] font-medium", isActive ? "border-b-2 border-ink text-ink" : "text-ink-2")}>
+          <Link key={key} href={href} data-track="filter" data-label={`categoria:${key}`} className={clsx("relative flex shrink-0 flex-col items-center gap-1.5 pb-2 text-[12px] font-medium", isActive ? "border-b-2 border-ink text-ink" : "text-ink-2")}>
             <Icon size={22} strokeWidth={1.8} />
             {label}
+            <LinkPending className="inset-x-0 bottom-0 h-0.5 rounded-full bg-ink" />
           </Link>
         );
       })}

@@ -73,8 +73,8 @@ const SCENARIOS = [
   { name: "home-returning", path: "/", cookies: [LOC] },
   // maplibre (~430 KB br con el worker) es el contenido de la página; el sombreado son ~1 MB de teselas
   { name: "mapa", path: "/mapa", cookies: [LOC], budget: { jsKB: 700, totalKB: 3300 } },
-  // el mini mapa se monta después del load, pero si queda a la vista también baja maplibre
-  { name: "evento", path: firstEventPath, cookies: [LOC], budget: { jsKB: 700 } },
+  // el mini mapa es una imagen; maplibre solo baja si lo tocan
+  { name: "evento", path: firstEventPath, cookies: [LOC] },
 ];
 
 const median = (xs) => {

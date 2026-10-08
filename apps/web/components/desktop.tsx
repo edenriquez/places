@@ -6,6 +6,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { Compass, Heart, Map, User } from "lucide-react";
 import clsx from "clsx";
 import { useSession } from "./auth/session-provider";
+import { LinkPending } from "./link-pending";
 
 const LG = "(min-width: 1024px)";
 const subscribe = (cb: () => void) => {
@@ -52,7 +53,8 @@ export function DesktopHeader({ children }: { children: React.ReactNode }) {
         {NAV.map(({ href, label, icon: Icon }) => {
           const active = href === "/" ? path === "/" : path.startsWith(href);
           return (
-            <Link key={href} href={keep(href)} className={clsx("flex items-center gap-2 rounded-full px-3 py-2 text-[14px] font-medium hover:bg-bg-2", active ? "text-ink" : "text-ink-2")}>
+            <Link key={href} href={keep(href)} className={clsx("relative isolate flex items-center gap-2 rounded-full px-3 py-2 text-[14px] font-medium hover:bg-bg-2", active ? "text-ink" : "text-ink-2")}>
+              <LinkPending className="inset-0 -z-10 rounded-full bg-line" />
               {href === "/perfil" && avatar ? (
                 // eslint-disable-next-line @next/next/no-img-element -- avatar externo de Google
                 <img src={avatar} alt="" referrerPolicy="no-referrer" className="h-[22px] w-[22px] rounded-full object-cover" />
