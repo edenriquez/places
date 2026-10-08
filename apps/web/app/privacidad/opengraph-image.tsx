@@ -9,6 +9,6 @@ export default function Image() {
     icon: "shield",
     eyebrow: "Aviso de privacidad",
     title: "Cómo cuidamos tus datos",
-    subtitle: "Qué guardamos, para qué y cómo pedir que lo borremos",
+    subtitle: "Qué guardamos, para qué, con quién lo compartimos y cómo pedir que lo borremos",
   });
 }

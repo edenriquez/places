@@ -19,6 +19,7 @@ export const SITE_KEYWORDS = [
   "Pueblos Mágicos", "conciertos", "mercados", "Tepoztlán", "Morelos", "Estado de México", "Puebla", "CDMX",
 ];
 export const LOCALE = "es_MX";
+export const CONTACT_EMAIL = "hola@entrelugares.mx";
 
 /** Colores de marca (globals.css) para íconos e imágenes generadas, donde no hay CSS. */
 export const BRAND = { accent: "#ff385c", ink: "#222222", ink2: "#6a6a6a", ink3: "#9a9a9a", bg2: "#f7f7f7", free: "#008a05" };

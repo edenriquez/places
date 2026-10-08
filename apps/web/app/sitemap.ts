@@ -38,5 +38,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...eventEntries,
     { url: absUrl("/publicar"), changeFrequency: "monthly", priority: 0.5 },
     { url: absUrl("/privacidad"), changeFrequency: "yearly", priority: 0.2 },
+    { url: absUrl("/terminos"), changeFrequency: "yearly", priority: 0.2 },
   ];
 }

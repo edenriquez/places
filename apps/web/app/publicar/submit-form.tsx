@@ -159,7 +159,11 @@ export function SubmitForm({ userId, municipalities }: { userId: string; municip
       >
         {sending ? <><Loader2 size={18} className="animate-spin" /> Enviando…</> : "Enviar para revisión"}
       </button>
-      <p className="text-center text-[12px] text-ink-3">Publicar es gratis. Revisamos cada envío antes de que aparezca.</p>
+      <p className="text-center text-[12px] text-ink-3">
+        Publicar es gratis. Revisamos cada envío antes de que aparezca. Al enviar aceptas
+        los <Link href="/terminos#publicar" className="underline">términos para publicar</Link>; el contacto y el organizador se muestran en la ficha
+        (<Link href="/privacidad#publico" className="underline">aviso de privacidad</Link>).
+      </p>
     </form>
   );
 }

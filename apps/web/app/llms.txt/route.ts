@@ -35,6 +35,7 @@ export async function GET() {
     `- [Mapa](${absUrl("/mapa")}): los mismos eventos en el mapa, filtrados por tiempo de camino.`,
     `- [Publicar un evento](${absUrl("/publicar")}): los organizadores suben el flyer gratis.`,
     `- [Aviso de privacidad](${absUrl("/privacidad")})`,
+    `- [Términos y condiciones](${absUrl("/terminos")})`,
     `- [Sitemap](${absUrl("/sitemap.xml")})`,
     "",
     "## URLs",

@@ -8,7 +8,7 @@ import { BRAND, SITE_HOST, SITE_NAME } from "./site";
 export const OG_SIZE = { width: 1200, height: 630 };
 export const OG_TYPE = "image/png";
 
-type IconName = "brand" | "map" | "landmark" | "megaphone" | "shield" | "calendar";
+type IconName = "brand" | "map" | "landmark" | "megaphone" | "shield" | "calendar" | "fileText";
 
 // Trazos de lucide (24×24, línea 2) para que el ícono de la vista previa sea el mismo de la app. Solo `d` de <path>:
 // ImageResponse convierte el <svg> a texto y no acepta fragmentos de React dentro.
@@ -34,6 +34,13 @@ const STROKES: Record<Exclude<IconName, "brand">, string[]> = {
   shield: [
     "M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z",
     "m9 12 2 2 4-4",
+  ],
+  fileText: [
+    "M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z",
+    "M14 2v4a2 2 0 0 0 2 2h4",
+    "M10 9H8",
+    "M16 13H8",
+    "M16 17H8",
   ],
   calendar: [
     "M8 2v4",

@@ -1,6 +1,6 @@
 import type { EventData } from "@/components/event-detail";
 import { flyerUrl } from "./format";
-import { absUrl, SITE_DESCRIPTION, SITE_NAME, SITE_REGIONS, SITE_URL } from "./site";
+import { absUrl, CONTACT_EMAIL, SITE_DESCRIPTION, SITE_NAME, SITE_REGIONS, SITE_URL } from "./site";
 import { CATEGORY_LABEL, type Municipality, type NearRow, type Occurrence } from "./types";
 
 /** schema.org para buscadores y asistentes con IA: lo mismo que se ve en la página, en forma que se puede citar. */
@@ -18,7 +18,7 @@ export function siteGraph() {
         name: SITE_NAME,
         url: SITE_URL,
         logo: { "@type": "ImageObject", url: absUrl("/icon-512.png"), width: 512, height: 512 },
-        email: "hola@entrelugares.mx",
+        email: CONTACT_EMAIL,
         areaServed: SITE_REGIONS.map((name) => ({ "@type": "State", name, containedInPlace: { "@type": "Country", name: "México" } })),
       },
       {
