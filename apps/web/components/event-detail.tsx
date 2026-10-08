@@ -2,13 +2,12 @@ import Image, { getImageProps } from "next/image";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, AtSign, CalendarDays, ExternalLink, Flag, Globe, MapPin, MessageCircle, Phone, Share2 } from "lucide-react";
 import { BackButton } from "./back-button";
-import { DesktopOnly, MobileOnly } from "./desktop";
 import { CompactCard, EventCard } from "./event-card";
 import { ImagePreload } from "./image-preload";
 import { ZoomableImage } from "./image-viewer";
 import { InterestButton } from "./interest-button";
+import { MiniMap } from "./mini-map";
 import { SaveButton } from "./save-button";
-import { StaticMap } from "./static-map-lazy";
 import { PriceTag } from "./ui";
 import { flyerUrl, fmtPhone, fmtWhenLong, waLink } from "@/lib/format";
 import type { eventBySlug } from "@/lib/queries";
@@ -279,7 +278,7 @@ export function EventMobile({ d, nearby }: { d: EventData; nearby: NearRow[] }) 
           <Category d={d} />
           <h1 className="mt-3 text-[26px] font-bold leading-tight">{d.event.title}</h1>
           <div className="mt-5">
-            <InfoList d={d} x={x} map={x.coords && <MobileOnly><StaticMap lat={x.coords.lat} lng={x.coords.lng} className="mt-3 h-[140px] w-full overflow-hidden rounded-card border border-line" /></MobileOnly>} />
+            <InfoList d={d} x={x} map={x.coords && <MiniMap slug={d.event.slug} lat={x.coords.lat} lng={x.coords.lng} className="mt-3 h-[140px] w-full overflow-hidden rounded-card border border-line" />} />
           </div>
           <InterestButton eventId={d.event.id} className="mt-6 rounded-card border border-line p-4" />
         </div>
@@ -352,11 +351,7 @@ export function EventDesktop({ d, nearby }: { d: EventData; nearby: NearRow[] })
             <InterestButton eventId={event.id} className="border-y border-line py-4" />
             <ShareButton x={x} className="w-full" />
             {event.contact_phone && <div className="[&>div]:grid [&>div]:grid-cols-2 [&_a]:justify-center"><ContactButtons d={d} /></div>}
-            {x.coords && (
-              <DesktopOnly>
-                <StaticMap lat={x.coords.lat} lng={x.coords.lng} className="h-[180px] w-full overflow-hidden rounded-control border border-line" />
-              </DesktopOnly>
-            )}
+            {x.coords && <MiniMap slug={event.slug} lat={x.coords.lat} lng={x.coords.lng} className="h-[180px] w-full overflow-hidden rounded-control border border-line" />}
             <Directions x={x} title={false} />
           </div>
         </aside>

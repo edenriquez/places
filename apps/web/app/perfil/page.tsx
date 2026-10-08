@@ -121,7 +121,10 @@ export default async function ProfilePage() {
             <SignInButton className="mt-6" />
           </section>
           <Organizer submissions={[]} />
-          <p className="pt-2 text-center"><Link href="/privacidad" className="text-[13px] text-ink-2 underline">Aviso de privacidad</Link></p>
+          <p className="flex justify-center gap-4 pt-2">
+            <Link href="/terminos" className="text-[13px] text-ink-2 underline">Términos y condiciones</Link>
+            <Link href="/privacidad" className="text-[13px] text-ink-2 underline">Aviso de privacidad</Link>
+          </p>
         </main>
         <BottomNav />
       </>
@@ -215,6 +218,7 @@ export default async function ProfilePage() {
           <Organizer submissions={s.submissions} />
           <div className="flex flex-wrap items-center justify-center gap-4 pt-4 lg:justify-start lg:pt-0">
           <SignOutButton />
+          <Link href="/terminos" className="text-[13px] text-ink-2 underline">Términos y condiciones</Link>
           <Link href="/privacidad" className="text-[13px] text-ink-2 underline">Aviso de privacidad</Link>
         </div>
         </aside>

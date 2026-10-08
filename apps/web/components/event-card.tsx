@@ -5,6 +5,7 @@ import { Navigation } from "lucide-react";
 import { CATEGORY_LABEL, type NearRow } from "@/lib/types";
 import { flyerUrl, fmtDistance, fmtTime, fmtWhenShort } from "@/lib/format";
 import { AfterHeroImage } from "./after-hero-image";
+import { LinkPending } from "./link-pending";
 import { SaveButton } from "./save-button";
 import { LiveBadge, PriceTag } from "./ui";
 
@@ -52,6 +53,7 @@ export function EventCard({ e, live, hideDistance, vt, nearby, href, eager }: { 
           )}
         </div>
         <SaveButton eventId={e.event_id} variant="card" className="absolute right-3 top-3" />
+        <LinkPending className="inset-0 rounded-card bg-white/40" />
       </div>
       <div className="mt-3 flex items-start justify-between gap-3">
         <div className="min-w-0">

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import clsx from "clsx";
 import { fmtPrice } from "@/lib/format";
+import { LinkPending } from "./link-pending";
 
 export function PriceTag({ isFree, min, max, className }: { isFree: boolean; min: number | null; max: number | null; className?: string }) {
   if (isFree) {
@@ -39,11 +40,18 @@ export function SectionHeader({ title, subtitle, action, live }: { title: string
 
 export function Chip({ active, children, href, onClick, track }: { active?: boolean; children: React.ReactNode; href?: string; onClick?: () => void; track?: string }) {
   const cls = clsx(
-    "inline-flex h-9 shrink-0 items-center rounded-full border px-4 text-[14px] font-medium transition",
+    "relative isolate inline-flex h-9 shrink-0 items-center rounded-full border px-4 text-[14px] font-medium transition",
     active ? "border-ink bg-ink text-white" : "border-line-2 bg-white text-ink hover:border-ink",
   );
   const data = track ? { "data-track": "filter", "data-label": track } : {};
-  if (href) return <Link href={href} className={cls} {...data}>{children}</Link>;
+  if (href) {
+    return (
+      <Link href={href} className={cls} {...data}>
+        {children}
+        <LinkPending className="-inset-px -z-10 rounded-full bg-bg-2 ring-2 ring-ink" />
+      </Link>
+    );
+  }
   return <button type="button" onClick={onClick} className={cls} {...data}>{children}</button>;
 }
 

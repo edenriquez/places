@@ -3,8 +3,9 @@
 import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Compass, Heart, Map, User } from "lucide-react";
+import { Compass, Heart, Map, User, type LucideIcon } from "lucide-react";
 import clsx from "clsx";
+import { usePendingLink } from "./link-pending";
 
 const ITEMS = [
   { href: "/", label: "Explorar", icon: Compass },
@@ -91,14 +92,24 @@ function Nav({ path }: { path: string }) {
           const active = href === "/" ? path === "/" : path.startsWith(href);
           return (
             <li key={href} className="flex-1">
-              <Link href={href} className={clsx("flex flex-col items-center gap-1 py-1 text-[11px] font-medium", active ? "text-accent" : "text-ink-2")}>
-                <Icon size={24} strokeWidth={active ? 2.4 : 1.8} />
-                {label}
+              <Link href={href} className="block py-1">
+                <Tab icon={Icon} label={label} active={active} />
               </Link>
             </li>
           );
         })}
       </ul>
     </nav>
+  );
+}
+
+/** Dentro del Link: la pestaña tocada se marca de inmediato, aunque la página tarde en llegar. */
+function Tab({ icon: Icon, label, active }: { icon: LucideIcon; label: string; active: boolean }) {
+  const on = usePendingLink() || active;
+  return (
+    <span className={clsx("flex flex-col items-center gap-1 text-[11px] font-medium", on ? "text-accent" : "text-ink-2")}>
+      <Icon size={24} strokeWidth={on ? 2.4 : 1.8} />
+      {label}
+    </span>
   );
 }
