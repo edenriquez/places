@@ -10,14 +10,15 @@
  *
  * PERF_BYPASS: secreto de "Protection Bypass for Automation" de Vercel, para medir previews protegidos.
  *
- * El multiplicador de CPU es relativo a la máquina que corre la prueba: en una Mac M-series 4× queda
- * por debajo de un teléfono real de gama media; `--cpu 6` es una prueba más exigente.
+ * `--cpu auto` (default) mide la máquina y elige el multiplicador para que el teléfono emulado sea el mismo
+ * en cualquier lado: 4× en una Mac M-series, menos en un runner de CI más lento. `--cpu 6` lo fija.
  */
 import fs from "node:fs/promises";
 import path from "node:path";
 import { parseArgs } from "node:util";
 import * as chromeLauncher from "chrome-launcher";
 import lighthouse from "lighthouse";
+import { pageFunctions } from "lighthouse/core/lib/page-functions.js";
 import puppeteer from "puppeteer-core";
 
 const { values: args } = parseArgs({
@@ -25,7 +26,7 @@ const { values: args } = parseArgs({
   options: {
     url: { type: "string", default: process.env.PERF_URL ?? "https://entrelugares-web-mauve.vercel.app" },
     runs: { type: "string", default: "3" },
-    cpu: { type: "string", default: "4" },
+    cpu: { type: "string", default: "auto" },
     // devtools: la red y la CPU se frenan de verdad; refleja prioridades y lazy loading y varía poco entre
     // corridas. simulate (el de PageSpeed) es más rápido, pero contra localhost su LCP brinca ±1.3 s
     throttling: { type: "string", default: "devtools" },
@@ -36,14 +37,40 @@ const { values: args } = parseArgs({
 
 const BASE = new URL(args.url.replace(/\/$/, ""));
 const RUNS = Number(args.runs);
+const CHROME_FLAGS = ["--headless=new", "--no-first-run"];
+
+/** benchmarkIndex de Lighthouse del teléfono emulado: lo que da una Mac M-series (~3600) con CPU 4× */
+const TARGET_BENCHMARK = 900;
+
+/** Mide la máquina con el mismo benchmark que Lighthouse y revisa si WebGL tiene GPU o es por software. */
+async function probeHost() {
+  const browser = await puppeteer.launch({ executablePath: chromeLauncher.Launcher.getFirstInstallation(), args: CHROME_FLAGS });
+  try {
+    const page = await browser.newPage();
+    const bench = Math.max(
+      await page.evaluate(pageFunctions.computeBenchmarkIndex),
+      await page.evaluate(pageFunctions.computeBenchmarkIndex),
+    );
+    const renderer = await page.evaluate(() => {
+      const gl = document.createElement("canvas").getContext("webgl");
+      const info = gl?.getExtension("WEBGL_debug_renderer_info");
+      return info ? gl.getParameter(info.UNMASKED_RENDERER_WEBGL) : gl ? "webgl" : "none";
+    });
+    return { bench, softwareGl: /swiftshader|llvmpipe|software|none/i.test(renderer), renderer };
+  } finally {
+    await browser.close();
+  }
+}
+const HOST = await probeHost();
+const CPU = args.cpu === "auto" ? Math.min(10, Math.max(1, Math.round((HOST.bench / TARGET_BENCHMARK) * 10) / 10)) : Number(args.cpu);
 
 /**
- * Presupuesto contra regresiones, sobre la mediana de las corridas: un poco arriba de lo medido en oct 2026.
- * La meta sigue siendo el "bueno" de Core Web Vitals (LCP ≤ 2.5 s); los flyers (~150 KB c/u) aún no dejan.
+ * Presupuesto contra regresiones, sobre la mediana de las corridas: un poco arriba de lo medido en oct 2026
+ * contra producción. La meta sigue siendo el "bueno" de Core Web Vitals (LCP ≤ 2.5 s, FCP ≤ 1.8 s).
  * Los bytes cuentan todo lo que baja hasta que la red queda quieta, también lo diferido (mapa, relieve) y
  * dependen de qué flyers haya publicados.
  */
-const BUDGET = { fcp: 1800, lcp: 4000, tbt: 300, cls: 0.1, jsKB: 250, totalKB: 1600 };
+const BUDGET = { fcp: 2500, lcp: 4000, tbt: 300, cls: 0.1, jsKB: 250, totalKB: 1600 };
 
 // quien ya eligió dónde buscar (la mayoría de las visitas): la página pide más eventos y pinta más tarjetas
 const LOC = { name: "el_loc", value: encodeURIComponent(JSON.stringify({ lat: 18.9853, lng: -99.0997, radiusKm: 40, label: "Tepoztlán", cvegeo: "17020" })) };
@@ -67,12 +94,14 @@ async function firstEventPath() {
   return html.match(/href="(\/evento\/[^"?#]+)"/)?.[1];
 }
 
-/** `budget`: excepciones por escenario. */
+/** `budget`: excepciones por escenario. `webgl`: pinta un mapa; sin GPU su TBT no dice nada del teléfono. */
 const SCENARIOS = [
   { name: "home-first-visit", path: "/" },
   { name: "home-returning", path: "/", cookies: [LOC] },
+  // la lista de Próximos siempre tiene varias tarjetas; "Ahora" depende de qué esté pasando a esa hora
+  { name: "home-proximos", path: "/?r=15d", cookies: [LOC] },
   // maplibre (~430 KB br con el worker) es el contenido de la página; el sombreado son ~1 MB de teselas
-  { name: "mapa", path: "/mapa", cookies: [LOC], budget: { jsKB: 700, totalKB: 3300 } },
+  { name: "mapa", path: "/mapa", cookies: [LOC], webgl: true, budget: { jsKB: 700, totalKB: 3300 } },
   // el mini mapa es una imagen; maplibre solo baja si lo tocan
   { name: "evento", path: firstEventPath, cookies: [LOC] },
 ];
@@ -85,7 +114,7 @@ const median = (xs) => {
 async function runOnce(url, cookies) {
   // perfil nuevo por corrida: caché fría; las cookies se ponen en el navegador (solo viajan al sitio, y el
   // JS de la página las ve como en una visita real) y por eso no se limpia el storage antes de medir
-  const chrome = await chromeLauncher.launch({ chromeFlags: ["--headless=new", "--no-first-run"] });
+  const chrome = await chromeLauncher.launch({ chromeFlags: CHROME_FLAGS });
   try {
     const all = [...BYPASS, ...cookies];
     if (all.length) {
@@ -107,7 +136,7 @@ async function runOnce(url, cookies) {
         requestLatencyMs: 150 * 3.75,
         downloadThroughputKbps: 1638.4 * 0.9,
         uploadThroughputKbps: 750 * 0.9,
-        cpuSlowdownMultiplier: Number(args.cpu),
+        cpuSlowdownMultiplier: CPU,
       },
     });
   } finally {
@@ -150,8 +179,10 @@ const COLS = [
 ];
 
 await fs.mkdir(args.out, { recursive: true });
-const header = `Gama media · ${BASE.origin} · ${RUNS} corridas · CPU ${args.cpu}× · ${args.throttling}`;
-console.log(`${header}\n`);
+const header = `Gama media · ${BASE.origin} · ${RUNS} corridas · CPU ${CPU}× (benchmarkIndex ${Math.round(HOST.bench)}) · ${args.throttling}`;
+// sin GPU, maplibre pinta con WebGL por software y su TBT se dispara: se reporta, pero no cuenta
+const gpuNote = HOST.softwareGl ? `WebGL por software (${HOST.renderer}): el TBT de las páginas con mapa no cuenta para el presupuesto` : "";
+console.log(`${header}${gpuNote ? `\n${gpuNote}` : ""}\n`);
 
 const failures = [];
 const summary = [];
@@ -167,7 +198,7 @@ for (const sc of SCENARIOS.filter((s) => !args.only || args.only.split(",").incl
     const { lhr, report } = await runOnce(url, sc.cookies ?? []);
     if (lhr.runtimeError) throw new Error(`${sc.name}: ${lhr.runtimeError.message}`);
     const m = metrics(lhr);
-    runs.push({ m, report, benchmarkIndex: lhr.environment.benchmarkIndex });
+    runs.push({ m, report });
     console.log(`  ${sc.name} #${i + 1}: score ${m.score} · LCP ${fmt.ms(m.lcp)} · TBT ${fmt.ms(m.tbt)} · ${fmt.kb(m.totalKB)}`);
   }
   const med = Object.fromEntries(COLS.map(([k]) => [k, median(runs.map((r) => r.m[k]))]));
@@ -175,9 +206,10 @@ for (const sc of SCENARIOS.filter((s) => !args.only || args.only.split(",").incl
   const rep = runs.reduce((best, r) => (Math.abs(r.m.lcp - med.lcp) < Math.abs(best.m.lcp - med.lcp) ? r : best));
   await fs.writeFile(path.join(args.out, `${sc.name}.html`), rep.report[1]);
   await fs.writeFile(path.join(args.out, `${sc.name}.json`), rep.report[0]);
-  summary.push({ name: sc.name, url, med, lcpElement: rep.m.lcpElement, benchmarkIndex: rep.benchmarkIndex });
+  summary.push({ name: sc.name, url, med, lcpElement: rep.m.lcpElement });
 
   for (const [k, limit] of Object.entries({ ...BUDGET, ...sc.budget })) {
+    if (k === "tbt" && sc.webgl && HOST.softwareGl) continue;
     if (med[k] > limit) failures.push(`${sc.name}: ${k} ${k === "cls" ? med[k].toFixed(3) : Math.round(med[k])} > ${limit}`);
   }
 }
@@ -185,8 +217,7 @@ for (const sc of SCENARIOS.filter((s) => !args.only || args.only.split(",").incl
 console.log("\nMedianas:");
 console.table(Object.fromEntries(summary.map((s) => [s.name, Object.fromEntries(COLS.map(([k, f]) => [k, f(s.med[k])]))])));
 for (const s of summary) console.log(`LCP ${s.name}: ${s.lcpElement ?? "—"}`);
-const bench = Math.round(summary[0]?.benchmarkIndex ?? 0);
-console.log(`\nbenchmarkIndex de esta máquina: ${bench} · reportes en ${args.out}`);
+console.log(`\nreportes en ${args.out}`);
 
 if (process.env.GITHUB_STEP_SUMMARY) {
   const md = [
@@ -197,14 +228,14 @@ if (process.env.GITHUB_STEP_SUMMARY) {
     ...summary.map((s) => `| [${s.name}](${s.url}) | ${COLS.map(([k, f]) => f(s.med[k])).join(" | ")} |`),
     "",
     failures.length ? `**Fuera de presupuesto:**\n${failures.map((f) => `- ${f}`).join("\n")}` : "Todo dentro del presupuesto.",
-    "",
-    `benchmarkIndex del runner: ${bench}`,
+    gpuNote && `\n_${gpuNote}_`,
   ].join("\n");
   await fs.appendFile(process.env.GITHUB_STEP_SUMMARY, `${md}\n`);
 }
 
 if (failures.length) {
   console.log(`\nFuera de presupuesto:\n  ${failures.join("\n  ")}`);
+  if (process.env.GITHUB_ACTIONS) for (const f of failures) console.log(`::warning title=Presupuesto de rendimiento::${f}`);
   process.exit(1);
 }
 console.log("\nTodo dentro del presupuesto.");

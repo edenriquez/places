@@ -4,17 +4,20 @@ import { ViewTransition } from "react";
 import { Navigation } from "lucide-react";
 import { CATEGORY_LABEL, type NearRow } from "@/lib/types";
 import { flyerUrl, fmtDistance, fmtTime, fmtWhenShort } from "@/lib/format";
+import { AfterHeroImage } from "./after-hero-image";
 import { LinkPending } from "./link-pending";
 import { SaveButton } from "./save-button";
 import { LiveBadge, PriceTag } from "./ui";
 
-/** `eager`: la primera tarjeta visible es el LCP; las demás esperan a acercarse al viewport. */
+/** `eager`: la primera tarjeta visible es el LCP y se pide de inmediato; las demás esperan a que cargue. */
 function Flyer({ path, alt, sizes, className, eager }: { path: string | null; alt: string; sizes: string; className?: string; eager?: boolean }) {
   const url = flyerUrl(path);
   return (
     <div className={`relative overflow-hidden bg-bg-2 ${className ?? ""}`}>
-      {url ? (
-        <Image src={url} alt={alt} fill sizes={sizes} className="object-cover" {...(eager && { loading: "eager", fetchPriority: "high" })} />
+      {url && eager ? (
+        <Image src={url} alt={alt} fill sizes={sizes} className="object-cover" loading="eager" fetchPriority="high" data-hero="" />
+      ) : url ? (
+        <AfterHeroImage src={url} alt={alt} sizes={sizes} />
       ) : (
         <div className="absolute inset-0 grid place-items-center text-[12px] text-ink-3">Sin imagen</div>
       )}
