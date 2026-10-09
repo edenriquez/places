@@ -1,15 +1,17 @@
 import Image, { getImageProps } from "next/image";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, AtSign, CalendarDays, ExternalLink, Flag, Globe, MapPin, MessageCircle, Phone, Share2 } from "lucide-react";
+import clsx from "clsx";
 import { BackButton } from "./back-button";
 import { CompactCard, EventCard } from "./event-card";
+import { FlyerCarousel, type Slide } from "./flyer-carousel";
 import { ImagePreload } from "./image-preload";
 import { ZoomableImage } from "./image-viewer";
 import { InterestButton } from "./interest-button";
 import { MiniMap } from "./mini-map";
 import { SaveButton } from "./save-button";
 import { PriceTag } from "./ui";
-import { flyerUrl, fmtPhone, fmtWhenLong, waLink } from "@/lib/format";
+import { flyerUrl, fmtPhone, fmtWhenLong, focusStyle, waLink } from "@/lib/format";
 import type { eventBySlug } from "@/lib/queries";
 import { CATEGORY_LABEL, type NearRow } from "@/lib/types";
 
@@ -37,9 +39,17 @@ function derive(d: EventData) {
     { url: event.facebook_url, label: "Facebook" },
     { url: event.tiktok_url, label: "TikTok" },
   ].filter((s): s is { url: string; label: string } => !!s.url);
+  const img = flyerUrl(event.image_path);
+  const focus = focusStyle(event.image_focus_x, event.image_focus_y);
+  const slides: Slide[] = [
+    ...(img ? [{ src: img, style: focus }] : []),
+    ...(event.gallery_paths ?? []).map((p) => flyerUrl(p)).filter((s): s is string => !!s).map((src) => ({ src })),
+  ];
   return {
     id: event.id,
-    img: flyerUrl(event.image_path),
+    img,
+    focus,
+    slides,
     next,
     when,
     coords: eventCoords(d),
@@ -239,14 +249,24 @@ const DESKTOP = "(min-width: 1024px)";
  * Teléfono y escritorio se pintan los dos y CSS esconde uno. El preload lleva `media` para que solo se baje
  * el flyer del layout visible, y la imagen queda lazy: una eager dentro de display:none se descarga igual.
  */
-function Flyer({ x, alt, sizes, className, contain, media }: { x: Derived; alt: string; sizes: string; className: string; contain?: boolean; media: string }) {
-  const img = x.img ? getImageProps({ src: x.img, alt, fill: true, sizes }).props : null;
+function Flyer({ x, alt, sizes, aspect, rounded, contain, media }: { x: Derived; alt: string; sizes: string; aspect: string; rounded?: boolean; contain?: boolean; media: string }) {
+  const first = x.slides[0]?.src;
+  const img = first ? getImageProps({ src: first, alt, fill: true, sizes }).props : null;
+  const preload = img && <ImagePreload href={img.src} imageSrcSet={img.srcSet} imageSizes={img.sizes} fetchPriority="high" media={media} />;
+  if (x.slides.length > 1) {
+    return (
+      <div>
+        {preload}
+        <FlyerCarousel slides={x.slides} alt={alt} sizes={sizes} contain={contain} eventId={x.id} slideClassName={clsx(aspect, rounded && "rounded-card")} />
+      </div>
+    );
+  }
   return (
-    <div className={`relative overflow-hidden bg-bg-2 ${className}`}>
-      {img && <ImagePreload href={img.src} imageSrcSet={img.srcSet} imageSizes={img.sizes} fetchPriority="high" media={media} />}
+    <div className={clsx("relative overflow-hidden bg-bg-2", aspect, rounded && "rounded-card")}>
+      {preload}
       {x.img && (
         <ZoomableImage src={x.img} alt={alt} eventId={x.id}>
-          <Image src={x.img} alt={alt} fill sizes={sizes} fetchPriority="high" className={contain ? "object-contain" : "object-cover"} />
+          <Image src={x.img} alt={alt} fill sizes={sizes} fetchPriority="high" className={contain ? "object-contain" : "object-cover"} style={contain ? undefined : x.focus} />
         </ZoomableImage>
       )}
     </div>
@@ -262,7 +282,7 @@ export function EventMobile({ d, nearby }: { d: EventData; nearby: NearRow[] }) 
   return (
     <main className="mx-auto max-w-screen-sm pb-[max(env(safe-area-inset-bottom),24px)]">
       <div className="relative">
-        <Flyer x={x} alt={`Flyer de ${d.event.title}`} sizes="(max-width: 640px) 100vw, 640px" className="aspect-[4/3]" media={MOBILE} />
+        <Flyer x={x} alt={`Flyer de ${d.event.title}`} sizes="(max-width: 640px) 100vw, 640px" aspect="aspect-[4/3]" media={MOBILE} />
         {/* fija: se puede volver o compartir desde cualquier punto del scroll */}
         <div className="pointer-events-none fixed inset-x-0 top-[max(env(safe-area-inset-top),12px)] z-40 mx-auto flex max-w-screen-sm items-center justify-between px-4 [&>*]:pointer-events-auto">
           <BackButton className="grid h-10 w-10 place-items-center rounded-full bg-white shadow-soft" />
@@ -330,7 +350,7 @@ export function EventDesktop({ d, nearby }: { d: EventData; nearby: NearRow[] })
 
       <div className="mt-6 grid grid-cols-[minmax(0,1fr)_360px] gap-12">
         <div className="min-w-0 space-y-9">
-          <Flyer x={x} alt={`Flyer de ${event.title}`} sizes="720px" className="aspect-[4/3] rounded-card" contain media={DESKTOP} />
+          <Flyer x={x} alt={`Flyer de ${event.title}`} sizes="720px" aspect="aspect-[4/3]" rounded contain media={DESKTOP} />
           <InfoList d={d} x={x} />
           <Description d={d} />
           <Program d={d} />
@@ -385,7 +405,7 @@ export function EventPanel({ d, backHref, sheet }: { d: EventData; backHref: str
         </Link>
       </div>
 
-      {!sheet && <Flyer x={x} alt={`Flyer de ${d.event.title}`} sizes="720px" className="aspect-[16/10] rounded-card" contain media={DESKTOP} />}
+      {!sheet && <Flyer x={x} alt={`Flyer de ${d.event.title}`} sizes="720px" aspect="aspect-[16/10]" rounded contain media={DESKTOP} />}
 
       <div>
         {!sheet && <Category d={d} />}
@@ -399,7 +419,7 @@ export function EventPanel({ d, backHref, sheet }: { d: EventData; backHref: str
       </div>
       <InterestButton eventId={d.event.id} className="-mt-2 px-1" />
 
-      {sheet && <Flyer x={x} alt={`Flyer de ${d.event.title}`} sizes="640px" className="aspect-[4/3] rounded-card" contain media={MOBILE} />}
+      {sheet && <Flyer x={x} alt={`Flyer de ${d.event.title}`} sizes="640px" aspect="aspect-[4/3]" rounded contain media={MOBILE} />}
 
       <Description d={d} />
       <Contact d={d} x={x} />

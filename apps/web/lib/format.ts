@@ -77,6 +77,12 @@ export function flyerUrl(path: string | null) {
   return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/flyers/${path}`;
 }
 
+/** `object-position` del flyer recortado; sin estilo si es el centro (o no se eligió). */
+export function focusStyle(x?: number | null, y?: number | null): React.CSSProperties | undefined {
+  if ((x ?? 50) === 50 && (y ?? 50) === 50) return undefined;
+  return { objectPosition: `${x ?? 50}% ${y ?? 50}%` };
+}
+
 export function isWithinMinutes(iso: string | null | undefined, minutes: number) {
   if (!iso) return false;
   return Date.now() - new Date(iso).getTime() < minutes * 60 * 1000;

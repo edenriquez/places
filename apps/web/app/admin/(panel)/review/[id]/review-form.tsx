@@ -4,10 +4,12 @@ import Image from "next/image";
 import { useMemo, useState, useTransition } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import clsx from "clsx";
-import { flyerUrl } from "@/lib/format";
+import { flyerUrl, fmtPrice, fmtWhenShort, focusStyle } from "@/lib/format";
 import { ZoomableImage } from "@/components/image-viewer";
 import { CATEGORY_LABEL, type Category, type Event, type Occurrence, type RawIngestion } from "@/lib/types";
 import { approveIngestion, markDuplicate, rejectIngestion, saveCorrection } from "../../actions";
+import { GalleryEditor } from "./gallery-editor";
+import { ImageFocus, type Focus } from "./image-focus";
 
 type Extraction = {
   title?: string; dates?: { date: string; start_time?: string | null; end_time?: string | null; note?: string | null }[];
@@ -70,6 +72,8 @@ export function ReviewForm({ ingestion, event, organizerName, occurrences, munic
       ? occurrences.map((o) => ({ date: localDate(o.starts_at), start: o.is_all_day ? "" : localTime(o.starts_at), end: o.ends_at ? localTime(o.ends_at) : "" }))
       : (ex.dates ?? []).map((d) => ({ date: d.date, start: d.start_time?.slice(0, 5) ?? "", end: d.end_time?.slice(0, 5) ?? "" })),
   );
+  const [focus, setFocus] = useState<Focus>({ x: event?.image_focus_x ?? 50, y: event?.image_focus_y ?? 50 });
+  const [gallery, setGallery] = useState<string[]>(event?.gallery_paths ?? []);
   const [dup, setDup] = useState("");
   const [ocrOpen, setOcrOpen] = useState(false);
   const [pending, start] = useTransition();
@@ -82,6 +86,11 @@ export function ReviewForm({ ingestion, event, organizerName, occurrences, munic
   }, [placeText, placeId, places]);
   const selectedPlace = places.find((p) => p.id === placeId);
   const url = flyerUrl(ingestion.media_path);
+  // el flyer publicado puede haberse reemplazado desde Eventos
+  const shownUrl = flyerUrl(event?.image_path ?? ingestion.media_path);
+  const firstDate = dates.find((d) => d.date);
+  const previewWhen = firstDate ? fmtWhenShort(new Date(`${firstDate.date}T${firstDate.start || "12:00"}:00-06:00`).toISOString(), !firstDate.start) : "Fecha por definir";
+  const previewPlace = [selectedPlace?.name ?? placeText, municipalities.find((m) => m.cvegeo === municipality)?.name].filter(Boolean).join(" · ");
   const conf = ingestion.confidence ?? ex.confidence ?? 0;
 
   function payload() {
@@ -90,7 +99,7 @@ export function ReviewForm({ ingestion, event, organizerName, occurrences, munic
       placeId, placeText, departureText, municipality, isFree,
       contactPhone, contactWhatsapp, instagram, facebook, tiktok, website,
       priceMin: priceMin ? Number(priceMin) : null, priceMax: priceMax ? Number(priceMax) : null,
-      organizer, dates,
+      organizer, dates, imageFocusX: focus.x, imageFocusY: focus.y, galleryPaths: gallery,
     };
   }
   const published = event?.status === "published";
@@ -115,6 +124,16 @@ export function ReviewForm({ ingestion, event, organizerName, occurrences, munic
           {ocrOpen ? "Ocultar" : "Ver"} texto OCR ({ingestion.ocr_engine ?? "—"})
         </button>
         {ocrOpen && <pre className="mt-2 max-h-72 overflow-auto whitespace-pre-wrap rounded-control bg-bg-2 p-3 font-mono text-[12px] text-ink-2">{ingestion.ocr_text ?? "(vacío)"}</pre>}
+        {shownUrl && (
+          <ImageFocus
+            src={shownUrl} value={focus} onChange={setFocus}
+            title={title} when={previewWhen} place={previewPlace} category={CATEGORY_LABEL[category] ?? "Evento"}
+            price={fmtPrice(isFree, priceMin ? Number(priceMin) : null, priceMax ? Number(priceMax) : null)}
+          />
+        )}
+        {shownUrl && (
+          <GalleryEditor folder={ingestion.id} cover={shownUrl} coverStyle={focusStyle(focus.x, focus.y)} value={gallery} onChange={setGallery} title={title} />
+        )}
       </div>
 
       <div className="space-y-4 pb-24">
