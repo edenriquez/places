@@ -28,8 +28,17 @@ let userId;
 const { data, error } = await sb.auth.admin.createUser({ email, password, email_confirm: true });
 if (error) {
   if (!/already/i.test(error.message)) { console.error(error.message); process.exit(1); }
-  const { data: list } = await sb.auth.admin.listUsers({ perPage: 200 });
-  userId = list.users.find((u) => u.email === email)?.id;
+  // ya existía (p. ej. entró con Google, sin contraseña): se busca y se le pone la contraseña dada
+  for (let page = 1; !userId; page++) {
+    const { data: list, error: le } = await sb.auth.admin.listUsers({ page, perPage: 1000 });
+    if (le) { console.error(le.message); process.exit(1); }
+    userId = list.users.find((u) => u.email?.toLowerCase() === email.toLowerCase())?.id;
+    if (list.users.length < 1000) break;
+  }
+  if (!userId) { console.error(`no encontré a ${email}`); process.exit(1); }
+  const { error: pe } = await sb.auth.admin.updateUserById(userId, { password, email_confirm: true });
+  if (pe) { console.error(pe.message); process.exit(1); }
+  console.log("ya existía: contraseña actualizada");
 } else {
   userId = data.user.id;
 }
