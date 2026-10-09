@@ -1,3 +1,5 @@
+import type { Difficulty, ExperienceKind } from "./experiences";
+
 export type Category =
   | "feria" | "fiesta_patronal" | "concierto" | "taller" | "exposicion" | "gastronomia"
   | "deporte" | "teatro" | "danza" | "cine" | "mercado" | "religioso" | "infantil" | "otro";
@@ -82,10 +84,79 @@ export type Event = {
   image_focus_y: number;
   /** fotos extra después del flyer, en orden; en el detalle se ven como carrusel */
   gallery_paths: string[];
+  /** si es una fecha de una experiencia (salida guiada, taller con cupo) */
+  experience_id: string | null;
   status: "pending" | "published" | "cancelled" | "rejected";
   confidence: number | null;
   raw_ingestion_id: string | null;
   created_at: string;
+};
+
+/** Fila que devuelve experiences_near */
+export type ExperienceRow = {
+  experience_id: string;
+  slug: string;
+  title: string;
+  kind: ExperienceKind;
+  is_free: boolean;
+  price_min: number | null;
+  price_max: number | null;
+  price_note: string | null;
+  image_path: string | null;
+  image_focus_x: number;
+  image_focus_y: number;
+  duration_text: string | null;
+  distance_km: number | null;
+  difficulty: Difficulty | null;
+  availability_text: string | null;
+  place_id: string | null;
+  place_name: string | null;
+  municipality_cvegeo: string;
+  municipality_name: string;
+  distance_m: number;
+  /** fechas futuras de sus eventos publicados (salidas con guía) */
+  upcoming: number;
+};
+
+export type Experience = {
+  id: string;
+  slug: string;
+  title: string;
+  kind: ExperienceKind;
+  description: string | null;
+  municipality_cvegeo: string;
+  place_id: string | null;
+  place_text: string | null;
+  org_id: string | null;
+  duration_text: string | null;
+  distance_km: number | null;
+  difficulty: Difficulty | null;
+  is_free: boolean;
+  price_min: number | null;
+  price_max: number | null;
+  price_note: string | null;
+  availability_text: string | null;
+  hours: { days: string; time: string }[];
+  season_text: string | null;
+  bring: string[];
+  contact_phone: string | null;
+  contact_whatsapp: boolean;
+  booking_note: string | null;
+  website_url: string | null;
+  instagram_url: string | null;
+  facebook_url: string | null;
+  image_path: string | null;
+  image_focus_x: number;
+  image_focus_y: number;
+  gallery_paths: string[];
+  verified_at: string | null;
+  valid_until: string | null;
+  status: "draft" | "published" | "archived";
+  published_at: string | null;
+  created_at: string;
+  updated_at: string;
+  lat: number | null;
+  lng: number | null;
 };
 
 export type Occurrence = {
@@ -100,11 +171,24 @@ export type Occurrence = {
 export type Place = {
   id: string;
   name: string;
+  slug: string;
   kind: string;
   address: string | null;
+  locality: string | null;
+  phone: string | null;
+  website: string | null;
   municipality_cvegeo: string;
   lat: number | null;
   lng: number | null;
+};
+
+export const PLACE_KIND_LABEL: Record<string, string> = {
+  museo: "Museo", teatro: "Teatro", casa_cultura: "Casa de cultura", centro_cultural: "Centro cultural",
+  zona_arqueologica: "Zona arqueológica", galeria: "Galería", auditorio: "Auditorio", templo: "Templo",
+  plaza: "Plaza", explanada: "Explanada", mercado: "Mercado", ex_hacienda: "Ex hacienda", parque: "Parque",
+  bar: "Bar", restaurante: "Restaurante", deportivo: "Deportivo", escuela: "Escuela", otro: "Lugar",
+  parque_ecoturistico: "Parque ecoturístico", cascada: "Cascada", sendero: "Sendero", mirador: "Mirador",
+  bosque: "Bosque", rancho: "Rancho", vinedo: "Viñedo", taller: "Taller",
 };
 
 export type Festivity = {

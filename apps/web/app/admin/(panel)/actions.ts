@@ -67,6 +67,8 @@ type ReviewInput = {
   imageFocusY: number;
   /** fotos extra ya subidas al bucket; sin el campo se conservan las que tenga el evento */
   galleryPaths?: string[];
+  /** experiencia de la que esta fecha es una salida con guía; sin el campo se conserva */
+  experienceId?: string | null;
 };
 
 const MAX_GALLERY = 9;
@@ -116,6 +118,7 @@ async function upsertEvent(sb: Awaited<ReturnType<typeof admin>>, input: ReviewI
     ...(input.galleryPaths && {
       gallery_paths: [...new Set(input.galleryPaths.filter((p) => typeof p === "string" && /^gallery\/[\w-]+\/[\w.-]+$/.test(p)))].slice(0, MAX_GALLERY),
     }),
+    ...(input.experienceId !== undefined && { experience_id: input.experienceId || null }),
     status,
     verified_at: new Date().toISOString(),
   };

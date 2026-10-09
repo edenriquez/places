@@ -1,7 +1,9 @@
 import type { EventData } from "@/components/event-detail";
+import type { ExperienceData } from "@/components/experience-detail";
+import { EXPERIENCE_KINDS } from "./experiences";
 import { flyerUrl } from "./format";
 import { absUrl, CONTACT_EMAIL, SITE_DESCRIPTION, SITE_NAME, SITE_REGIONS, SITE_URL } from "./site";
-import { CATEGORY_LABEL, type Municipality, type NearRow, type Occurrence } from "./types";
+import { CATEGORY_LABEL, type ExperienceRow, type Municipality, type NearRow, type Occurrence } from "./types";
 
 /** schema.org para buscadores y asistentes con IA: lo mismo que se ve en la página, en forma que se puede citar. */
 
@@ -124,8 +126,41 @@ export function eventGraph(d: EventData) {
   }));
 }
 
+/** Experiencia: atracción turística sin fecha; sus salidas con guía son Event aparte en sus páginas. */
+export function experienceGraph(d: ExperienceData) {
+  const { experience: x, place, municipality, organization } = d;
+  const url = absUrl(`/experiencia/${x.slug}`);
+  const images = [x.image_path, ...(x.gallery_paths ?? [])].map((p) => flyerUrl(p)).filter((s): s is string => !!s);
+  const price = x.is_free ? 0 : x.price_min ?? x.price_max;
+  return {
+    "@context": "https://schema.org",
+    "@type": "TouristAttraction",
+    "@id": `${url}#experiencia`,
+    name: x.title,
+    ...(x.description && { description: x.description }),
+    url,
+    ...(images.length > 0 && { image: images }),
+    ...(x.lat != null && x.lng != null && { geo: { "@type": "GeoCoordinates", latitude: x.lat, longitude: x.lng } }),
+    address: {
+      "@type": "PostalAddress",
+      ...(place?.address && { streetAddress: place.address }),
+      ...(municipality && { addressLocality: municipality.name, addressRegion: municipality.state }),
+      addressCountry: "MX",
+    },
+    ...(municipality && { containedInPlace: municipalityPlace(municipality) }),
+    isAccessibleForFree: x.is_free,
+    ...(price != null && { offers: { "@type": "Offer", url, price, priceCurrency: "MXN", ...(x.price_note && { description: x.price_note }) } }),
+    ...(organization && { provider: { "@type": "Organization", name: organization.name } }),
+    touristType: EXPERIENCE_KINDS[x.kind]?.label,
+    ...(d.outings.length > 0 && {
+      subjectOf: d.outings.slice(0, 6).map((o) => ({ "@type": "Event", name: o.event.title, startDate: o.starts_at, url: absUrl(`/evento/${o.event.slug}`) })),
+    }),
+    inLanguage: "es-MX",
+  };
+}
+
 /** Página del municipio: el lugar (destino turístico) y la lista de eventos que se ven en ella. */
-export function municipalityGraph(m: Municipality, events: NearRow[]) {
+export function municipalityGraph(m: Municipality, events: NearRow[], experiences: ExperienceRow[] = []) {
   const url = absUrl(`/municipio/${m.slug}`);
   return [
     {
@@ -148,6 +183,15 @@ export function municipalityGraph(m: Municipality, events: NearRow[]) {
           itemListOrder: "https://schema.org/ItemListOrderAscending",
           numberOfItems: events.length,
           itemListElement: events.map((e, i) => ({ "@type": "ListItem", position: i + 1, url: absUrl(`/evento/${e.slug}`), name: e.title })),
+        }]
+      : []),
+    ...(experiences.length
+      ? [{
+          "@context": "https://schema.org",
+          "@type": "ItemList",
+          name: `Qué hacer en ${m.name} cualquier día`,
+          numberOfItems: experiences.length,
+          itemListElement: experiences.map((x, i) => ({ "@type": "ListItem", position: i + 1, url: absUrl(`/experiencia/${x.slug}`), name: x.title })),
         }]
       : []),
   ];

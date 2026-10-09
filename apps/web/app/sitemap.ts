@@ -1,14 +1,15 @@
 import type { MetadataRoute } from "next";
 import { flyerUrl } from "@/lib/format";
-import { municipalities, publishedEventsIndex } from "@/lib/queries";
+import { municipalities, publishedEventsIndex, publishedExperiencesIndex } from "@/lib/queries";
 import { absUrl } from "@/lib/site";
 
 // se arma al pedirlo (la BD no está disponible en el build) y queda en caché una hora
 export const dynamic = "force-dynamic";
 
-/** Páginas públicas: portada, mapa, publicar, municipios y eventos (los que vienen, con su flyer como imagen). */
+/** Páginas públicas: portada, mapa, publicar, municipios, experiencias vigentes y eventos (los que vienen, con su flyer como imagen). */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [munis, events] = await Promise.all([municipalities(), publishedEventsIndex()]);
+  const [munis, events, experiences] = await Promise.all([municipalities(), publishedEventsIndex(), publishedExperiencesIndex()]);
+  const today = new Date().toISOString().slice(0, 10);
   const now = Date.now();
   const latest = events[0]?.updated_at ?? new Date().toISOString();
 
@@ -35,6 +36,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: m.is_pueblo_magico ? 0.8 : 0.7,
       ...(m.cover_image_url && { images: [m.cover_image_url] }),
     })),
+    ...experiences
+      .filter((x) => !x.valid_until || x.valid_until >= today)
+      .map((x) => {
+        const img = flyerUrl(x.image_path);
+        return { url: absUrl(`/experiencia/${x.slug}`), lastModified: x.updated_at, changeFrequency: "weekly" as const, priority: 0.7, ...(img && { images: [img] }) };
+      }),
     ...eventEntries,
     { url: absUrl("/publicar"), changeFrequency: "monthly", priority: 0.5 },
     { url: absUrl("/privacidad"), changeFrequency: "yearly", priority: 0.2 },

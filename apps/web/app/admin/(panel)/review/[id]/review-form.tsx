@@ -40,7 +40,7 @@ function handleFromUrl(url: string | null | undefined, re: RegExp) {
 }
 function localTime(iso: string) { return new Intl.DateTimeFormat("en-GB", { timeZone: TZ, hour: "2-digit", minute: "2-digit", hour12: false }).format(new Date(iso)); }
 
-export function ReviewForm({ ingestion, event, organizerName, occurrences, municipalities, places, candidates }: {
+export function ReviewForm({ ingestion, event, organizerName, occurrences, municipalities, places, candidates, experiences }: {
   ingestion: RawIngestion & { sources: { name: string; url: string | null } | null };
   event: Event | null;
   organizerName: string | null;
@@ -48,6 +48,7 @@ export function ReviewForm({ ingestion, event, organizerName, occurrences, munic
   municipalities: { cvegeo: string; name: string }[];
   places: { id: string; name: string; kind: string }[];
   candidates: { id: string; title: string; slug: string; status: string }[];
+  experiences: { id: string; title: string; status: string }[];
 }) {
   const ex = (ingestion.extraction ?? {}) as Extraction;
   const [title, setTitle] = useState(event?.title ?? ex.title ?? "");
@@ -74,6 +75,7 @@ export function ReviewForm({ ingestion, event, organizerName, occurrences, munic
   );
   const [focus, setFocus] = useState<Focus>({ x: event?.image_focus_x ?? 50, y: event?.image_focus_y ?? 50 });
   const [gallery, setGallery] = useState<string[]>(event?.gallery_paths ?? []);
+  const [experienceId, setExperienceId] = useState(event?.experience_id ?? "");
   const [dup, setDup] = useState("");
   const [ocrOpen, setOcrOpen] = useState(false);
   const [pending, start] = useTransition();
@@ -100,6 +102,7 @@ export function ReviewForm({ ingestion, event, organizerName, occurrences, munic
       contactPhone, contactWhatsapp, instagram, facebook, tiktok, website,
       priceMin: priceMin ? Number(priceMin) : null, priceMax: priceMax ? Number(priceMax) : null,
       organizer, dates, imageFocusX: focus.x, imageFocusY: focus.y, galleryPaths: gallery,
+      experienceId: experienceId || null,
     };
   }
   const published = event?.status === "published";
@@ -235,6 +238,16 @@ export function ReviewForm({ ingestion, event, organizerName, occurrences, munic
         <Field label="Descripción">
           <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={4} className={inputCls} />
         </Field>
+
+        {(experiences.length > 0 || experienceId) && (
+          <Field label="¿Es una salida con guía de una experiencia?">
+            <select value={experienceId} onChange={(e) => setExperienceId(e.target.value)} className={inputCls}>
+              <option value="">No, es un evento suelto</option>
+              {experiences.map((x) => <option key={x.id} value={x.id}>{x.title}{x.status === "draft" ? " (borrador)" : ""}</option>)}
+            </select>
+            <p className="mt-1 text-[12px] text-ink-3">El evento mostrará «Parte de una experiencia» y la experiencia listará esta fecha.</p>
+          </Field>
+        )}
 
         <Field label="¿Es duplicado de otro evento?">
           <div className="flex gap-2">
