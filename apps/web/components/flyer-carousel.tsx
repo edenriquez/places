@@ -10,7 +10,8 @@ export type Slide = { src: string; style?: React.CSSProperties };
 
 /**
  * Fotos del evento en carrusel tipo Facebook: cada foto ocupa ~86 % del ancho y asoma la siguiente.
- * Se desliza con el dedo; con mouse hay flechas. Tocar una foto la abre a tamaño completo.
+ * Se desliza con el dedo; con mouse hay flechas. Tocar una foto la abre a tamaño completo, donde también
+ * se pasa entre fotos; al cerrar, el carrusel queda en la última que se vio.
  * `slideClassName` lleva la proporción (y esquinas) de cada foto.
  */
 export function FlyerCarousel({ slides, alt, sizes, contain, eventId, slideClassName }: {
@@ -27,9 +28,10 @@ export function FlyerCarousel({ slides, alt, sizes, contain, eventId, slideClass
     const atEnd = t.scrollLeft >= t.scrollWidth - t.clientWidth - 2;
     setIndex(atEnd ? n - 1 : Math.round(t.scrollLeft / (first.offsetWidth + GAP)));
   }
-  function go(to: number) {
+  const gallery = slides.map((s) => s.src);
+  function go(to: number, behavior: ScrollBehavior = "smooth") {
     const slide = track.current?.children[Math.max(0, Math.min(n - 1, to))] as HTMLElement | undefined;
-    slide?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: to >= n - 1 ? "end" : "start" });
+    slide?.scrollIntoView({ behavior, block: "nearest", inline: to >= n - 1 ? "end" : "start" });
   }
 
   return (
@@ -48,7 +50,14 @@ export function FlyerCarousel({ slides, alt, sizes, contain, eventId, slideClass
               aria-label={`${i + 1} de ${n}`}
               className={clsx("relative w-[86%] shrink-0 overflow-hidden bg-bg-2", i === n - 1 ? "snap-end" : "snap-start", slideClassName)}
             >
-              <ZoomableImage src={s.src} alt={`${alt} · foto ${i + 1}`} eventId={eventId} className="relative block h-full w-full cursor-zoom-in">
+              <ZoomableImage
+                src={s.src}
+                alt={alt}
+                eventId={eventId}
+                gallery={gallery}
+                onClosed={(at) => at !== i && go(at, "instant")}
+                className="relative block h-full w-full cursor-zoom-in"
+              >
                 <Image
                   src={s.src}
                   alt={i === 0 ? alt : `${alt} · foto ${i + 1}`}

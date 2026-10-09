@@ -203,7 +203,11 @@ export async function municipalityEvents(cvegeo: string, limit = 12, at?: { lat:
     from_ts: bucket(now),
     to_ts: bucket(new Date(now.getTime() + 90 * 86400000)),
   });
-  return data.filter((r) => r.municipality_cvegeo === cvegeo).slice(0, limit);
+  // una fila por evento (la RPC trae una por fecha, ya en orden asc): la primera es la próxima
+  const seen = new Set<string>();
+  return data
+    .filter((r) => r.municipality_cvegeo === cvegeo && !seen.has(r.event_id) && !!seen.add(r.event_id))
+    .slice(0, limit);
 }
 
 export async function municipalityFestivities(cvegeo: string): Promise<Festivity[]> {
