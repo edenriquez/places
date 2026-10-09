@@ -10,7 +10,7 @@ import { SaveButton } from "./save-button";
 import { LiveBadge, PriceTag } from "./ui";
 
 /** `eager`: la primera tarjeta visible es el LCP y se pide de inmediato; las demás esperan a que cargue. */
-function Flyer({ path, alt, sizes, className, eager }: { path: string | null; alt: string; sizes: string; className?: string; eager?: boolean }) {
+export function Flyer({ path, alt, sizes, className, eager }: { path: string | null; alt: string; sizes: string; className?: string; eager?: boolean }) {
   const url = flyerUrl(path);
   return (
     <div className={`relative overflow-hidden bg-bg-2 ${className ?? ""}`}>

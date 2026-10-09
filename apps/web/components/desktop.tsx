@@ -3,7 +3,7 @@
 import { useSyncExternalStore } from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
-import { Compass, Heart, Map, User } from "lucide-react";
+import { CalendarHeart, Compass, Map, User } from "lucide-react";
 import clsx from "clsx";
 import { useSession } from "./auth/session-provider";
 import { LinkPending } from "./link-pending";
@@ -32,7 +32,7 @@ export function MobileOnly({ children }: { children: React.ReactNode }) {
 const NAV = [
   { href: "/", label: "Explorar", icon: Compass },
   { href: "/mapa", label: "Mapa", icon: Map },
-  { href: "/guardados", label: "Guardados", icon: Heart },
+  { href: "/guardados", label: "Mis planes", icon: CalendarHeart },
   { href: "/perfil", label: "Perfil", icon: User },
 ];
 

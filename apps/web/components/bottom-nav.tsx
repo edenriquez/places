@@ -3,14 +3,14 @@
 import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Compass, Heart, Map, User, type LucideIcon } from "lucide-react";
+import { CalendarHeart, Compass, Map, User, type LucideIcon } from "lucide-react";
 import clsx from "clsx";
 import { usePendingLink } from "./link-pending";
 
 const ITEMS = [
   { href: "/", label: "Explorar", icon: Compass },
   { href: "/mapa", label: "Mapa", icon: Map },
-  { href: "/guardados", label: "Guardados", icon: Heart },
+  { href: "/guardados", label: "Planes", icon: CalendarHeart },
   { href: "/perfil", label: "Perfil", icon: User },
 ];
 
