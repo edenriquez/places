@@ -10,6 +10,7 @@ import { EXPLORE, type Loc } from "./location";
 /**
  * Caché de datos públicos (sin cookies): la BD vive en us-west-2 y cada viaje cuesta. Las acciones del admin
  * invalidan con updateTag(EVENTS_TAG); lo que llega por el script de seed aparece al vencer el TTL.
+ * Explorar trae la lista sin filtrar y la categoría se aplica en el navegador: cambiarla no consulta.
  */
 export const EVENTS_TAG = "events";
 const EVENTS_TTL = 300;
@@ -75,12 +76,7 @@ export function rangeBounds(range: Range, now = new Date()) {
   }
 }
 
-/** `category`: una categoría o varias (una intención: "música" = conciertos y danza). */
-type CategoryFilter = string | readonly string[] | undefined;
-const byCategory = (rows: NearRow[], c: CategoryFilter) =>
-  !c ? rows : typeof c === "string" ? rows.filter((r) => r.category === c) : rows.filter((r) => c.includes(r.category));
-
-export async function eventsNear(loc: Loc, range: Range = "finde", category?: CategoryFilter): Promise<NearRow[]> {
+export async function eventsNear(loc: Loc, range: Range = "finde"): Promise<NearRow[]> {
   const { from, to } = rangeBounds(range);
   const data = await rpcEventsNear({
     lat: round(loc.lat),
@@ -91,15 +87,21 @@ export async function eventsNear(loc: Loc, range: Range = "finde", category?: Ca
   });
   // una fila por evento: la RPC ya viene ordenada por fecha asc, así que la primera es la próxima fecha
   const seen = new Set<string>();
-  const rows = inState(loc, data).filter((r) => !seen.has(r.event_id) && !!seen.add(r.event_id));
-  return byCategory(rows, category);
+  return inState(loc, data).filter((r) => !seen.has(r.event_id) && !!seen.add(r.event_id));
 }
 
-/** Sugerencias cuando no hay ubicación o no hay nada cerca: una muestra al azar de lo que viene en toda la región, por fecha. */
-export async function eventsAround(loc: Loc, category?: CategoryFilter, limit = 8): Promise<NearRow[]> {
-  const rows = await eventsNear({ ...loc, radiusKm: 400, stateCve: undefined }, "todo", category);
-  const pick = rows.length > limit ? [...rows].sort(() => Math.random() - 0.5).slice(0, limit) : rows;
-  return pick.sort((a, b) => a.starts_at.localeCompare(b.starts_at));
+/**
+ * Sugerencias cuando no hay ubicación: una muestra al azar de lo que viene en toda la región.
+ * Hasta `perCategory` por categoría, para que cualquier filtro del cliente tenga de dónde elegir sin bajar todo.
+ */
+export async function eventsAround(loc: Loc, perCategory = 8): Promise<NearRow[]> {
+  const rows = await eventsNear({ ...loc, radiusKm: 400, stateCve: undefined }, "todo");
+  const taken = new Map<string, number>();
+  return [...rows].sort(() => Math.random() - 0.5).filter((e) => {
+    const n = taken.get(e.category) ?? 0;
+    taken.set(e.category, n + 1);
+    return n < perCategory;
+  });
 }
 
 /** Coordenadas por evento (lugar o centro del municipio) para pintar pines. */

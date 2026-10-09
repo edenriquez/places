@@ -1,8 +1,10 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname, useSearchParams } from "next/navigation";
 import clsx from "clsx";
 import { Mountain, Music, Palette, PartyPopper, Users, UtensilsCrossed, type LucideIcon } from "lucide-react";
-import { INTENTS, type IntentKey } from "@/lib/intents";
-import { LinkPending } from "./link-pending";
+import { INTENTS, intentByKey, type IntentKey } from "@/lib/intents";
 
 const ICON: Record<IntentKey, LucideIcon> = {
   musica: Music, fiesta: PartyPopper, comida: UtensilsCrossed, naturaleza: Mountain, familia: Users, cultura: Palette,
@@ -12,8 +14,34 @@ const TINT: Record<IntentKey, string> = {
   naturaleza: "bg-[#eaf6ec] text-[#15803d]", familia: "bg-[#eaf3fd] text-[#2563eb]", cultura: "bg-[#f3eefc] text-[#7c3aed]",
 };
 
-/** La pregunta principal de la portada: se elige un plan, no una categoría. Volver a tocar la activa la quita. */
-export function IntentPicker({ active, range, basePath = "/", compact }: { active?: string; range: string; basePath?: string; compact?: boolean }) {
+/** Categorías del catálogo que cumplen el filtro; undefined = todas. */
+export const catsOf = (intent?: string, category?: string): readonly string[] | undefined =>
+  intentByKey(intent)?.cats ?? (category ? [category] : undefined);
+
+/** ?i= es una intención ("música" = conciertos + danza); ?c= una sola categoría (enlaces viejos y el mapa). */
+export function useCategoryFilter() {
+  const q = useSearchParams();
+  const intent = intentByKey(q.get("i") ?? undefined)?.key;
+  const category = intent ? undefined : (q.get("c") ?? undefined);
+  return { intent, category, cats: catsOf(intent, category) };
+}
+
+/**
+ * La pregunta principal de la portada: se elige un plan, no una categoría. Volver a tocar la activa la quita.
+ * La lista ya está en la página: el toque solo cambia la URL (pushState) y se filtra al instante, sin ir al servidor.
+ */
+export function IntentPicker({ compact }: { compact?: boolean }) {
+  const path = usePathname();
+  const q = useSearchParams();
+  const { intent } = useCategoryFilter();
+  const hrefFor = (key: string) => {
+    const next = new URLSearchParams(q);
+    next.delete("c");
+    if (key === intent) next.delete("i");
+    else next.set("i", key);
+    const s = next.toString();
+    return s ? `${path}?${s}` : path;
+  };
   return (
     <section className="px-5 pt-5">
       {!compact && (
@@ -25,18 +53,23 @@ export function IntentPicker({ active, range, basePath = "/", compact }: { activ
       <div className={clsx("mt-3 grid grid-cols-3 gap-2 lg:grid-cols-6", compact && "mt-0")}>
         {INTENTS.map((it) => {
           const Icon = ICON[it.key];
-          const on = active === it.key;
-          const href = on ? `${basePath}?r=${range}` : `${basePath}?r=${range}&i=${it.key}`;
+          const on = intent === it.key;
+          const href = hrefFor(it.key);
           return (
             <Link
               key={it.key}
               href={href}
+              prefetch={false}
               scroll={false}
+              onNavigate={(e) => {
+                e.preventDefault();
+                window.history.pushState(null, "", href);
+              }}
               data-track="filter"
               data-label={`intencion:${it.key}`}
               aria-current={on ? "true" : undefined}
               className={clsx(
-                "relative isolate flex flex-col items-start gap-2 rounded-card border p-3 transition",
+                "flex touch-manipulation flex-col items-start gap-2 rounded-card border p-3 transition-colors duration-150",
                 on ? "border-ink bg-ink text-white" : "border-line bg-white hover:border-ink-3",
               )}
             >
@@ -45,7 +78,6 @@ export function IntentPicker({ active, range, basePath = "/", compact }: { activ
               </span>
               <span className="text-[14px] font-semibold leading-none">{it.label}</span>
               <span className={clsx("hidden text-[12px] leading-snug lg:block", on ? "text-white/70" : "text-ink-2")}>{it.hint}</span>
-              <LinkPending className="-inset-px -z-10 rounded-card bg-bg-2 ring-2 ring-ink" />
             </Link>
           );
         })}
