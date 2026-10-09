@@ -29,6 +29,9 @@ export type NearRow = {
   price_min: number | null;
   price_max: number | null;
   image_path: string | null;
+  /** punto de enfoque del flyer al recortarlo (0–100 %) */
+  image_focus_x: number;
+  image_focus_y: number;
   starts_at: string;
   ends_at: string | null;
   is_all_day: boolean;
@@ -75,6 +78,10 @@ export type Event = {
   price_max: number | null;
   is_free: boolean;
   image_path: string | null;
+  image_focus_x: number;
+  image_focus_y: number;
+  /** fotos extra después del flyer, en orden; en el detalle se ven como carrusel */
+  gallery_paths: string[];
   status: "pending" | "published" | "cancelled" | "rejected";
   confidence: number | null;
   raw_ingestion_id: string | null;

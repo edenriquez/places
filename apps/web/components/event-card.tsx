@@ -3,21 +3,23 @@ import Link from "next/link";
 import { ViewTransition } from "react";
 import { Navigation } from "lucide-react";
 import { CATEGORY_LABEL, type NearRow } from "@/lib/types";
-import { flyerUrl, fmtDistance, fmtTime, fmtWhenShort } from "@/lib/format";
+import { flyerUrl, fmtDistance, fmtTime, fmtWhenShort, focusStyle } from "@/lib/format";
 import { AfterHeroImage } from "./after-hero-image";
 import { LinkPending } from "./link-pending";
 import { SaveButton } from "./save-button";
 import { LiveBadge, PriceTag } from "./ui";
 
 /** `eager`: la primera tarjeta visible es el LCP y se pide de inmediato; las demás esperan a que cargue. */
-export function Flyer({ path, alt, sizes, className, eager }: { path: string | null; alt: string; sizes: string; className?: string; eager?: boolean }) {
+/** `focus`: punto de enfoque al recortar (lo elige el admin en la revisión). */
+export function Flyer({ path, alt, sizes, className, eager, focus }: { path: string | null; alt: string; sizes: string; className?: string; eager?: boolean; focus?: { x: number; y: number } }) {
   const url = flyerUrl(path);
+  const style = focusStyle(focus?.x, focus?.y);
   return (
     <div className={`relative overflow-hidden bg-bg-2 ${className ?? ""}`}>
       {url && eager ? (
-        <Image src={url} alt={alt} fill sizes={sizes} className="object-cover" loading="eager" fetchPriority="high" data-hero="" />
+        <Image src={url} alt={alt} fill sizes={sizes} className="object-cover" style={style} loading="eager" fetchPriority="high" data-hero="" />
       ) : url ? (
-        <AfterHeroImage src={url} alt={alt} sizes={sizes} />
+        <AfterHeroImage src={url} alt={alt} sizes={sizes} style={style} />
       ) : (
         <div className="absolute inset-0 grid place-items-center text-[12px] text-ink-3">Sin imagen</div>
       )}
@@ -32,7 +34,7 @@ export function EventCard({ e, live, hideDistance, vt, nearby, href, eager }: { 
   const card = (
     <Link href={href ?? `/evento/${e.slug}`} scroll={!href} data-event-id={e.event_id} className="block px-5 py-3 lg:rounded-card lg:transition lg:hover:bg-bg-2/60">
       <div className="relative">
-        <Flyer path={e.image_path} alt={e.title} sizes="(max-width: 640px) 100vw, 640px" className="aspect-[4/3] rounded-card" eager={eager} />
+        <Flyer path={e.image_path} focus={{ x: e.image_focus_x, y: e.image_focus_y }} alt={e.title} sizes="(max-width: 640px) 100vw, 640px" className="aspect-[4/3] rounded-card" eager={eager} />
         <div className="absolute left-3 top-3 flex items-center gap-1.5">
           {live ? (
             <LiveBadge className="bg-white/95" />
@@ -77,7 +79,7 @@ export function LiveCard({ e }: { e: NearRow }) {
   return (
     <Link href={`/evento/${e.slug}`} className="w-[240px] shrink-0 snap-start">
       <div className="relative">
-        <Flyer path={e.image_path} alt={e.title} sizes="240px" className="aspect-[4/3] rounded-card" />
+        <Flyer path={e.image_path} focus={{ x: e.image_focus_x, y: e.image_focus_y }} alt={e.title} sizes="240px" className="aspect-[4/3] rounded-card" />
         {e.ends_at && (
           <span className="absolute left-3 top-3 rounded-full bg-ink/85 px-2.5 py-1 text-[11px] font-semibold text-white">
             Termina {fmtTime(e.ends_at)}
@@ -100,7 +102,7 @@ export function CompactCard({ e, active, href, eager }: { e: NearRow; active?: b
       scroll={!href}
       className={`flex w-[300px] shrink-0 snap-center gap-3 rounded-card border bg-white p-3 shadow-soft ${active ? "border-ink" : "border-line"}`}
     >
-      <Flyer path={e.image_path} alt={e.title} sizes="96px" className="h-[84px] w-[96px] shrink-0 rounded-[12px]" eager={eager} />
+      <Flyer path={e.image_path} focus={{ x: e.image_focus_x, y: e.image_focus_y }} alt={e.title} sizes="96px" className="h-[84px] w-[96px] shrink-0 rounded-[12px]" eager={eager} />
       <div className="min-w-0 flex-1">
         <h3 className="line-clamp-1 text-[15px] font-semibold">{e.title}</h3>
         <p className="mt-0.5 text-[13px] text-ink-2">{fmtWhenShort(e.starts_at, e.is_all_day)}</p>

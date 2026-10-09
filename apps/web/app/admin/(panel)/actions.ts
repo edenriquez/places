@@ -62,7 +62,15 @@ type ReviewInput = {
   priceMax: number | null;
   organizer: string;
   dates: { date: string; start: string; end: string }[];
+  /** punto de enfoque del flyer en las tarjetas (0–100 %) */
+  imageFocusX: number;
+  imageFocusY: number;
+  /** fotos extra ya subidas al bucket; sin el campo se conservan las que tenga el evento */
+  galleryPaths?: string[];
 };
+
+const MAX_GALLERY = 9;
+const pct = (n: number) => Math.min(100, Math.max(0, Math.round(Number.isFinite(n) ? n : 50)));
 
 /** Acepta "@usuario", "usuario" o la URL completa y devuelve la URL de la red. */
 function socialUrl(v: string, base: string) {
@@ -103,6 +111,11 @@ async function upsertEvent(sb: Awaited<ReturnType<typeof admin>>, input: ReviewI
     is_free: input.isFree,
     price_min: input.isFree ? null : input.priceMin,
     price_max: input.isFree ? null : input.priceMax,
+    image_focus_x: pct(input.imageFocusX),
+    image_focus_y: pct(input.imageFocusY),
+    ...(input.galleryPaths && {
+      gallery_paths: [...new Set(input.galleryPaths.filter((p) => typeof p === "string" && /^gallery\/[\w-]+\/[\w.-]+$/.test(p)))].slice(0, MAX_GALLERY),
+    }),
     status,
     verified_at: new Date().toISOString(),
   };
@@ -274,6 +287,8 @@ async function reviewInputFrom(sb: Awaited<ReturnType<typeof admin>>, ingestionI
     priceMax: asNumber(event?.price_max ?? ex.price_max),
     organizer,
     dates,
+    imageFocusX: event?.image_focus_x ?? 50,
+    imageFocusY: event?.image_focus_y ?? 50,
   };
 }
 

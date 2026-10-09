@@ -65,7 +65,7 @@ function municipalityPlace(m: Municipality) {
 export function eventGraph(d: EventData) {
   const { event, occurrences, place, municipality, organization } = d;
   const url = absUrl(`/evento/${event.slug}`);
-  const image = flyerUrl(event.image_path);
+  const images = [event.image_path, ...(event.gallery_paths ?? [])].map((p) => flyerUrl(p)).filter((s): s is string => !!s);
   const now = Date.now();
   const upcoming = occurrences.filter((o) => new Date(o.ends_at ?? o.starts_at).getTime() >= now);
   const dates = (upcoming.length ? upcoming : occurrences.slice(-1)).slice(0, 12);
@@ -114,7 +114,7 @@ export function eventGraph(d: EventData) {
     eventStatus: "https://schema.org/EventScheduled",
     eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
     location,
-    ...(image && { image: [image] }),
+    ...(images.length > 0 && { image: images }),
     isAccessibleForFree: event.is_free,
     ...(offers && { offers }),
     ...(organizer && { organizer }),

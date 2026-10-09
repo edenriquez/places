@@ -14,7 +14,7 @@ const heroDone = () => {
  * 4G lento el LCP se va a ~7 s. Se piden cuando el principal (`img[data-hero]`) ya cargó, o al load si
  * desapareció antes (cambio de pestaña).
  */
-export function AfterHeroImage({ src, alt, sizes }: { src: string; alt: string; sizes: string }) {
+export function AfterHeroImage({ src, alt, sizes, style }: { src: string; alt: string; sizes: string; style?: React.CSSProperties }) {
   const [show, setShow] = useState(false);
   useEffect(() => {
     const done = () => setShow(true);
@@ -29,5 +29,5 @@ export function AfterHeroImage({ src, alt, sizes }: { src: string; alt: string; 
       window.removeEventListener("load", done);
     };
   }, []);
-  return show ? <Image src={src} alt={alt} fill sizes={sizes} className="object-cover" /> : null;
+  return show ? <Image src={src} alt={alt} fill sizes={sizes} className="object-cover" style={style} /> : null;
 }

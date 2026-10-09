@@ -34,7 +34,7 @@ function NextPlan({ e, text, going }: { e: NearRow; text: string; going: boolean
   return (
     <section className="mt-5 overflow-hidden rounded-card border border-line shadow-soft">
       <Link href={`/evento/${e.slug}`} className="block">
-        <Flyer path={e.image_path} alt={e.title} sizes="(max-width: 640px) 100vw, 640px" className="aspect-[2/1]" eager />
+        <Flyer path={e.image_path} focus={{ x: e.image_focus_x, y: e.image_focus_y }} alt={e.title} sizes="(max-width: 640px) 100vw, 640px" className="aspect-[2/1]" eager />
       </Link>
       <div className="p-4">
         <p className="flex items-center gap-1.5 text-[13px] font-bold uppercase tracking-wide text-accent"><BellRing size={15} /> {text}</p>
@@ -53,7 +53,7 @@ function PlanRow({ e, going, past }: { e: NearRow; going: boolean; past?: boolea
   return (
     <li className={clsx("flex items-center gap-3 py-3", past && "opacity-60")}>
       <Link href={`/evento/${e.slug}`} className="flex min-w-0 flex-1 items-center gap-3">
-        <Flyer path={e.image_path} alt={e.title} sizes="80px" className="h-[72px] w-[80px] shrink-0 rounded-[12px]" />
+        <Flyer path={e.image_path} focus={{ x: e.image_focus_x, y: e.image_focus_y }} alt={e.title} sizes="80px" className="h-[72px] w-[80px] shrink-0 rounded-[12px]" />
         <span className="min-w-0">
           <span className="flex items-center gap-1.5 text-[12px] font-semibold text-ink-2">
             {fmtWhenShort(e.starts_at, e.is_all_day)}
