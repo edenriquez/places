@@ -72,7 +72,12 @@ export function rangeBounds(range: Range, now = new Date()) {
   }
 }
 
-export async function eventsNear(loc: Loc, range: Range = "finde", category?: string): Promise<NearRow[]> {
+/** `category`: una categoría o varias (una intención: "música" = conciertos y danza). */
+type CategoryFilter = string | readonly string[] | undefined;
+const byCategory = (rows: NearRow[], c: CategoryFilter) =>
+  !c ? rows : typeof c === "string" ? rows.filter((r) => r.category === c) : rows.filter((r) => c.includes(r.category));
+
+export async function eventsNear(loc: Loc, range: Range = "finde", category?: CategoryFilter): Promise<NearRow[]> {
   const { from, to } = rangeBounds(range);
   const data = await rpcEventsNear({
     lat: round(loc.lat),
@@ -84,11 +89,11 @@ export async function eventsNear(loc: Loc, range: Range = "finde", category?: st
   // una fila por evento: la RPC ya viene ordenada por fecha asc, así que la primera es la próxima fecha
   const seen = new Set<string>();
   const rows = inState(loc, data).filter((r) => !seen.has(r.event_id) && !!seen.add(r.event_id));
-  return category ? rows.filter((r) => r.category === category) : rows;
+  return byCategory(rows, category);
 }
 
 /** Sugerencias cuando no hay ubicación o no hay nada cerca: una muestra al azar de lo que viene en toda la región, por fecha. */
-export async function eventsAround(loc: Loc, category?: string, limit = 8): Promise<NearRow[]> {
+export async function eventsAround(loc: Loc, category?: CategoryFilter, limit = 8): Promise<NearRow[]> {
   const rows = await eventsNear({ ...loc, radiusKm: 400, stateCve: undefined }, "todo", category);
   const pick = rows.length > limit ? [...rows].sort(() => Math.random() - 0.5).slice(0, limit) : rows;
   return pick.sort((a, b) => a.starts_at.localeCompare(b.starts_at));
