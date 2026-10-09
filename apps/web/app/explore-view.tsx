@@ -1,15 +1,16 @@
 import { ViewTransition } from "react";
 import { BottomNav } from "@/components/bottom-nav";
-import { CategoryRow } from "@/components/category-row";
 import { DesktopHeader, DesktopOnly } from "@/components/desktop";
 import { EventCard } from "@/components/event-card";
 import { EventPanel, eventCoords } from "@/components/event-detail";
 import { EventMap } from "@/components/event-map-lazy";
 import { HomeFeed } from "@/components/home-feed";
+import { IntentPicker } from "@/components/intent-picker";
 import { SearchBar } from "@/components/location-picker";
 import { LocationPrompt } from "@/components/location-prompt";
 import { Chip, EmptyState, SectionHeader } from "@/components/ui";
 import { getLoc, hasLoc } from "@/lib/location-server";
+import { intentByKey } from "@/lib/intents";
 import { nearText } from "@/lib/location";
 import { eventBySlug, eventsAround, eventsLiveNear, eventsNear, municipalities, stateBox, withCoords, type Range } from "@/lib/queries";
 import type { NearRow } from "@/lib/types";
@@ -22,7 +23,7 @@ const RANGES: { key: Range; label: string }[] = [
   { key: "todo", label: "Todo" },
 ];
 
-export type ExploreParams = { r?: string; c?: string; e?: string };
+export type ExploreParams = { r?: string; c?: string; i?: string; e?: string };
 
 /**
  * Lista de eventos (Explorar). En escritorio: `split` = lista + mapa fijo a la derecha (/mapa);
@@ -30,7 +31,9 @@ export type ExploreParams = { r?: string; c?: string; e?: string };
  */
 export async function ExploreView({ sp, split = false, basePath = "/" }: { sp: ExploreParams; split?: boolean; basePath?: string }) {
   const range = (RANGES.some((x) => x.key === sp.r) ? sp.r : "finde") as Range;
-  const category = sp.c;
+  // ?i= es una intención ("música" = conciertos + danza); ?c= una sola categoría (enlaces viejos y el mapa)
+  const intent = intentByKey(sp.i);
+  const category: string | readonly string[] | undefined = intent ? intent.cats : sp.c;
   const [loc, isSet] = await Promise.all([getLoc(), hasLoc()]);
   // El radio (1 h/2 h/3 h/Explorar) solo aplica en el mapa. En la lista no hay límite de km:
   //  1) "tu zona" en el rango de fechas, por fecha: tu municipio (o ≤ LOCAL_KM del GPS), o el estado elegido
@@ -43,7 +46,7 @@ export async function ExploreView({ sp, split = false, basePath = "/" }: { sp: E
     isSet ? eventsNear({ ...anywhere, stateCve: undefined }, "todo", category) : Promise.resolve([] as NearRow[]),
     isSet ? Promise.resolve([] as NearRow[]) : eventsAround(loc, category),
   ]);
-  const live = (category ? liveAll.filter((e) => e.category === category) : liveAll).sort((a, b) => a.distance_m - b.distance_m);
+  const live = (category ? liveAll.filter((e) => (typeof category === "string" ? e.category === category : category.includes(e.category))) : liveAll).sort((a, b) => a.distance_m - b.distance_m);
   const isLocal = (e: NearRow) => !!loc.stateCve || e.municipality_cvegeo === loc.cvegeo || e.distance_m <= LOCAL_KM * 1000;
   const upcoming = inRange.filter(isLocal);
   const shown = new Set(upcoming.map((e) => e.event_id));
@@ -55,7 +58,7 @@ export async function ExploreView({ sp, split = false, basePath = "/" }: { sp: E
   const mapEvents = split ? await withCoords([...live, ...upcoming, ...nearby, ...suggestions]) : [];
   // /mapa en escritorio: ?e=slug abre el detalle en el panel izquierdo (el mapa se centra en el evento)
   const detail = split && sp.e ? await eventBySlug(sp.e) : null;
-  const listQs = new URLSearchParams(Object.entries({ r: sp.r, c: sp.c }).filter((kv): kv is [string, string] => !!kv[1])).toString();
+  const listQs = new URLSearchParams(Object.entries({ r: sp.r, c: sp.c, i: sp.i }).filter((kv): kv is [string, string] => !!kv[1])).toString();
   const listHref = listQs ? `${basePath}?${listQs}` : basePath;
   const cardHref = (slug: string) => (split ? `${basePath}?${listQs ? `${listQs}&` : ""}e=${encodeURIComponent(slug)}` : undefined);
   const focusCoords = detail ? eventCoords(detail) : null;
@@ -79,7 +82,7 @@ export async function ExploreView({ sp, split = false, basePath = "/" }: { sp: E
             />
             <div className="no-scrollbar flex gap-2 overflow-x-auto px-5 pb-2 lg:pb-3">
               {RANGES.map((r) => (
-                <Chip key={r.key} active={r.key === range} track={`rango:${r.key}`} href={`${basePath}?r=${r.key}${category ? `&c=${category}` : ""}`}>{r.label}</Chip>
+                <Chip key={r.key} active={r.key === range} track={`rango:${r.key}`} href={`${basePath}?r=${r.key}${sp.i && intent ? `&i=${sp.i}` : sp.c ? `&c=${sp.c}` : ""}`}>{r.label}</Chip>
               ))}
             </div>
           </div>
@@ -140,10 +143,10 @@ export async function ExploreView({ sp, split = false, basePath = "/" }: { sp: E
         <>
           <div className="lg:hidden"><SearchBar loc={loc} municipalities={munis} isSet={isSet} /></div>
           {!isSet && <LocationPrompt />}
-          <CategoryRow active={category} range={range} basePath={basePath} />
+          <IntentPicker active={intent?.key} range={range} basePath={basePath} compact={split} />
 
           {live.length > 0 ? (
-            <HomeFeed liveCount={live.length} initial={sp.r || sp.c ? "proximos" : "ahora"} now={livePane} upcoming={upcomingPane} />
+            <HomeFeed liveCount={live.length} initial={sp.r || sp.c || sp.i ? "proximos" : "ahora"} now={livePane} upcoming={upcomingPane} />
           ) : (
             upcomingPane
           )}
