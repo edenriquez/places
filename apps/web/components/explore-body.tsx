@@ -1,19 +1,26 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { EventCard } from "@/components/event-card";
 import { EventMap } from "@/components/event-map-lazy";
-import { HomeFeed } from "@/components/home-feed";
+import { ExperienceCard } from "@/components/experience-card";
+import { HomeFeed, type WhenOption } from "@/components/home-feed";
 import { IntentPicker, catsOf, useCategoryFilter } from "@/components/intent-picker";
 import { Chip, EmptyState, SectionHeader } from "@/components/ui";
+import { EXPERIENCE_KINDS, kindsForIntent, type ExperienceKind } from "@/lib/experiences";
+import { INTENTS, intentByKey, type IntentKey } from "@/lib/intents";
 import type { Loc } from "@/lib/location";
 import type { Range } from "@/lib/queries";
-import type { NearRow } from "@/lib/types";
+import { SITE_NAME } from "@/lib/site";
+import type { ExperienceRow, NearRow } from "@/lib/types";
 
-const RANGES: { key: Range; label: string }[] = [
-  { key: "finde", label: "Este finde" },
-  { key: "15d", label: "Próximos 15 días" },
-  { key: "todo", label: "Todo" },
+/** `short`: cabe en la pestaña de Agenda en un teléfono angosto */
+const RANGES: { key: Range; label: string; short?: string; hint: string }[] = [
+  { key: "finde", label: "Este finde", hint: "De viernes a domingo" },
+  { key: "15d", label: "Próximos 15 días", short: "15 días", hint: "Las próximas dos semanas" },
+  { key: "todo", label: "Todo lo que viene", short: "Lo que viene", hint: "Todas las fechas" },
 ];
 const SUGGESTIONS = 8;
 
@@ -43,8 +50,10 @@ function useFiltered(lists: ExploreLists) {
   return useMemo(() => filterLists(lists, catsOf(intent, category)), [lists, intent, category]);
 }
 
-export function ExploreBody({ lists, range, basePath, split, isSet, area, liveSubtitle, hideDistance, startUpcoming }: {
+export function ExploreBody({ lists, experiences, range, basePath, split, isSet, area, liveSubtitle, hideDistance, startAnyDay }: {
   lists: ExploreLists;
+  /** "Cualquier día": experiencias de la más cercana a la más lejana */
+  experiences: ExperienceRow[];
   range: Range;
   basePath: string;
   split: boolean;
@@ -53,14 +62,32 @@ export function ExploreBody({ lists, range, basePath, split, isSet, area, liveSu
   liveSubtitle: string;
   /** modo estado: la distancia al centro del estado no dice nada */
   hideDistance: boolean;
-  /** con ?r= en la URL se abre en Próximos */
-  startUpcoming: boolean;
+  /** con ?v=dia se abre en Cualquier día */
+  startAnyDay: boolean;
 }) {
-  const { intent, category, cats } = useCategoryFilter();
+  const q = useSearchParams();
+  const { intent, cats } = useCategoryFilter();
   const { live, upcoming, nearby, suggestions } = useFiltered(lists);
-  const filterQs = intent ? `&i=${intent}` : category ? `&c=${encodeURIComponent(category)}` : "";
   const rangeLabel = RANGES.find((r) => r.key === range)!.label;
-  const cardHref = (slug: string) => (split ? `${basePath}?r=${range}${filterQs}&e=${encodeURIComponent(slug)}` : undefined);
+  // el periodo de la agenda va en ?r=: "ahora" (en vivo), un rango de fechas o "pronto" (sin ubicación).
+  // Sin ?r= abre en "Ahora mismo", salvo que la página se abrió ya filtrada (un enlace a ?i=musica)
+  const [openedFiltered] = useState(!!cats);
+  const r = q.get("r");
+  const when = r === "ahora" ? "ahora" : r || openedFiltered ? "fecha" : "ahora";
+  /** misma URL con otros valores: conserva intención, tipo de experiencia, etc. */
+  const hrefWith = (set: Record<string, string>) => {
+    const next = new URLSearchParams(q);
+    next.delete("e");
+    next.delete("v");
+    for (const [k, v] of Object.entries(set)) next.set(k, v);
+    return `${basePath}?${next}`;
+  };
+  const setPeriod = (value: string) => {
+    const url = new URL(window.location.href);
+    url.searchParams.set("r", value);
+    window.history.replaceState(null, "", url);
+  };
+  const cardHref = (slug: string) => (split ? hrefWith({ r: r ?? range, e: slug }) : undefined);
 
   // escritorio: las secciones comparten filas; cada una ocupa tantas columnas como eventos tiene
   // sin split: filas centradas de secciones; con split: la columna izquierda en 2 columnas
@@ -71,25 +98,10 @@ export function ExploreBody({ lists, range, basePath, split, isSet, area, liveSu
 
   const upcomingPane = (
     <>
-      {isSet && (
-        <>
-          <div className="lg:flex lg:items-end lg:justify-between lg:gap-4">
-            <SectionHeader
-              title={rangeLabel}
-              subtitle={upcoming.length ? `${upcoming.length} ${upcoming.length === 1 ? "evento" : "eventos"} en ${area}` : undefined}
-            />
-            <div className="no-scrollbar flex gap-2 overflow-x-auto px-5 pb-2 lg:pb-3">
-              {RANGES.map((r) => (
-                <Chip key={r.key} active={r.key === range} track={`rango:${r.key}`} href={`${basePath}?r=${r.key}${filterQs}`}>{r.label}</Chip>
-              ))}
-            </div>
-          </div>
-          {!upcoming.length && (
-            <p className="px-5 pt-2 text-[14px] text-ink-2">
-              Nada en {area} {range === "todo" ? "por ahora" : rangeLabel.toLowerCase()}{nearby.length ? "; te sugerimos lo más cercano." : "."}
-            </p>
-          )}
-        </>
+      {isSet && !upcoming.length && (
+        <p className="px-5 pb-1 text-[14px] text-ink-2">
+          Nada en {area} {range === "todo" ? "por ahora" : rangeLabel.toLowerCase()}{nearby.length ? "; te sugerimos lo más cercano." : "."}
+        </p>
       )}
       <div className={shelves}>
         {/* una sola rejilla: primero tu zona (por fecha), luego sugerencias por cercanía con insignia */}
@@ -101,7 +113,7 @@ export function ExploreBody({ lists, range, basePath, split, isSet, area, liveSu
           </Shelf>
         )}
         {suggestions.length > 0 && (
-          <Shelf count={suggestions.length} split={split} title={isSet ? "Lo que viene en la región" : "Próximamente en la región"} subtitle="Una selección de lo que viene, por fecha">
+          <Shelf count={suggestions.length} split={split} title={isSet ? "Lo que viene en la región" : undefined} subtitle="Una selección de lo que viene, por fecha">
             {suggestions.map((e, i) => <EventCard key={`${e.event_id}-${e.starts_at}`} vt={`ev-${e.event_id}`} href={cardHref(e.slug)} e={e} hideDistance={!isSet || hideDistance} eager={lead(i, !upcoming.length && !nearby.length)} />)}
           </Shelf>
         )}
@@ -116,19 +128,118 @@ export function ExploreBody({ lists, range, basePath, split, isSet, area, liveSu
 
   const livePane = (
     <div className={shelves}>
-      <Shelf count={live.length} split={split} live title="Sucediendo ahora" subtitle={liveSubtitle}>
+      <Shelf count={live.length} split={split}>
         {live.map((e, i) => <EventCard key={`${e.event_id}-${e.starts_at}`} vt={`live-${e.event_id}`} href={cardHref(e.slug)} e={e} live hideDistance={!isSet || hideDistance} eager={lead(i)} />)}
       </Shelf>
     </div>
   );
 
+  // un filtro puede dejar sin nada en vivo: entonces se ve el rango de fechas
+  const showLive = when === "ahora" && live.length > 0;
+  const options: WhenOption[] = [
+    ...(live.length ? [{ key: "ahora", label: "Ahora mismo", hint: `${live.length} en vivo`, live: true, onSelect: () => setPeriod("ahora") }] : []),
+    ...(isSet
+      ? RANGES.map((x) => ({ key: x.key, label: x.label, short: x.short, hint: x.hint, href: hrefWith({ r: x.key }) }))
+      : [{ key: "pronto", label: "Próximamente", hint: "Lo que viene en la región", onSelect: () => setPeriod("pronto") }]),
+  ];
+  const upcomingSubtitle = !isSet
+    ? "Una selección de lo que viene en la región"
+    : upcoming.length ? `${upcoming.length} ${upcoming.length === 1 ? "evento" : "eventos"} en ${area}` : undefined;
+  const pickable = options.length > 1;
+
   return (
     <>
       <IntentPicker compact={split} />
-      {live.length > 0 ? (
-        <HomeFeed liveCount={live.length} initial={startUpcoming || cats ? "proximos" : "ahora"} now={livePane} upcoming={upcomingPane} />
+      <HomeFeed
+        initial={startAnyDay ? "dia" : "agenda"}
+        when={pickable ? { options, current: showLive ? "ahora" : isSet ? range : "pronto", subtitle: showLive ? liveSubtitle : upcomingSubtitle } : undefined}
+        agenda={(
+          <>
+            {!pickable && <SectionHeader title="Próximamente en la región" subtitle="Una selección de lo que viene, por fecha" />}
+            {showLive ? livePane : upcomingPane}
+          </>
+        )}
+        anyDay={experiences.length ? <AnyDayPane experiences={experiences} intent={intent} area={area} hideDistance={!isSet || hideDistance} /> : undefined}
+      />
+    </>
+  );
+}
+
+/**
+ * Experiencias sin fecha. Con una intención elegida, sus subcategorías se ven todas (haya o no experiencias);
+ * sin intención, solo los tipos que hay. El tipo elegido va en la URL (?k=) para que siga al cambiar de pestaña
+ * o al volver de una experiencia.
+ */
+function AnyDayPane({ experiences, intent, area, hideDistance }: { experiences: ExperienceRow[]; intent?: IntentKey; area: string; hideDistance: boolean }) {
+  const q = useSearchParams();
+  const kind = q.get("k");
+  const setKind = (k: ExperienceKind | null) => {
+    const url = new URL(window.location.href);
+    if (k) url.searchParams.set("k", k);
+    else url.searchParams.delete("k");
+    window.history.replaceState(null, "", url);
+  };
+  const intentKinds = intent ? kindsForIntent(intent) : null;
+  const forIntent = intentKinds ? experiences.filter((x) => intentKinds.includes(x.kind)) : experiences;
+  const kinds = intentKinds ?? [...new Set(experiences.map((x) => x.kind))];
+  const active = kinds.find((k) => k === kind) ?? null;
+  const shown = active ? forIntent.filter((x) => x.kind === active) : forIntent;
+  // "prueba otra categoría": solo las que sí tienen experiencias
+  const others = INTENTS.filter((it) => it.key !== intent && experiences.some((x) => EXPERIENCE_KINDS[x.kind].intent === it.key));
+  const intentHref = (key: string) => {
+    const next = new URLSearchParams(q);
+    next.set("i", key);
+    next.delete("c");
+    next.delete("k");
+    return `?${next}`;
+  };
+
+  return (
+    <>
+      <p className="px-5 pb-3 pt-5 text-[13px] text-ink-2">Experiencias cerca de {area} que no dependen de una fecha</p>
+      {(intentKinds ? kinds.length > 0 : kinds.length > 1) && (
+        <div className="no-scrollbar flex gap-2 overflow-x-auto px-5 pb-2">
+          <Chip active={!active} onClick={() => setKind(null)}>Todo</Chip>
+          {kinds.map((k) => (
+            <Chip key={k} active={active === k} track={`experiencia:${k}`} onClick={() => setKind(active === k ? null : k)}>
+              <span className="mr-1.5">{EXPERIENCE_KINDS[k].emoji}</span>{EXPERIENCE_KINDS[k].label}
+            </Chip>
+          ))}
+        </div>
+      )}
+      {shown.length ? (
+        <div className="divide-y divide-line/60 lg:grid lg:grid-cols-[repeat(auto-fill,var(--card,288px))] lg:gap-x-3 lg:divide-y-0">
+          {shown.map((x, i) => <ExperienceCard key={x.experience_id} x={x} hideDistance={hideDistance} eager={i === 0} />)}
+        </div>
       ) : (
-        upcomingPane
+        <div className="pt-2">
+          <EmptyState
+            title={`Aún no hay experiencias de ${active ? `“${EXPERIENCE_KINDS[active].label}”` : intentByKey(intent)!.label.toLowerCase()} en ${SITE_NAME}`}
+            hint={active && forIntent.length ? "Prueba otro tipo de esta categoría." : "Prueba otra categoría."}
+          >
+            {!(active && forIntent.length) && others.length > 0 && (
+              <div className="mt-4 flex flex-wrap justify-center gap-2">
+                {others.map((it) => (
+                  <Link
+                    key={it.key}
+                    href={intentHref(it.key)}
+                    prefetch={false}
+                    scroll={false}
+                    onNavigate={(e) => {
+                      e.preventDefault();
+                      window.history.pushState(null, "", intentHref(it.key));
+                    }}
+                    data-track="filter"
+                    data-label={`vacio:intencion:${it.key}`}
+                    className="inline-flex h-9 items-center rounded-full border border-line-2 bg-white px-4 text-[14px] font-medium transition hover:border-ink"
+                  >
+                    {it.label}
+                  </Link>
+                ))}
+              </div>
+            )}
+          </EmptyState>
+        </div>
       )}
     </>
   );
@@ -157,7 +268,7 @@ export function ExploreMap({ lists, coords, loc, stateBounds, focus }: {
  * Sección de tarjetas. En móvil, lista vertical. En escritorio (sin split) es una rejilla de
  * min(eventos, columnas) tarjetas de ancho fijo: con pocos eventos, varias secciones comparten fila.
  */
-function Shelf({ count, split, title, subtitle, live, children }: { count: number; split: boolean; title?: string; subtitle?: string; live?: boolean; children: React.ReactNode }) {
+function Shelf({ count, split, title, subtitle, children }: { count: number; split: boolean; title?: string; subtitle?: string; children: React.ReactNode }) {
   const span = { "--n3": Math.min(count, 3), "--n4": Math.min(count, 4) } as React.CSSProperties;
   return (
     <section
@@ -166,7 +277,7 @@ function Shelf({ count, split, title, subtitle, live, children }: { count: numbe
         ? "lg:col-span-full lg:grid lg:grid-cols-subgrid"
         : "lg:grid lg:content-start lg:gap-x-3 lg:[--n:var(--n3)] lg:grid-cols-[repeat(var(--n),var(--card))] xl:[--n:var(--n4)]"}
     >
-      {title && <div className="lg:col-span-full"><SectionHeader title={title} subtitle={subtitle} live={live} /></div>}
+      {title && <div className="lg:col-span-full"><SectionHeader title={title} subtitle={subtitle} /></div>}
       <div className="divide-y divide-line/60 lg:contents">{children}</div>
     </section>
   );

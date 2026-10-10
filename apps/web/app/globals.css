@@ -87,7 +87,9 @@ h1, h2, h3, .font-display {
 @keyframes feed-from-left { from { opacity: 0; transform: translateX(-24px); } to { opacity: 1; transform: none; } }
 .feed-from-right { animation: feed-from-right 180ms ease-out; }
 .feed-from-left { animation: feed-from-left 180ms ease-out; }
-@media (prefers-reduced-motion: reduce) { .feed-from-right, .feed-from-left { animation: none; } }
+@keyframes when-menu { from { opacity: 0; transform: translateY(-6px) scale(0.98); } to { opacity: 1; transform: none; } }
+.when-menu { transform-origin: top left; animation: when-menu 140ms ease-out; }
+@media (prefers-reduced-motion: reduce) { .feed-from-right, .feed-from-left, .when-menu { animation: none; } }
 
 /* Explorar ⇄ Mapa (escritorio). Una sola curva y duración para todo:
    - las tarjetas se deslizan a su lugar (por debajo del mapa)

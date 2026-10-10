@@ -55,11 +55,12 @@ export function Chip({ active, children, href, onClick, track }: { active?: bool
   return <button type="button" onClick={onClick} className={cls} {...data}>{children}</button>;
 }
 
-export function EmptyState({ title, hint }: { title: string; hint?: string }) {
+export function EmptyState({ title, hint, children }: { title: string; hint?: string; children?: React.ReactNode }) {
   return (
     <div className="mx-5 rounded-card border border-dashed border-line-2 px-5 py-8 text-center">
       <p className="text-[15px] font-semibold">{title}</p>
       {hint && <p className="mt-1 text-[13px] text-ink-2">{hint}</p>}
+      {children}
     </div>
   );
 }
