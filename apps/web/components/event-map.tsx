@@ -40,6 +40,25 @@ function circleBox(lat: number, lng: number, km: number): BBox {
   return [[lng - dLng, lat - dLat], [lng + dLng, lat + dLat]];
 }
 
+/** alto del chip de precio sobre su punto (anchor bottom + translateY(-4px)) */
+const PIN_H = 36;
+
+/**
+ * Móvil: franja del mapa que no tapan los controles de arriba ni el carrusel de abajo,
+ * en px del contenedor. Ahí debe quedar el pin del evento activo.
+ */
+function visibleBand(map: maplibregl.Map, top: HTMLElement | null, list: HTMLElement | null) {
+  const c = map.getContainer().getBoundingClientRect();
+  const t = top?.getBoundingClientRect();
+  const l = list?.getBoundingClientRect();
+  return {
+    top: (t?.height ? t.bottom - c.top : 84) + 8,
+    bottom: (l?.height ? l.top - c.top : c.height - 260) - 8,
+    width: c.width,
+    height: c.height,
+  };
+}
+
 
 export function EventMap({ events, loc, stateBounds, variant = "overlay", focus, nearest }: Props) {
   const panel = variant === "panel";
@@ -76,6 +95,7 @@ export function EventMap({ events, loc, stateBounds, variant = "overlay", focus,
   const syncRef = useRef<() => void>(() => {});
   const [activeId, setActiveId] = useState<string | null>(events[0]?.event_id ?? null);
   const listRef = useRef<HTMLDivElement>(null);
+  const topRef = useRef<HTMLDivElement>(null);
 
   // un pin por evento (aunque tenga varias ocurrencias)
   const pins = useMemo(() => {
@@ -162,7 +182,8 @@ export function EventMap({ events, loc, stateBounds, variant = "overlay", focus,
     if (pins.length > 1) {
       const b = new maplibregl.LngLatBounds();
       pins.forEach((e) => b.extend([e.lng, e.lat]));
-      map.fitBounds(b, { padding: panel ? 80 : { top: 120, bottom: 240, left: 40, right: 40 }, maxZoom: 13, duration: 0 });
+      const band = visibleBand(map, topRef.current, listRef.current);
+      map.fitBounds(b, { padding: panel ? 80 : { top: band.top + PIN_H, bottom: band.height - band.bottom, left: 40, right: 40 }, maxZoom: 13, duration: 0 });
     }
   }, [pins, panel]);
 
@@ -240,6 +261,30 @@ export function EventMap({ events, loc, stateBounds, variant = "overlay", focus,
     if (panel || !list) return;
     let frame = 0;
     let last: string | null = null;
+    let token = 0;
+    // centra el pin en la franja visible; si el límite del radio frena la cámara (pin cerca del borde)
+    // y queda bajo el carrusel o los controles, acerca un nivel y reintenta
+    const show = (e: (typeof pins)[number]) => {
+      const map = mapRef.current;
+      if (!map) return;
+      const mine = ++token;
+      let tries = 0;
+      const go = (zoom: number) => {
+        const b = visibleBand(map, topRef.current, list);
+        const y = Math.round((b.top + PIN_H + b.bottom) / 2 - b.height / 2);
+        map.easeTo({ center: [e.lng, e.lat], zoom, offset: [0, y], duration: 450, essential: true });
+        map.once("moveend", check);
+      };
+      const check = () => {
+        if (mine !== token) return;
+        if (map.isMoving()) { map.once("moveend", check); return; }
+        const b = visibleBand(map, topRef.current, list);
+        const p = map.project([e.lng, e.lat]);
+        const fits = p.y - PIN_H >= b.top && p.y <= b.bottom && p.x >= 32 && p.x <= b.width - 32;
+        if (!fits && ++tries <= 3) go(Math.min(map.getZoom() + 1, map.getMaxZoom()));
+      };
+      go(map.getZoom());
+    };
     const onScroll = () => {
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(() => {
@@ -254,12 +299,11 @@ export function EventMap({ events, loc, stateBounds, variant = "overlay", focus,
         if (!e || e.event_id === last) return;
         last = e.event_id;
         setActiveId(e.event_id);
-        // el pin queda en la franja visible entre la barra de búsqueda y el carrusel
-        mapRef.current?.easeTo({ center: [e.lng, e.lat], duration: 500, offset: [0, -48], essential: true });
+        show(e);
       });
     };
     list.addEventListener("scroll", onScroll, { passive: true });
-    return () => { cancelAnimationFrame(frame); list.removeEventListener("scroll", onScroll); };
+    return () => { token++; cancelAnimationFrame(frame); list.removeEventListener("scroll", onScroll); };
   }, [panel, pins]);
 
   // escritorio: pasar el mouse por una tarjeta de la lista resalta su pin
@@ -302,7 +346,8 @@ export function EventMap({ events, loc, stateBounds, variant = "overlay", focus,
 
   return (
     <div className="absolute inset-0">
-      <div ref={ref} className="h-full w-full" />
+      {/* isolate: el z-index del pin activo no debe ganarle al carrusel ni a los controles */}
+      <div ref={ref} className="isolate h-full w-full" />
       <style>{`
         .el-pin{background:#fff;color:#222;border:1px solid #ddd;border-radius:9999px;padding:6px 12px;font:600 13px var(--font-inter),system-ui;box-shadow:0 2px 8px rgba(0,0,0,.15);cursor:pointer;transform:translateY(-4px)}
         .el-me{width:18px;height:18px;border-radius:9999px;background:#1a73e8;border:3px solid #fff;box-shadow:0 0 0 6px rgba(26,115,232,.2),0 1px 4px rgba(0,0,0,.3)}
@@ -315,7 +360,7 @@ export function EventMap({ events, loc, stateBounds, variant = "overlay", focus,
         {pending ? <Loader2 size={18} className="animate-spin" /> : <LocateFixed size={18} />}
       </button>
       {!stateCve && (
-        <div className={clsx("absolute left-1/2 z-10 w-max -translate-x-1/2", panel ? "top-4" : "top-[84px]")}>
+        <div ref={topRef} className={clsx("absolute left-1/2 z-10 w-max -translate-x-1/2", panel ? "top-4" : "top-[84px]")}>
           <RadiusSlider
             value={radiusKm}
             steps={[...RADII, EXPLORE]}
