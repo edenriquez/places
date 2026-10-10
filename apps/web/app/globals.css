@@ -89,7 +89,12 @@ h1, h2, h3, .font-display {
 .feed-from-left { animation: feed-from-left 180ms ease-out; }
 @keyframes when-menu { from { opacity: 0; transform: translateY(-6px) scale(0.98); } to { opacity: 1; transform: none; } }
 .when-menu { transform-origin: top left; animation: when-menu 140ms ease-out; }
-@media (prefers-reduced-motion: reduce) { .feed-from-right, .feed-from-left, .when-menu { animation: none; } }
+/* mapa móvil: el alcance (components/reach-chip.tsx) se despliega desde la píldora al cambiar con el zoom */
+@keyframes reach-open { from { opacity: 0.4; transform: translateY(-10px) scale(0.6, 0.4); } 60% { opacity: 1; } to { opacity: 1; transform: none; } }
+.reach-open { transform-origin: top center; animation: reach-open 320ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+@keyframes reach-close { from { opacity: 0.5; transform: translateY(8px) scale(1.4, 1.6); } to { opacity: 1; transform: none; } }
+.reach-close { transform-origin: top center; animation: reach-close 260ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+@media (prefers-reduced-motion: reduce) { .feed-from-right, .feed-from-left, .when-menu, .reach-open, .reach-close { animation: none; } }
 
 /* Explorar ⇄ Mapa (escritorio). Una sola curva y duración para todo:
    - las tarjetas se deslizan a su lugar (por debajo del mapa)
