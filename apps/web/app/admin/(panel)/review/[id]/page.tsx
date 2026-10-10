@@ -25,12 +25,15 @@ export default async function ReviewDetailPage({ params }: { params: Promise<{ i
 
   // lugares del municipio (para autocompletar) y eventos cercanos en fecha (para "duplicado de")
   const cvegeo = event?.municipality_cvegeo ?? ing.municipality_hint ?? null;
-  const [{ data: places }, { data: candidates }, { data: org }] = await Promise.all([
+  const [{ data: places }, { data: candidates }, { data: org }, { data: experiences }] = await Promise.all([
     cvegeo ? sb.from("places_view").select("id,name,kind").eq("municipality_cvegeo", cvegeo).order("name") : Promise.resolve({ data: [] }),
     cvegeo
       ? sb.from("events").select("id,title,slug,status").eq("municipality_cvegeo", cvegeo).in("status", ["published", "pending"]).neq("id", ing.event_id ?? "00000000-0000-0000-0000-000000000000").order("created_at", { ascending: false }).limit(30)
       : Promise.resolve({ data: [] }),
     event?.org_id ? sb.from("organizations").select("name").eq("id", event.org_id).maybeSingle() : Promise.resolve({ data: null }),
+    cvegeo || event?.experience_id
+      ? sb.from("experiences").select("id,title,status").or([cvegeo && `municipality_cvegeo.eq.${cvegeo}`, event?.experience_id && `id.eq.${event.experience_id}`].filter(Boolean).join(",")).neq("status", "archived").order("title")
+      : Promise.resolve({ data: [] }),
   ]);
   const editing = event?.status === "published";
   const sub = ing.payload?.submitted_via === "publicar" ? (ing.payload as Record<string, unknown>) : null;
@@ -66,6 +69,7 @@ export default async function ReviewDetailPage({ params }: { params: Promise<{ i
         municipalities={(munis ?? []) as { cvegeo: string; name: string }[]}
         places={(places ?? []) as { id: string; name: string; kind: string }[]}
         candidates={(candidates ?? []) as { id: string; title: string; slug: string; status: string }[]}
+        experiences={(experiences ?? []) as { id: string; title: string; status: string }[]}
       />
     </div>
   );

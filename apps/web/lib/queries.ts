@@ -1,12 +1,16 @@
 import { cache } from "react";
 import { unstable_cache } from "next/cache";
 import { createAnonClient } from "./supabase/server";
-import type { Event, Festivity, Municipality, NearRow, Occurrence, Place } from "./types";
+import type { Event, Experience, ExperienceRow, Festivity, Municipality, NearRow, Occurrence, Place } from "./types";
+
+/** Lo que muestra un evento de la experiencia de la que forma parte. */
+export type ParentExperience = Pick<Experience, "slug" | "title" | "image_path" | "image_focus_x" | "image_focus_y" | "is_free" | "price_min" | "price_max" | "price_note" | "availability_text">;
 import { EXPLORE, type Loc } from "./location";
 
 /**
  * Caché de datos públicos (sin cookies): la BD vive en us-west-2 y cada viaje cuesta. Las acciones del admin
  * invalidan con updateTag(EVENTS_TAG); lo que llega por el script de seed aparece al vencer el TTL.
+ * Explorar trae la lista sin filtrar y la categoría se aplica en el navegador: cambiarla no consulta.
  */
 export const EVENTS_TAG = "events";
 const EVENTS_TTL = 300;
@@ -72,12 +76,7 @@ export function rangeBounds(range: Range, now = new Date()) {
   }
 }
 
-/** `category`: una categoría o varias (una intención: "música" = conciertos y danza). */
-type CategoryFilter = string | readonly string[] | undefined;
-const byCategory = (rows: NearRow[], c: CategoryFilter) =>
-  !c ? rows : typeof c === "string" ? rows.filter((r) => r.category === c) : rows.filter((r) => c.includes(r.category));
-
-export async function eventsNear(loc: Loc, range: Range = "finde", category?: CategoryFilter): Promise<NearRow[]> {
+export async function eventsNear(loc: Loc, range: Range = "finde"): Promise<NearRow[]> {
   const { from, to } = rangeBounds(range);
   const data = await rpcEventsNear({
     lat: round(loc.lat),
@@ -88,15 +87,21 @@ export async function eventsNear(loc: Loc, range: Range = "finde", category?: Ca
   });
   // una fila por evento: la RPC ya viene ordenada por fecha asc, así que la primera es la próxima fecha
   const seen = new Set<string>();
-  const rows = inState(loc, data).filter((r) => !seen.has(r.event_id) && !!seen.add(r.event_id));
-  return byCategory(rows, category);
+  return inState(loc, data).filter((r) => !seen.has(r.event_id) && !!seen.add(r.event_id));
 }
 
-/** Sugerencias cuando no hay ubicación o no hay nada cerca: una muestra al azar de lo que viene en toda la región, por fecha. */
-export async function eventsAround(loc: Loc, category?: CategoryFilter, limit = 8): Promise<NearRow[]> {
-  const rows = await eventsNear({ ...loc, radiusKm: 400, stateCve: undefined }, "todo", category);
-  const pick = rows.length > limit ? [...rows].sort(() => Math.random() - 0.5).slice(0, limit) : rows;
-  return pick.sort((a, b) => a.starts_at.localeCompare(b.starts_at));
+/**
+ * Sugerencias cuando no hay ubicación: una muestra al azar de lo que viene en toda la región.
+ * Hasta `perCategory` por categoría, para que cualquier filtro del cliente tenga de dónde elegir sin bajar todo.
+ */
+export async function eventsAround(loc: Loc, perCategory = 8): Promise<NearRow[]> {
+  const rows = await eventsNear({ ...loc, radiusKm: 400, stateCve: undefined }, "todo");
+  const taken = new Map<string, number>();
+  return [...rows].sort(() => Math.random() - 0.5).filter((e) => {
+    const n = taken.get(e.category) ?? 0;
+    taken.set(e.category, n + 1);
+    return n < perCategory;
+  });
 }
 
 /** Coordenadas por evento (lugar o centro del municipio) para pintar pines. */
@@ -156,11 +161,14 @@ const cachedEventBySlug = unstable_cache(async (slug: string) => {
   const sb = createAnonClient();
   const { data: event } = await sb.from("events").select("*").eq("slug", slug).eq("status", "published").maybeSingle();
   if (!event) return null;
-  const [{ data: occ }, { data: place }, { data: muni }, { data: org }] = await Promise.all([
+  const [{ data: occ }, { data: place }, { data: muni }, { data: org }, { data: exp }] = await Promise.all([
     sb.from("event_occurrences").select("*").eq("event_id", event.id).order("starts_at"),
     event.place_id ? sb.from("places_view").select("*").eq("id", event.place_id).maybeSingle() : Promise.resolve({ data: null }),
     sb.from("municipalities_view").select("*").eq("cvegeo", event.municipality_cvegeo).maybeSingle(),
     event.org_id ? sb.from("organizations").select("id,name,kind,logo_url").eq("id", event.org_id).maybeSingle() : Promise.resolve({ data: null }),
+    event.experience_id
+      ? sb.from("experiences").select("slug,title,image_path,image_focus_x,image_focus_y,is_free,price_min,price_max,price_note,availability_text").eq("id", event.experience_id).eq("status", "published").maybeSingle()
+      : Promise.resolve({ data: null }),
   ]);
   return {
     event: event as Event,
@@ -168,6 +176,7 @@ const cachedEventBySlug = unstable_cache(async (slug: string) => {
     place: place as Place | null,
     municipality: muni as Municipality | null,
     organization: org as { id: string; name: string; kind: string; logo_url: string | null } | null,
+    experience: exp as ParentExperience | null,
   };
 }, ["event_by_slug"], { tags: [EVENTS_TAG], revalidate: EVENTS_TTL });
 
@@ -214,6 +223,143 @@ export async function municipalityFestivities(cvegeo: string): Promise<Festivity
   const sb = createAnonClient();
   const { data } = await sb.from("festivities").select("*").eq("municipality_cvegeo", cvegeo).order("month", { nullsFirst: false });
   return (data ?? []) as Festivity[];
+}
+
+// ---------------------------------------------------------------------------
+// Experiencias: lo que se puede hacer cualquier día (y las fechas con guía que generan)
+// ---------------------------------------------------------------------------
+
+const rpcExperiencesNear = unstable_cache(
+  async (args: { lat: number; lng: number; radius_m: number }) => {
+    const { data, error } = await createAnonClient().rpc("experiences_near", args);
+    if (error) throw error;
+    return (data ?? []) as ExperienceRow[];
+  },
+  ["experiences_near"],
+  { tags: [EVENTS_TAG], revalidate: EVENTS_TTL },
+);
+
+/** De la más cercana a la más lejana. `kinds`: solo esos tipos (los de una intención). */
+export async function experiencesNear(loc: Loc, kinds?: readonly string[], limit = 24): Promise<ExperienceRow[]> {
+  const data = await rpcExperiencesNear({ lat: round(loc.lat), lng: round(loc.lng), radius_m: radiusM(loc) });
+  const rows = loc.stateCve ? data.filter((r) => r.municipality_cvegeo.startsWith(loc.stateCve!)) : data;
+  return (kinds ? rows.filter((r) => kinds.includes(r.kind)) : rows).slice(0, limit);
+}
+
+export async function municipalityExperiences(cvegeo: string, at: { lat: number; lng: number }): Promise<ExperienceRow[]> {
+  const data = await rpcExperiencesNear({ lat: round(at.lat), lng: round(at.lng), radius_m: 40000 });
+  return data.filter((r) => r.municipality_cvegeo === cvegeo).sort(outingsFirst);
+}
+
+/** Dentro de un municipio o lugar la distancia dice poco: primero las que tienen salidas con guía próximas. */
+const outingsFirst = (a: ExperienceRow, b: ExperienceRow) => Number(b.upcoming > 0) - Number(a.upcoming > 0);
+
+export type OrganizationBrief = { id: string; name: string; kind: string; logo_url: string | null; whatsapp: string | null };
+
+/** Una fecha futura de un evento de la experiencia (salida con guía). */
+export type Outing = Pick<Occurrence, "id" | "starts_at" | "ends_at" | "is_all_day" | "note"> & {
+  event: { slug: string; title: string; is_free: boolean; price_min: number | null; price_max: number | null };
+};
+
+const cachedExperienceBySlug = unstable_cache(async (slug: string) => {
+  const sb = createAnonClient();
+  const { data: x } = await sb.from("experiences_view").select("*").eq("slug", slug).eq("status", "published").maybeSingle();
+  if (!x) return null;
+  const [{ data: place }, { data: muni }, { data: org }, { data: events }] = await Promise.all([
+    x.place_id ? sb.from("places_view").select("*").eq("id", x.place_id).maybeSingle() : Promise.resolve({ data: null }),
+    sb.from("municipalities_view").select("*").eq("cvegeo", x.municipality_cvegeo).maybeSingle(),
+    x.org_id ? sb.from("organizations").select("id,name,kind,logo_url,whatsapp").eq("id", x.org_id).maybeSingle() : Promise.resolve({ data: null }),
+    sb.from("events")
+      .select("slug,title,is_free,price_min,price_max,event_occurrences(id,starts_at,ends_at,is_all_day,note)")
+      .eq("experience_id", x.id)
+      .eq("status", "published"),
+  ]);
+  const now = Date.now();
+  type Row = Outing["event"] & { event_occurrences: Omit<Outing, "event">[] };
+  const outings: Outing[] = ((events ?? []) as Row[])
+    .flatMap(({ event_occurrences, ...event }) => event_occurrences.map((o) => ({ ...o, event })))
+    .filter((o) => new Date(o.ends_at ?? o.starts_at).getTime() >= now)
+    .sort((a, b) => a.starts_at.localeCompare(b.starts_at));
+  return {
+    experience: x as Experience,
+    place: place as Place | null,
+    municipality: muni as Municipality | null,
+    organization: org as OrganizationBrief | null,
+    outings,
+  };
+}, ["experience_by_slug"], { tags: [EVENTS_TAG], revalidate: EVENTS_TTL });
+
+export const experienceBySlug = cache((slug: string) => cachedExperienceBySlug(slug));
+
+/** Experiencias publicadas para sitemap.xml. */
+export const publishedExperiencesIndex = unstable_cache(
+  async () => {
+    const { data, error } = await createAnonClient()
+      .from("experiences")
+      .select("slug, title, updated_at, image_path, valid_until")
+      .eq("status", "published")
+      .order("updated_at", { ascending: false })
+      .limit(5000);
+    if (error) throw error;
+    return (data ?? []) as { slug: string; title: string; updated_at: string; image_path: string | null; valid_until: string | null }[];
+  },
+  ["published_experiences_index"],
+  { tags: [EVENTS_TAG], revalidate: 3600 },
+);
+
+// ---------------------------------------------------------------------------
+// Lugares: municipio → lugar → experiencias + eventos
+// ---------------------------------------------------------------------------
+
+/** Varios lugares pueden compartir slug en un municipio (dos "Gimnasio"); gana el más antiguo. */
+export const placeBySlug = cache(async (cvegeo: string, slug: string) => {
+  const { data } = await createAnonClient()
+    .from("places_view")
+    .select("*")
+    .eq("municipality_cvegeo", cvegeo)
+    .eq("slug", slug)
+    .order("id")
+    .limit(1)
+    .maybeSingle();
+  return data as Place | null;
+});
+
+/** Experiencias y próximos eventos de un lugar. `at`: punto del lugar o, si no tiene, el centro del municipio. */
+export async function placeContent(placeId: string, at: { lat: number; lng: number }) {
+  const now = new Date();
+  const [exps, evs] = await Promise.all([
+    rpcExperiencesNear({ lat: round(at.lat), lng: round(at.lng), radius_m: 40000 }),
+    rpcEventsNear({
+      lat: round(at.lat), lng: round(at.lng), radius_m: 5000,
+      from_ts: bucket(now),
+      to_ts: bucket(new Date(now.getTime() + 90 * 86400000)),
+    }),
+  ]);
+  const seen = new Set<string>();
+  return {
+    experiences: exps.filter((r) => r.place_id === placeId).sort(outingsFirst),
+    events: evs.filter((r) => r.place_id === placeId && !seen.has(r.event_id) && !!seen.add(r.event_id)),
+  };
+}
+
+/** Cuántas experiencias y eventos tiene cada lugar del municipio (para enlazar solo los que tienen algo). */
+export function placeCounts(experiences: ExperienceRow[], events: NearRow[]) {
+  const counts = new Map<string, { name: string; experiences: number; events: number }>();
+  const bump = (id: string | null, name: string | null, key: "experiences" | "events") => {
+    if (!id || !name) return;
+    const c = counts.get(id) ?? { name, experiences: 0, events: 0 };
+    c[key]++;
+    counts.set(id, c);
+  };
+  experiences.forEach((x) => bump(x.place_id, x.place_name, "experiences"));
+  new Map(events.map((e) => [e.event_id, e])).forEach((e) => bump(e.place_id, e.place_name, "events"));
+  return counts;
+}
+
+export async function placesByIds(ids: string[]): Promise<Place[]> {
+  if (!ids.length) return [];
+  const { data } = await createAnonClient().from("places_view").select("*").in("id", ids);
+  return (data ?? []) as Place[];
 }
 
 export async function municipalityPlaces(cvegeo: string, limit = 8): Promise<Place[]> {

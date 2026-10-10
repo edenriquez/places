@@ -1,6 +1,6 @@
 import Image, { getImageProps } from "next/image";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, AtSign, CalendarDays, ExternalLink, Flag, Globe, MapPin, MessageCircle, Phone, Share2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, AtSign, CalendarDays, ChevronRight, ExternalLink, Flag, Globe, Infinity as Always, MapPin, MessageCircle, Phone, Share2 } from "lucide-react";
 import clsx from "clsx";
 import { BackButton } from "./back-button";
 import { CompactCard, EventCard } from "./event-card";
@@ -11,7 +11,7 @@ import { InterestButton } from "./interest-button";
 import { MiniMap } from "./mini-map";
 import { SaveButton } from "./save-button";
 import { PriceTag } from "./ui";
-import { flyerUrl, fmtPhone, fmtWhenLong, focusStyle, waLink } from "@/lib/format";
+import { cleanAddress, flyerUrl, fmtPhone, fmtPrice, fmtWhenLong, focusStyle, waLink } from "@/lib/format";
 import type { eventBySlug } from "@/lib/queries";
 import { CATEGORY_LABEL, type NearRow } from "@/lib/types";
 
@@ -75,6 +75,7 @@ function Category({ d }: { d: EventData }) {
 
 function Where({ d }: { d: EventData }) {
   const { event, place, municipality } = d;
+  const address = cleanAddress(place?.address);
   if (event.departure_text) {
     return (
       <>
@@ -94,7 +95,7 @@ function Where({ d }: { d: EventData }) {
     <>
       <p className="text-[15px] font-medium">{place?.name ?? event.place_text ?? "Lugar por confirmar"}</p>
       <p className="text-[13px] text-ink-2">
-        {place?.address ? `${place.address} · ` : ""}{municipality?.name}{municipality ? `, ${municipality.state}` : ""}
+        {address ? `${address} · ` : ""}{municipality?.name}{municipality ? `, ${municipality.state}` : ""}
       </p>
     </>
   );
@@ -130,6 +131,29 @@ function InfoList({ d, x, map }: { d: EventData; x: Derived; map?: React.ReactNo
         </li>
       )}
     </ul>
+  );
+}
+
+/** El evento es una fecha de una experiencia (salida guiada): la experiencia sigue cuando la fecha pasa. */
+function PartOfExperience({ d }: { d: EventData }) {
+  const x = d.experience;
+  if (!x) return null;
+  const img = flyerUrl(x.image_path);
+  const price = fmtPrice(x.is_free, x.price_min, x.price_max);
+  return (
+    <Link href={`/experiencia/${x.slug}`} className="flex items-center gap-3 rounded-card border border-[#bfe3cf] bg-[#f1faf5] p-3 hover:border-[#17734a]">
+      <span className="relative h-16 w-16 shrink-0 overflow-hidden rounded-[12px] bg-bg-2">
+        {img && <Image src={img} alt="" fill sizes="64px" className="object-cover" style={focusStyle(x.image_focus_x, x.image_focus_y)} />}
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="flex items-center gap-1 text-[11px] font-semibold uppercase tracking-[0.04em] text-[#17734a]"><Always size={12} strokeWidth={2.6} aria-hidden /> Parte de una experiencia</span>
+        <span className="block truncate text-[15px] font-semibold">{x.title}</span>
+        <span className="block text-[13px] text-ink-2">
+          También puedes ir por tu cuenta{x.availability_text ? ` · ${x.availability_text.toLowerCase()}` : " cualquier día"}{price !== "Consultar" ? ` · ${price}${x.price_note && !x.is_free ? ` ${x.price_note}` : ""}` : ""}
+        </span>
+      </span>
+      <ChevronRight size={18} className="shrink-0 text-ink-3" aria-hidden />
+    </Link>
   );
 }
 
@@ -302,6 +326,7 @@ export function EventMobile({ d, nearby }: { d: EventData; nearby: NearRow[] }) 
           </div>
           <InterestButton eventId={d.event.id} className="mt-6 rounded-card border border-line p-4" />
         </div>
+        <PartOfExperience d={d} />
         <Description d={d} />
         <Contact d={d} x={x} />
         <Program d={d} />
@@ -352,6 +377,7 @@ export function EventDesktop({ d, nearby }: { d: EventData; nearby: NearRow[] })
         <div className="min-w-0 space-y-9">
           <Flyer x={x} alt={`Flyer de ${event.title}`} sizes="720px" aspect="aspect-[4/3]" rounded contain media={DESKTOP} />
           <InfoList d={d} x={x} />
+          <PartOfExperience d={d} />
           <Description d={d} />
           <Program d={d} />
           <Contact d={d} x={x} />
@@ -421,6 +447,7 @@ export function EventPanel({ d, backHref, sheet }: { d: EventData; backHref: str
 
       {sheet && <Flyer x={x} alt={`Flyer de ${d.event.title}`} sizes="640px" aspect="aspect-[4/3]" rounded contain media={MOBILE} />}
 
+      <PartOfExperience d={d} />
       <Description d={d} />
       <Contact d={d} x={x} />
       <Program d={d} />

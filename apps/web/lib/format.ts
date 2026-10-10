@@ -72,6 +72,13 @@ export function waLink(digits: string) {
   return `https://wa.me/${d.length === 10 ? `52${d}` : d}`;
 }
 
+/** Las direcciones del DENUE vienen en mayúsculas y con "CALLE NINGUNO" cuando no hay calle. */
+export function cleanAddress(a: string | null | undefined) {
+  const s = a?.replace(/\b(CALLE|AVENIDA|CAMINO|CARRETERA)\s+NINGUNO\b/gi, "").replace(/\bNINGUNO\b/gi, "").replace(/\s{2,}/g, " ").trim();
+  if (!s) return null;
+  return s === s.toUpperCase() ? s.toLowerCase().replace(/(^|\s)(\p{L})/gu, (_, sp, c) => sp + c.toUpperCase()) : s;
+}
+
 export function flyerUrl(path: string | null) {
   if (!path) return null;
   return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/flyers/${path}`;
