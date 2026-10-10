@@ -23,6 +23,12 @@ export const EXPERIENCE_KINDS = {
   productores: { label: "Tour de productores", emoji: "🧀", intent: "comida" },
   enoturismo: { label: "Enoturismo", emoji: "🍷", intent: "comida" },
   historico: { label: "Recorrido histórico", emoji: "🏛️", intent: "cultura" },
+  clase_musica: { label: "Clase de música", emoji: "🎸", intent: "musica" },
+  clase_baile: { label: "Clase de baile", emoji: "💃", intent: "musica" },
+  musica_en_vivo: { label: "Música en vivo", emoji: "🎶", intent: "musica" },
+  ruta_pulque: { label: "Ruta del pulque y mezcal", emoji: "🥃", intent: "fiesta" },
+  tradiciones: { label: "Tradiciones de fiesta", emoji: "🎊", intent: "fiesta" },
+  pirotecnia: { label: "Taller de pirotecnia", emoji: "🎆", intent: "fiesta" },
 } as const satisfies Record<string, { label: string; emoji: string; intent: IntentKey }>;
 
 export type ExperienceKind = keyof typeof EXPERIENCE_KINDS;

@@ -46,7 +46,7 @@ export function IntentPicker({ compact }: { compact?: boolean }) {
     <section className="px-5 pt-5">
       {!compact && (
         <>
-          <h2 className="text-[22px] font-bold leading-tight">¿Qué quieres hacer este fin?</h2>
+          <h2 className="text-[22px] font-bold leading-tight">¿Qué quieres hacer?</h2>
           <p className="mt-0.5 text-[13px] text-ink-2">Elige y te mostramos lo que hay cerca de ti</p>
         </>
       )}

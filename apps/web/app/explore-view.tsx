@@ -13,8 +13,8 @@ import type { NearRow } from "@/lib/types";
 const LOCAL_KM = 10;
 const RANGES = ["finde", "15d", "todo"] as const;
 
-/** ?v=dia: abre en la pestaña "Cualquier día" */
-export type ExploreParams = { r?: string; c?: string; i?: string; e?: string; v?: string };
+/** ?r=: periodo de la agenda ("ahora" o un rango). ?v=dia: pestaña "Cualquier día"; ?k=: tipo de experiencia */
+export type ExploreParams = { r?: string; c?: string; i?: string; e?: string; v?: string; k?: string };
 
 /**
  * Lista de eventos (Explorar). En escritorio: `split` = lista + mapa fijo a la derecha (/mapa);
@@ -56,7 +56,7 @@ export async function ExploreView({ sp, split = false, basePath = "/" }: { sp: E
     : {};
   // /mapa en escritorio: ?e=slug abre el detalle en el panel izquierdo (el mapa se centra en el evento)
   const detail = split && sp.e ? await eventBySlug(sp.e) : null;
-  const listQs = new URLSearchParams(Object.entries({ r: sp.r, c: sp.c, i: sp.i, v: sp.v }).filter((kv): kv is [string, string] => !!kv[1])).toString();
+  const listQs = new URLSearchParams(Object.entries({ r: sp.r, c: sp.c, i: sp.i, v: sp.v, k: sp.k }).filter((kv): kv is [string, string] => !!kv[1])).toString();
   const listHref = listQs ? `${basePath}?${listQs}` : basePath;
   const focusCoords = detail ? eventCoords(detail) : null;
   const focus = detail && focusCoords ? { id: detail.event.id, ...focusCoords } : null;
@@ -90,7 +90,6 @@ export async function ExploreView({ sp, split = false, basePath = "/" }: { sp: E
             area={area}
             liveSubtitle={isSet ? `Activos en este momento ${nearText(loc)}` : "Activos en este momento en la región"}
             hideDistance={!!loc.stateCve}
-            startUpcoming={!!sp.r}
             startAnyDay={sp.v === "dia"}
           />
         </>
