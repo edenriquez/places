@@ -7,6 +7,8 @@ import type { Intent } from "./session-provider";
 const COPY: Record<Intent["do"] | "default", { title: string; body: string }> = {
   save: { title: "Guarda este evento", body: "Entra para no perdértelo y encontrarlo en cualquier dispositivo." },
   interest: { title: "Dile a los demás que vas", body: "Entra para marcar que te interesa y ver cuánta gente más se anima." },
+  join: { title: "Súmate al plan", body: "Entra para unirte: el plan aparece en tus planes y en los de quienes van, con aviso un día antes." },
+  plan: { title: "Arma un plan con más gente", body: "Entra para armarlo e invitar a tus conocidos o a gente cerca que también quiere ir." },
   default: { title: "Entra a entrelugares", body: "Guarda eventos y marca a cuáles te interesa ir." },
 };
 

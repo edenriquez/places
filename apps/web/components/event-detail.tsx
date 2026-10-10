@@ -9,6 +9,8 @@ import { ImagePreload } from "./image-preload";
 import { ZoomableImage } from "./image-viewer";
 import { InterestButton } from "./interest-button";
 import { MiniMap } from "./mini-map";
+import { PlanBox } from "./plans/plan-box";
+import type { PlanSheetTarget } from "./plans/plan-sheet";
 import { SaveButton } from "./save-button";
 import { PriceTag } from "./ui";
 import { cleanAddress, flyerUrl, fmtPhone, fmtPrice, fmtWhenLong, focusStyle, waLink } from "@/lib/format";
@@ -31,7 +33,8 @@ export function eventCoords(d: EventData) {
 
 function derive(d: EventData) {
   const { event, occurrences, place, municipality } = d;
-  const next = occurrences.find((o) => new Date(o.ends_at ?? o.starts_at) >= new Date()) ?? occurrences[0];
+  const upcoming = occurrences.filter((o) => new Date(o.ends_at ?? o.starts_at) >= new Date());
+  const next = upcoming[0] ?? occurrences[0];
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "";
   const when = next ? fmtWhenLong(next.starts_at, next.ends_at, next.is_all_day) : "";
   const socials = [
@@ -57,6 +60,12 @@ function derive(d: EventData) {
     socials,
     hasContact: !!(event.contact_phone || socials.length || event.website_url),
     mapsQuery: encodeURIComponent(place ? `${place.name}, ${municipality?.name ?? ""}` : `${event.place_text ?? ""} ${municipality?.name ?? ""}`),
+    planTarget: {
+      kind: "event",
+      id: event.id,
+      title: event.title,
+      occurrences: upcoming.map(({ id, starts_at, ends_at, is_all_day, note }) => ({ id, starts_at, ends_at, is_all_day, note })),
+    } satisfies PlanSheetTarget,
   };
 }
 type Derived = ReturnType<typeof derive>;
@@ -325,6 +334,7 @@ export function EventMobile({ d, nearby }: { d: EventData; nearby: NearRow[] }) 
             <InfoList d={d} x={x} map={x.coords && <MiniMap slug={d.event.slug} lat={x.coords.lat} lng={x.coords.lng} className="mt-3 h-[140px] w-full overflow-hidden rounded-card border border-line" />} />
           </div>
           <InterestButton eventId={d.event.id} className="mt-6 rounded-card border border-line p-4" />
+          <PlanBox target={x.planTarget} className="mt-3" />
         </div>
         <PartOfExperience d={d} />
         <Description d={d} />
@@ -377,6 +387,7 @@ export function EventDesktop({ d, nearby }: { d: EventData; nearby: NearRow[] })
         <div className="min-w-0 space-y-9">
           <Flyer x={x} alt={`Flyer de ${event.title}`} sizes="720px" aspect="aspect-[4/3]" rounded contain media={DESKTOP} />
           <InfoList d={d} x={x} />
+          <PlanBox target={x.planTarget} />
           <PartOfExperience d={d} />
           <Description d={d} />
           <Program d={d} />
@@ -444,6 +455,7 @@ export function EventPanel({ d, backHref, sheet }: { d: EventData; backHref: str
         <ShareButton x={x} />
       </div>
       <InterestButton eventId={d.event.id} className="-mt-2 px-1" />
+      <PlanBox target={x.planTarget} />
 
       {sheet && <Flyer x={x} alt={`Flyer de ${d.event.title}`} sizes="640px" aspect="aspect-[4/3]" rounded contain media={MOBILE} />}
 

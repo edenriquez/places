@@ -5,6 +5,7 @@ import { createServiceClient } from "@/lib/supabase/service";
 // acciones que se completan al volver de Google (lo que la persona intentó antes de entrar)
 const ACTIONS = { save: "saved_events", interest: "event_interests" } as const;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const PLAN_CODE = /^[0-9a-f]{18}$/;
 
 /** Solo rutas internas: "/x" sí; "//evil.com" o "/\evil.com" no (open redirect). */
 function safeNext(raw: string | null) {
@@ -37,6 +38,12 @@ export async function GET(request: NextRequest) {
     const eventId = searchParams.get("event");
     if (!error && data.user && table && eventId && UUID.test(eventId)) {
       await sb.from(table).upsert({ user_id: data.user.id, event_id: eventId }, { onConflict: "user_id,event_id", ignoreDuplicates: true });
+    }
+    if (!error && data.user && searchParams.get("do") === "join") {
+      const plan = searchParams.get("plan");
+      const inviteCode = searchParams.get("code");
+      if (inviteCode && PLAN_CODE.test(inviteCode)) await sb.rpc("join_plan", { p_code: inviteCode });
+      else if (plan && UUID.test(plan)) await sb.rpc("join_plan", { p_plan: plan });
     }
     if (!error && data.user) await linkVisitor(request, data.user.id);
   }

@@ -6,6 +6,8 @@ import { BackButton } from "./back-button";
 import { AnyDayBadge, KindBadge } from "./experience-card";
 import { FlyerCarousel, type Slide } from "./flyer-carousel";
 import { ZoomableImage } from "./image-viewer";
+import { PlanBox } from "./plans/plan-box";
+import type { PlanSheetTarget } from "./plans/plan-sheet";
 import { PriceTag } from "./ui";
 import { DIFFICULTY_LABEL, fmtExperiencePrice, fmtKm } from "@/lib/experiences";
 import { flyerUrl, fmtPhone, fmtPrice, fmtWhenShort, focusStyle, waLink } from "@/lib/format";
@@ -53,6 +55,7 @@ function derive(d: ExperienceData) {
     shareHref: `https://wa.me/?text=${encodeURIComponent(`${x.title} · ${[where, municipality?.name].filter(Boolean).join(", ")} · ${siteUrl}/experiencia/${x.slug}?utm_source=whatsapp&utm_medium=share`)}`,
     mapsQuery: encodeURIComponent(`${where ?? x.title}, ${municipality?.name ?? ""}`),
     expired: !!x.valid_until && x.valid_until < new Date().toISOString().slice(0, 10),
+    planTarget: { kind: "experience", id: x.id, title: x.title, hours: x.hours } satisfies PlanSheetTarget,
   };
 }
 type Derived = ReturnType<typeof derive>;
@@ -332,6 +335,7 @@ export function ExperienceMobile({ d }: { d: ExperienceData }) {
         <div className="space-y-5">
           <Header d={d} x={x} />
           <Facts x={x} />
+          {!x.expired && <PlanBox target={x.planTarget} />}
         </div>
         <WhenToGo x={x} />
         <Outings d={d} />
@@ -367,6 +371,7 @@ export function ExperienceDesktop({ d }: { d: ExperienceData }) {
         <div className="min-w-0 space-y-9">
           <Photos x={x} sizes="720px" aspect="aspect-[4/3]" rounded />
           <Facts x={x} />
+          {!x.expired && <PlanBox target={x.planTarget} />}
           <About x={x} />
           <WhenToGo x={x} />
           <Outings d={d} />

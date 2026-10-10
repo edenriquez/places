@@ -49,12 +49,13 @@ export function ics(events: IcsEvent[], calName = SITE_NAME) {
   return lines.map(fold).join("\r\n") + "\r\n";
 }
 
-export function icsResponse(body: string, filename: string) {
+/** `personal`: lleva nombres de quienes van; no se guarda en la CDN. `inline`: calendario suscrito (webcal), no descarga. */
+export function icsResponse(body: string, filename: string, { personal = false, inline = false } = {}) {
   return new Response(body, {
     headers: {
       "content-type": "text/calendar; charset=utf-8",
-      "content-disposition": `attachment; filename="${filename}.ics"`,
-      "cache-control": "public, max-age=300, s-maxage=3600",
+      "content-disposition": `${inline ? "inline" : "attachment"}; filename="${filename}.ics"`,
+      "cache-control": personal ? "private, max-age=300" : "public, max-age=300, s-maxage=3600",
     },
   });
 }

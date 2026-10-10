@@ -7,8 +7,14 @@ import { afterLoad } from "@/lib/idle";
 import { setTrackUser, track } from "@/lib/track";
 import { LoginSheet } from "./login-sheet";
 
-/** Qué quería hacer la persona cuando le pedimos entrar; el callback lo completa al volver de Google. */
-export type Intent = { do: "save" | "interest"; eventId: string };
+/**
+ * Qué quería hacer la persona cuando le pedimos entrar; el callback lo completa al volver de Google.
+ * `join`: unirse a un plan (por link de invitación o abierto). `plan`: armar uno (al volver se abre el formulario).
+ */
+export type Intent =
+  | { do: "save" | "interest"; eventId: string }
+  | { do: "join"; planId?: string; code?: string }
+  | { do: "plan" };
 
 type Ctx = {
   user: User | null;
@@ -20,6 +26,8 @@ type Ctx = {
   pending: Intent | null;
   toggleSave: (eventId: string) => void;
   toggleInterest: (eventId: string) => void;
+  /** Al armar o unirse a un plan de un evento, el servidor ya lo marcó con "Me interesa": reflejarlo sin recargar. */
+  noteInterest: (eventId: string) => void;
   loadCounts: (eventIds: string[]) => void;
   openLogin: (intent?: Intent) => void;
   signIn: (intent?: Intent) => Promise<void>;
@@ -35,7 +43,7 @@ const SessionCtx = createContext<Ctx | null>(null);
 // supabase-js (~70 KB br, con Realtime y auth) va en su propio chunk: no compite con el flyer ni con la
 // hidratación; se baja después del load o al primer toque que lo necesite
 let client: Promise<SupabaseClient> | undefined;
-const getClient = () => (client ??= import("@/lib/supabase/client").then((m) => m.createClient()));
+export const getClient = () => (client ??= import("@/lib/supabase/client").then((m) => m.createClient()));
 
 export function useSession() {
   const ctx = useContext(SessionCtx);
@@ -137,11 +145,14 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const signIn = useCallback(async (intent?: Intent) => {
-    track("login_start", { event: intent?.eventId, props: intent ? { intent: intent.do } : undefined });
-    const params = new URLSearchParams({ next: location.pathname + location.search });
-    if (intent) {
-      params.set("do", intent.do);
-      params.set("event", intent.eventId);
+    const eventId = intent && "eventId" in intent ? intent.eventId : undefined;
+    track("login_start", { event: eventId, props: intent ? { intent: intent.do } : undefined });
+    const params = new URLSearchParams({ next: location.pathname + location.search + (intent?.do === "plan" ? "#plan" : "") });
+    if (intent) params.set("do", intent.do);
+    if (eventId) params.set("event", eventId);
+    if (intent?.do === "join") {
+      if (intent.planId) params.set("plan", intent.planId);
+      if (intent.code) params.set("code", intent.code);
     }
     await (await getClient()).auth.signInWithOAuth({
       provider: "google",
@@ -186,9 +197,15 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     });
   }, [uid, interested, requireLogin]);
 
+  const noteInterest = useCallback((eventId: string) => {
+    if (interested.has(eventId)) return;
+    setInterested((s) => toggled(s, eventId, true));
+    setCounts((c) => (c[eventId] === undefined ? c : { ...c, [eventId]: c[eventId] + 1 }));
+  }, [interested]);
+
   const value: Ctx = {
     user, ready, saved, interested, counts, pending,
-    toggleSave, toggleInterest, loadCounts,
+    toggleSave, toggleInterest, noteInterest, loadCounts,
     openLogin: (intent) => setLogin({ intent }),
     signIn, signOut,
   };
