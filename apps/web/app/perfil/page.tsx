@@ -1,12 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
-import { NO_INDEX } from "@/lib/site";
+import { NO_INDEX, SITE_HOST } from "@/lib/site";
 import { ArrowRight, CalendarDays, Heart, Megaphone, Sparkles, Star } from "lucide-react";
 import clsx from "clsx";
 import { SignInButton, SignOutButton } from "@/components/auth/account-buttons";
 import { BottomNav } from "@/components/bottom-nav";
 import { DesktopHeader } from "@/components/desktop";
+import { InstallApp } from "@/components/install-app";
 import { SearchBar } from "@/components/location-picker";
 import { accountSummary, type Submission } from "@/lib/account";
 import { flyerUrl, fmtWhenShort } from "@/lib/format";
@@ -121,6 +122,7 @@ export default async function ProfilePage() {
             <SignInButton className="mt-6" />
           </section>
           <Organizer submissions={[]} />
+          <InstallApp host={SITE_HOST} />
           <p className="flex justify-center gap-4 pt-2">
             <Link href="/terminos" className="text-[13px] text-ink-2 underline">Términos y condiciones</Link>
             <Link href="/privacidad" className="text-[13px] text-ink-2 underline">Aviso de privacidad</Link>
@@ -216,6 +218,7 @@ export default async function ProfilePage() {
 
         <aside className="space-y-4 lg:sticky lg:top-[100px]">
           <Organizer submissions={s.submissions} />
+          <InstallApp host={SITE_HOST} />
           <div className="flex flex-wrap items-center justify-center gap-4 pt-4 lg:justify-start lg:pt-0">
           <SignOutButton />
           <Link href="/terminos" className="text-[13px] text-ink-2 underline">Términos y condiciones</Link>

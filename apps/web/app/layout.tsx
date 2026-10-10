@@ -4,6 +4,7 @@ import "./globals.css";
 import { Suspense } from "react";
 import { SessionProvider } from "@/components/auth/session-provider";
 import { Tracker } from "@/components/tracker";
+import { ServiceWorker } from "@/components/service-worker";
 import { LOCALE, SITE_DESCRIPTION, SITE_KEYWORDS, SITE_NAME, SITE_URL } from "@/lib/site";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
@@ -56,7 +57,7 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es-MX" className={`${inter.variable} ${jakarta.variable}`}>
-      <body className="min-h-dvh bg-bg text-ink"><SessionProvider>{children}</SessionProvider><Suspense fallback={null}><Tracker /></Suspense></body>
+      <body className="min-h-dvh bg-bg text-ink"><SessionProvider>{children}</SessionProvider><Suspense fallback={null}><Tracker /></Suspense><ServiceWorker /></body>
     </html>
   );
 }
