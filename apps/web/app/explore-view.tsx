@@ -14,7 +14,7 @@ const LOCAL_KM = 10;
 const RANGES = ["finde", "15d", "todo"] as const;
 
 /** ?r=: periodo de la agenda ("ahora" o un rango). ?v=dia: pestaña "Cualquier día"; ?k=: tipo de experiencia */
-export type ExploreParams = { r?: string; c?: string; i?: string; e?: string; v?: string; k?: string };
+export type ExploreParams = { r?: string; c?: string; i?: string; e?: string; v?: string; k?: string; ver?: string };
 
 /**
  * Lista de eventos (Explorar). En escritorio: `split` = lista + mapa fijo a la derecha (/mapa);

@@ -3,7 +3,7 @@
 import { useMemo, useState, useTransition } from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
-import { ChevronLeft, ChevronRight, Loader2, LocateFixed, MapPin, Search, X } from "lucide-react";
+import { ChevronDown, ChevronLeft, ChevronRight, Loader2, LocateFixed, MapPin, Search, X } from "lucide-react";
 import clsx from "clsx";
 import { DEFAULT_RADIUS, EXPLORE, radiusLabel, type Loc } from "@/lib/location";
 import type { Municipality } from "@/lib/types";
@@ -33,7 +33,20 @@ export function SearchBar({ loc, municipalities, compact, isSet = true, header }
   const where = loc.stateCve ? `Todo ${loc.label}` : loc.radiusKm === 0 ? "Explorando toda la región" : loc.label === "Tu ubicación" ? "Cerca de ti" : `Cerca de ${loc.label}`;
   return (
     <>
-      <div className={clsx(!header && "px-5", !header && (compact ? "pt-3" : "pt-4"))}>
+      <div className={clsx(compact ? "flex min-w-0 flex-1" : !header && "px-5 pt-4")}>
+        {compact ? (
+          // mapa: solo el lugar, dentro de la píldora que comparte con "Mi ubicación" (sin fondo propio)
+          <button
+            type="button"
+            onClick={() => setOpen(true)}
+            aria-label={`Cambiar lugar: ${loc.label}`}
+            className="flex h-10 min-w-0 flex-1 items-center gap-2 pl-3.5 pr-2.5 text-left text-[14px]"
+          >
+            <Search size={16} className="shrink-0" />
+            <span className="min-w-0 flex-1 truncate font-semibold">{isSet ? (loc.stateCve ? `Todo ${loc.label}` : loc.label) : "¿A dónde vas?"}</span>
+            <ChevronDown size={15} className="shrink-0 text-ink-2" />
+          </button>
+        ) : (
         <button
           type="button"
           onClick={() => setOpen(true)}
@@ -41,10 +54,11 @@ export function SearchBar({ loc, municipalities, compact, isSet = true, header }
         >
           <Search size={20} className="shrink-0" />
           <span className="min-w-0 flex-1">
-            <span className="block truncate text-[15px] font-semibold">{!isSet ? "¿A dónde vas este finde?" : compact ? loc.label : "¿A dónde vas este finde?"}</span>
+            <span className="block truncate text-[15px] font-semibold">¿A dónde vas este finde?</span>
             <span className="block truncate text-[12px] text-ink-2">{!isSet ? "Busca un estado o municipio" : where}</span>
           </span>
         </button>
+        )}
       </div>
       {/* portal: el encabezado de escritorio usa backdrop-blur, que vuelve "fixed" relativo a él y recortaba la hoja */}
       {open && createPortal(<LocationSheet loc={isSet ? loc : null} municipalities={municipalities} onClose={() => setOpen(false)} />, document.body)}
