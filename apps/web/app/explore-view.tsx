@@ -7,13 +7,14 @@ import { SearchBar } from "@/components/location-picker";
 import { LocationPrompt } from "@/components/location-prompt";
 import { getLoc, hasLoc } from "@/lib/location-server";
 import { nearText } from "@/lib/location";
-import { eventBySlug, eventsAround, eventsLiveNear, eventsNear, municipalities, stateBox, withCoords } from "@/lib/queries";
+import { eventBySlug, eventsAround, eventsLiveNear, eventsNear, experiencesNear, municipalities, stateBox, withCoords } from "@/lib/queries";
 import type { NearRow } from "@/lib/types";
 
 const LOCAL_KM = 10;
 const RANGES = ["finde", "15d", "todo"] as const;
 
-export type ExploreParams = { r?: string; c?: string; i?: string; e?: string };
+/** ?v=dia: abre en la pestaña "Cualquier día" */
+export type ExploreParams = { r?: string; c?: string; i?: string; e?: string; v?: string };
 
 /**
  * Lista de eventos (Explorar). En escritorio: `split` = lista + mapa fijo a la derecha (/mapa);
@@ -27,12 +28,13 @@ export async function ExploreView({ sp, split = false, basePath = "/" }: { sp: E
   //  1) "tu zona" en el rango de fechas, por fecha: tu municipio (o ≤ LOCAL_KM del GPS), o el estado elegido
   //  2) "Más eventos cerca de ti": todo lo demás que viene, del más cercano al más lejano
   const anywhere = { ...loc, radiusKm: 400 };
-  const [munis, liveAll, inRange, allUpcoming, suggestions] = await Promise.all([
+  const [munis, liveAll, inRange, allUpcoming, suggestions, experiences] = await Promise.all([
     municipalities(),
     eventsLiveNear(isSet ? anywhere : { ...loc, radiusKm: 400, stateCve: undefined }),
     isSet ? eventsNear(anywhere, range) : Promise.resolve([] as NearRow[]),
     isSet ? eventsNear({ ...anywhere, stateCve: undefined }, "todo") : Promise.resolve([] as NearRow[]),
     isSet ? Promise.resolve([] as NearRow[]) : eventsAround(loc),
+    experiencesNear(anywhere),
   ]);
   const isLocal = (e: NearRow) => !!loc.stateCve || e.municipality_cvegeo === loc.cvegeo || e.distance_m <= LOCAL_KM * 1000;
   const upcoming = inRange.filter(isLocal);
@@ -54,7 +56,7 @@ export async function ExploreView({ sp, split = false, basePath = "/" }: { sp: E
     : {};
   // /mapa en escritorio: ?e=slug abre el detalle en el panel izquierdo (el mapa se centra en el evento)
   const detail = split && sp.e ? await eventBySlug(sp.e) : null;
-  const listQs = new URLSearchParams(Object.entries({ r: sp.r, c: sp.c, i: sp.i }).filter((kv): kv is [string, string] => !!kv[1])).toString();
+  const listQs = new URLSearchParams(Object.entries({ r: sp.r, c: sp.c, i: sp.i, v: sp.v }).filter((kv): kv is [string, string] => !!kv[1])).toString();
   const listHref = listQs ? `${basePath}?${listQs}` : basePath;
   const focusCoords = detail ? eventCoords(detail) : null;
   const focus = detail && focusCoords ? { id: detail.event.id, ...focusCoords } : null;
@@ -80,6 +82,7 @@ export async function ExploreView({ sp, split = false, basePath = "/" }: { sp: E
           {!isSet && <LocationPrompt />}
           <ExploreBody
             lists={lists}
+            experiences={experiences}
             range={range}
             basePath={basePath}
             split={split}
@@ -88,6 +91,7 @@ export async function ExploreView({ sp, split = false, basePath = "/" }: { sp: E
             liveSubtitle={isSet ? `Activos en este momento ${nearText(loc)}` : "Activos en este momento en la región"}
             hideDistance={!!loc.stateCve}
             startUpcoming={!!sp.r}
+            startAnyDay={sp.v === "dia"}
           />
         </>
       )}

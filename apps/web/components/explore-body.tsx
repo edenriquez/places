@@ -1,14 +1,17 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { EventCard } from "@/components/event-card";
 import { EventMap } from "@/components/event-map-lazy";
-import { HomeFeed } from "@/components/home-feed";
+import { ExperienceCard } from "@/components/experience-card";
+import { HomeFeed, type Tab } from "@/components/home-feed";
 import { IntentPicker, catsOf, useCategoryFilter } from "@/components/intent-picker";
 import { Chip, EmptyState, SectionHeader } from "@/components/ui";
+import { EXPERIENCE_KINDS, kindsForIntent, type ExperienceKind } from "@/lib/experiences";
+import { intentByKey, type IntentKey } from "@/lib/intents";
 import type { Loc } from "@/lib/location";
 import type { Range } from "@/lib/queries";
-import type { NearRow } from "@/lib/types";
+import type { ExperienceRow, NearRow } from "@/lib/types";
 
 const RANGES: { key: Range; label: string }[] = [
   { key: "finde", label: "Este finde" },
@@ -43,8 +46,10 @@ function useFiltered(lists: ExploreLists) {
   return useMemo(() => filterLists(lists, catsOf(intent, category)), [lists, intent, category]);
 }
 
-export function ExploreBody({ lists, range, basePath, split, isSet, area, liveSubtitle, hideDistance, startUpcoming }: {
+export function ExploreBody({ lists, experiences, range, basePath, split, isSet, area, liveSubtitle, hideDistance, startUpcoming, startAnyDay }: {
   lists: ExploreLists;
+  /** "Cualquier día": experiencias de la más cercana a la más lejana */
+  experiences: ExperienceRow[];
   range: Range;
   basePath: string;
   split: boolean;
@@ -55,6 +60,8 @@ export function ExploreBody({ lists, range, basePath, split, isSet, area, liveSu
   hideDistance: boolean;
   /** con ?r= en la URL se abre en Próximos */
   startUpcoming: boolean;
+  /** con ?v=dia se abre en Cualquier día */
+  startAnyDay: boolean;
 }) {
   const { intent, category, cats } = useCategoryFilter();
   const { live, upcoming, nearby, suggestions } = useFiltered(lists);
@@ -122,14 +129,58 @@ export function ExploreBody({ lists, range, basePath, split, isSet, area, liveSu
     </div>
   );
 
+  const initial: Tab = startAnyDay ? "dia" : startUpcoming || cats ? "proximos" : "ahora";
+
   return (
     <>
       <IntentPicker compact={split} />
-      {live.length > 0 ? (
-        <HomeFeed liveCount={live.length} initial={startUpcoming || cats ? "proximos" : "ahora"} now={livePane} upcoming={upcomingPane} />
+      {live.length > 0 || experiences.length > 0 ? (
+        <HomeFeed
+          liveCount={live.length}
+          initial={initial}
+          now={live.length > 0 ? livePane : undefined}
+          upcoming={upcomingPane}
+          anyDay={experiences.length > 0 ? <AnyDayPane experiences={experiences} intent={intent} area={area} hideDistance={!isSet || hideDistance} /> : undefined}
+        />
       ) : (
         upcomingPane
       )}
+    </>
+  );
+}
+
+/** Experiencias sin fecha. Con una intención elegida muestra sus tipos; si no hay ninguno, todas. */
+function AnyDayPane({ experiences, intent, area, hideDistance }: { experiences: ExperienceRow[]; intent?: IntentKey; area: string; hideDistance: boolean }) {
+  const [kind, setKind] = useState<ExperienceKind | null>(null);
+  const forIntent = useMemo(() => {
+    if (!intent) return experiences;
+    const kinds: readonly string[] = kindsForIntent(intent);
+    return experiences.filter((x) => kinds.includes(x.kind));
+  }, [experiences, intent]);
+  const base = forIntent.length ? forIntent : experiences;
+  const kinds = [...new Set(base.map((x) => x.kind))];
+  const active = kind && kinds.includes(kind) ? kind : null;
+  const shown = active ? base.filter((x) => x.kind === active) : base;
+
+  return (
+    <>
+      <SectionHeader title="Para cualquier día" subtitle={`Experiencias cerca de ${area} que no dependen de una fecha`} />
+      {intent && !forIntent.length && (
+        <p className="px-5 pb-2 text-[14px] text-ink-2">Nada de {intentByKey(intent)!.label.toLowerCase()} para cualquier día; te mostramos todas las experiencias.</p>
+      )}
+      {kinds.length > 1 && (
+        <div className="no-scrollbar flex gap-2 overflow-x-auto px-5 pb-2">
+          <Chip active={!active} onClick={() => setKind(null)}>Todo</Chip>
+          {kinds.map((k) => (
+            <Chip key={k} active={active === k} track={`experiencia:${k}`} onClick={() => setKind(active === k ? null : k)}>
+              <span className="mr-1.5">{EXPERIENCE_KINDS[k].emoji}</span>{EXPERIENCE_KINDS[k].label}
+            </Chip>
+          ))}
+        </div>
+      )}
+      <div className="divide-y divide-line/60 lg:grid lg:grid-cols-[repeat(auto-fill,var(--card,288px))] lg:gap-x-3 lg:divide-y-0">
+        {shown.map((x, i) => <ExperienceCard key={x.experience_id} x={x} hideDistance={hideDistance} eager={i === 0} />)}
+      </div>
     </>
   );
 }
