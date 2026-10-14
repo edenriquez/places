@@ -14,7 +14,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
         <h1 className="mt-5 text-[22px] font-bold">Entrar</h1>
         {sp.error === "no-admin" && <p className="mt-2 text-[13px] text-error">Esa cuenta no es administradora.</p>}
         {sp.error === "bad" && <p className="mt-2 text-[13px] text-error">Correo o contraseña incorrectos.</p>}
-        <input type="hidden" name="next" value={sp.next ?? "/admin/upload"} />
+        <input type="hidden" name="next" value={sp.next ?? "/admin/metricas"} />
         <label className="mt-4 block text-[13px] font-medium">Correo
           <input name="email" type="email" required autoComplete="email" className="mt-1 w-full rounded-control border border-line-2 px-3 py-2.5 text-[15px]" />
         </label>
