@@ -71,7 +71,7 @@ export default async function ExperiencesAdminPage({ searchParams }: { searchPar
                 const expired = !!x.valid_until && x.valid_until < today;
                 return (
                   <tr key={x.id} className="hover:bg-bg-2/60">
-                    <th scope="row" className="max-w-[340px] border-b border-line px-3 py-2 text-left font-normal">
+                    <th scope="row" className="max-w-[300px] border-b border-line px-3 py-2 text-left font-normal">
                       <div className="flex items-center gap-3">
                         <div className="relative hidden h-10 w-10 shrink-0 overflow-hidden rounded-lg bg-bg-2 sm:block">{img && <Image src={img} alt="" fill sizes="40px" className="object-cover" />}</div>
                         <div className="min-w-0">
@@ -80,7 +80,7 @@ export default async function ExperiencesAdminPage({ searchParams }: { searchPar
                         </div>
                       </div>
                     </th>
-                    <td className="border-b border-line px-3 py-2">
+                    <td className="max-w-[200px] border-b border-line px-3 py-2">
                       <span className="block truncate">{x.places?.name ?? x.place_text ?? "—"}</span>
                       <span className="block text-[12px] text-ink-2">{x.municipalities?.name ?? "—"}</span>
                     </td>
@@ -89,7 +89,7 @@ export default async function ExperiencesAdminPage({ searchParams }: { searchPar
                       <span className={`rounded-full px-2.5 py-1 text-[12px] font-semibold ${pill.cls}`}>{pill.label}</span>
                       {expired && <span className="ml-2 text-[12px] font-medium text-warn">vencida</span>}
                     </td>
-                    <td className="border-b border-line px-3 py-2">
+                    <td className="w-px whitespace-nowrap border-b border-line px-3 py-2">
                       <div className="flex items-center justify-end gap-2">
                         {x.status === "published" && (
                           <Link href={`/experiencia/${x.slug}`} target="_blank" aria-label="Ver en el sitio" title="Ver en el sitio" className="grid h-8 w-8 place-items-center rounded-control border border-line-2 text-ink-2 hover:text-ink"><ExternalLink size={15} aria-hidden /></Link>
