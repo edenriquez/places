@@ -4,10 +4,11 @@ import type { McpServer } from "@modelcontextprotocol/server";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { z } from "zod";
 import { EVENTS_TAG } from "@/lib/queries";
+import { EXPERIENCE_KINDS, type ExperienceKind } from "@/lib/experiences";
 
 /**
- * Servidor MCP para capturar eventos desde ChatGPT/Claude (solo admins).
- * Todo entra como pendiente a /admin/review: nada se publica desde aquí.
+ * Servidor MCP para capturar eventos y experiencias desde ChatGPT/Claude (solo admins).
+ * Nada se publica desde aquí: los eventos entran pendientes a /admin/review y las experiencias como borrador a /admin/experiencias.
  * Cada llamada usa el token OAuth del usuario, así que RLS e is_admin() aplican igual que en el admin web.
  */
 
@@ -96,8 +97,30 @@ async function sourceId(sb: SupabaseClient) {
 }
 
 function slugify(s: string) {
-  return s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 70);
+  return s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 }
+
+/** Mismas reglas que saveExperience del admin: dominio sin https, o @usuario para redes. */
+function normUrl(v: string | undefined, base?: string) {
+  const s = v?.trim();
+  if (!s) return null;
+  if (/^https?:\/\//i.test(s)) return s;
+  if (/^[\w.-]+\.[a-z]{2,}(\/|$)/i.test(s)) return `https://${s}`;
+  return base ? `${base}${s.replace(/^@/, "")}` : `https://${s}`;
+}
+
+/** Organización por slug (la crea si no existe), igual que el formulario de experiencias. */
+async function orgId(sb: SupabaseClient, name: string, municipality: string) {
+  const slug = slugify(name);
+  const { data } = await sb.from("organizations").select("id").eq("slug", slug).maybeSingle();
+  if (data) return data.id as string;
+  const { data: created, error } = await sb.from("organizations").insert({ name: name.trim(), slug, kind: "otro", municipality_cvegeo: municipality }).select("id").single();
+  if (error) throw new Error(error.message);
+  return created.id as string;
+}
+
+const MAX_EXPERIENCE_PHOTOS = 10; // portada + 9 en galería (check de gallery_paths)
+const experiencePhotoPath = (id: string) => (sha: string, ext: string) => `experiences/${id}/${sha.slice(0, 16)}${ext}`;
 
 function toIso(date: string, time?: string | null) {
   // hora local de México (UTC-6 sin horario de verano desde 2022), igual que el admin
@@ -126,7 +149,7 @@ export function registerTools(server: McpServer) {
     "buscar_municipio",
     {
       title: "Buscar municipio",
-      description: "Busca municipios de entrelugares por nombre y devuelve su clave (cvegeo). Úsalo antes de crear un evento: crear_evento necesita el cvegeo.",
+      description: "Busca municipios de entrelugares por nombre y devuelve su clave (cvegeo). Úsalo antes de crear un evento o una experiencia: crear_evento y crear_experiencia necesitan el cvegeo.",
       inputSchema: z.object({ nombre: z.string().min(2) }),
       annotations: { readOnlyHint: true },
     },
@@ -140,7 +163,7 @@ export function registerTools(server: McpServer) {
     "buscar_lugar",
     {
       title: "Buscar lugar",
-      description: "Busca lugares registrados (plazas, casas de cultura, templos...) dentro de un municipio. Si alguno coincide con el del flyer (similarity alta), pasa su id como lugar_id en crear_evento.",
+      description: "Busca lugares registrados (plazas, casas de cultura, templos, parques, cascadas...) dentro de un municipio. Si alguno coincide (similarity alta), pasa su id como lugar_id en crear_evento o crear_experiencia.",
       inputSchema: z.object({ municipio: z.string().regex(/^\d{5}$/).describe("cvegeo del municipio"), nombre: z.string().min(2) }),
       annotations: { readOnlyHint: true },
     },
@@ -231,7 +254,7 @@ export function registerTools(server: McpServer) {
         if (ingErr) throw new Error(ingErr.message);
 
         const { data: ev, error: evErr } = await sb.from("events").insert({
-          slug: `${slugify(a.titulo)}-${ing.id.slice(0, 8)}`,
+          slug: `${slugify(a.titulo).slice(0, 70)}-${ing.id.slice(0, 8)}`,
           title: a.titulo,
           description: a.descripcion ?? null,
           category: a.categoria,
@@ -388,6 +411,186 @@ export function registerTools(server: McpServer) {
         revalidatePath(`/evento/${ev.slug}`);
         revalidateTag(EVENTS_TAG, "max");
         return text({ ok: true, evento: ev.title, imagen: ev.image_path ? "reemplazada" : "agregada", url: `${siteUrl()}/evento/${ev.slug}` });
+      } catch (e) {
+        return fail(e instanceof Error ? e.message : String(e));
+      }
+    },
+  );
+
+  server.registerTool(
+    "buscar_experiencias",
+    {
+      title: "Buscar experiencias",
+      description:
+        "Lista las experiencias ya registradas en un municipio (borradores, publicadas y archivadas). Úsalo antes de crear_experiencia para no duplicar: " +
+        "compara por nombre, tipo y lugar.",
+      inputSchema: z.object({ municipio: z.string().regex(/^\d{5}$/).describe("cvegeo de buscar_municipio") }),
+      annotations: { readOnlyHint: true },
+    },
+    async ({ municipio }, ctx) => {
+      const { data, error } = await userClient(tokenOf(ctx)).from("experiences")
+        .select("id, slug, title, kind, status, place_text, places:place_id(name), gallery_paths, image_path")
+        .eq("municipality_cvegeo", municipio)
+        .order("title")
+        .limit(100);
+      if (error) return fail(error.message);
+      const rows = (data ?? []) as unknown as { id: string; slug: string; title: string; kind: string; status: string; place_text: string | null; places: { name: string } | null; gallery_paths: string[]; image_path: string | null }[];
+      if (!rows.length) return text("No hay experiencias en ese municipio.");
+      const estado = { draft: "borrador", published: "publicada", archived: "archivada" } as Record<string, string>;
+      return text(rows.map((x) => ({
+        experiencia_id: x.id,
+        titulo: x.title,
+        tipo: x.kind,
+        estado: estado[x.status] ?? x.status,
+        lugar: x.places?.name ?? x.place_text,
+        fotos: (x.image_path ? 1 : 0) + x.gallery_paths.length,
+        url: x.status === "published" ? `${siteUrl()}/experiencia/${x.slug}` : `${siteUrl()}/admin/experiencias/${x.id}`,
+      })));
+    },
+  );
+
+  const kinds = Object.keys(EXPERIENCE_KINDS) as [ExperienceKind, ...ExperienceKind[]];
+  server.registerTool(
+    "crear_experiencia",
+    {
+      title: "Crear experiencia (borrador)",
+      description:
+        "Crea una experiencia: algo que se puede hacer en un lugar sin depender de una fecha (sendero, cascada, taller artesanal, recorrido, tour de productores, clase...). " +
+        "Si tiene fecha concreta es un evento: usa crear_evento. Queda como BORRADOR en /admin/experiencias hasta que el admin la publique. " +
+        "Antes: buscar_municipio (cvegeo), buscar_lugar (lugar_id si hay coincidencia) y buscar_experiencias (para no duplicar). " +
+        "Tipos: " + kinds.map((k) => `${k} (${EXPERIENCE_KINDS[k].label})`).join(", ") + ". " +
+        "Sube la portada en foto; para más fotos usa agregar_foto_experiencia con el experiencia_id. No inventes datos que no estén en la fuente.",
+      inputSchema: z.object({
+        titulo: z.string().min(3).max(160),
+        tipo: z.enum(kinds),
+        municipio: z.string().regex(/^\d{5}$/).describe("cvegeo de buscar_municipio"),
+        descripcion: z.string().max(2000).optional().describe("qué se hace y qué la hace especial, en 2 a 5 frases"),
+        lugar_id: z.string().uuid().optional().describe("id de buscar_lugar"),
+        lugar_texto: z.string().max(200).optional().describe("nombre del lugar si no está en el catálogo"),
+        ubicacion: z.object({ lat: z.number().min(-90).max(90), lng: z.number().min(-180).max(180) }).optional()
+          .describe("punto de inicio (p. ej. la entrada del sendero); si falta se usa el del lugar o el municipio"),
+        organizador: z.string().max(160).optional().describe("prestador de servicios u organizador"),
+        duracion: z.string().max(60).optional().describe("ej. \"3–4 h\""),
+        distancia_km: z.number().nonnegative().max(9999).optional(),
+        dificultad: z.enum(["facil", "moderada", "dificil"]).optional(),
+        gratis: z.boolean().optional(),
+        precio_min: z.number().nonnegative().optional(),
+        precio_max: z.number().nonnegative().optional(),
+        nota_precio: z.string().max(80).optional().describe("ej. \"acceso\", \"con guía\", \"por persona\""),
+        disponibilidad: z.string().max(80).optional().describe("resumen para la tarjeta, ej. \"Todos los días\" o \"Sáb y dom · 6:30\""),
+        horarios: z.array(z.object({ dias: z.string().max(60), horario: z.string().max(60) })).max(10).optional()
+          .describe("ej. [{ dias: \"Lun – Vie\", horario: \"8:00 – 17:00\" }]"),
+        temporada: z.string().max(160).optional().describe("ej. \"Mejor temporada: junio a noviembre\""),
+        que_llevar: z.array(z.string().max(80)).max(12).optional(),
+        telefono: z.string().max(30).optional(),
+        whatsapp: z.boolean().optional().describe("si el teléfono recibe WhatsApp (por defecto sí)"),
+        reservacion: z.string().max(200).optional().describe("ej. \"Reserva con 1 día de anticipación\""),
+        sitio_web: z.string().max(300).optional(),
+        instagram: z.string().max(300).optional().describe("URL o @usuario"),
+        facebook: z.string().max(300).optional().describe("URL o usuario"),
+        vigencia: date.optional().describe("después de esta fecha deja de listarse (YYYY-MM-DD)"),
+        foto: flyerSchema.optional().describe("foto de portada"),
+      }),
+      _meta: { "openai/fileParams": ["foto"] },
+    },
+    async (a, ctx) => {
+      const sb = userClient(tokenOf(ctx));
+      try {
+        // id propio para que las fotos queden en experiences/<id>/, la misma carpeta que usa el formulario del admin
+        const id = crypto.randomUUID();
+        const photo = a.foto ? await uploadImage(sb, a.foto, experiencePhotoPath(id)) : null;
+        const isFree = a.gratis ?? false;
+        const digits = a.telefono?.replace(/\D/g, "").replace(/^52(?=\d{10}$)/, "") || null;
+        const base = slugify(a.titulo).slice(0, 70);
+        const { data: taken } = await sb.from("experiences").select("id").eq("slug", base).maybeSingle();
+        const slug = taken ? `${base}-${id.slice(0, 6)}` : base;
+        const { error } = await sb.from("experiences").insert({
+          id,
+          slug,
+          title: a.titulo.trim(),
+          kind: a.tipo,
+          description: a.descripcion?.trim() || null,
+          municipality_cvegeo: a.municipio,
+          place_id: a.lugar_id ?? null,
+          place_text: a.lugar_id ? null : a.lugar_texto?.trim() || null,
+          ...(a.ubicacion && { geom: `SRID=4326;POINT(${a.ubicacion.lng} ${a.ubicacion.lat})` }),
+          org_id: a.organizador?.trim() ? await orgId(sb, a.organizador, a.municipio) : null,
+          duration_text: a.duracion?.trim() || null,
+          distance_km: a.distancia_km ?? null,
+          difficulty: a.dificultad ?? null,
+          is_free: isFree,
+          price_min: isFree ? null : (a.precio_min ?? null),
+          price_max: isFree ? null : (a.precio_max ?? a.precio_min ?? null),
+          price_note: isFree ? null : a.nota_precio?.trim() || null,
+          availability_text: a.disponibilidad?.trim() || null,
+          hours: (a.horarios ?? []).map((h) => ({ days: h.dias.trim(), time: h.horario.trim() })).filter((h) => h.days || h.time),
+          season_text: a.temporada?.trim() || null,
+          bring: (a.que_llevar ?? []).map((b) => b.trim()).filter(Boolean),
+          contact_phone: digits,
+          contact_whatsapp: a.whatsapp ?? true,
+          booking_note: a.reservacion?.trim() || null,
+          website_url: normUrl(a.sitio_web),
+          instagram_url: normUrl(a.instagram, "https://instagram.com/"),
+          facebook_url: normUrl(a.facebook, "https://facebook.com/"),
+          image_path: photo?.path ?? null,
+          valid_until: a.vigencia ?? null,
+          status: "draft",
+        });
+        if (error) throw new Error(error.message);
+        revalidatePath("/admin/experiencias");
+        return text({
+          ok: true,
+          estado: "borrador; el admin la revisa y la publica",
+          experiencia_id: id,
+          slug,
+          editar: `${siteUrl()}/admin/experiencias/${id}`,
+          fotos: photo ? "portada guardada; agrega más con agregar_foto_experiencia" : "sin fotos; para publicarla hace falta al menos una (agregar_foto_experiencia)",
+        });
+      } catch (e) {
+        return fail(e instanceof Error ? e.message : String(e));
+      }
+    },
+  );
+
+  server.registerTool(
+    "agregar_foto_experiencia",
+    {
+      title: "Agregar foto a una experiencia",
+      description:
+        `Sube una foto a una experiencia existente (experiencia_id de crear_experiencia o buscar_experiencias). Máximo ${MAX_EXPERIENCE_PHOTOS} fotos. ` +
+        "Si no tiene portada, esta lo será; con portada=true reemplaza la portada actual y la anterior pasa a la galería. Llámala una vez por foto.",
+      inputSchema: z.object({
+        experiencia_id: z.string().uuid(),
+        imagen: flyerSchema,
+        portada: z.boolean().optional(),
+      }),
+      _meta: { "openai/fileParams": ["imagen"] },
+    },
+    async ({ experiencia_id, imagen, portada = false }, ctx) => {
+      const sb = userClient(tokenOf(ctx));
+      try {
+        const { data: x, error } = await sb.from("experiences").select("id, slug, title, status, image_path, gallery_paths").eq("id", experiencia_id).maybeSingle();
+        if (error) throw new Error(error.message);
+        if (!x) return fail("No existe una experiencia con ese experiencia_id.");
+        const current = [x.image_path, ...(x.gallery_paths as string[])].filter(Boolean) as string[];
+        if (current.length >= MAX_EXPERIENCE_PHOTOS) return fail(`“${x.title}” ya tiene ${MAX_EXPERIENCE_PHOTOS} fotos, el máximo.`);
+        const { path } = await uploadImage(sb, imagen, experiencePhotoPath(x.id));
+        if (current.includes(path)) return fail(`Esa foto ya estaba en “${x.title}”.`);
+        const photos = portada ? [path, ...current] : [...current, path];
+        const { error: upErr } = await sb.from("experiences").update({ image_path: photos[0], gallery_paths: photos.slice(1) }).eq("id", x.id);
+        if (upErr) throw new Error(upErr.message);
+        revalidatePath("/admin/experiencias");
+        if (x.status === "published") {
+          revalidatePath(`/experiencia/${x.slug}`);
+          revalidateTag(EVENTS_TAG, "max");
+        }
+        return text({
+          ok: true,
+          experiencia: x.title,
+          foto: photos[0] === path ? "es la portada" : "agregada a la galería",
+          total: photos.length,
+          url: x.status === "published" ? `${siteUrl()}/experiencia/${x.slug}` : `${siteUrl()}/admin/experiencias/${x.id}`,
+        });
       } catch (e) {
         return fail(e instanceof Error ? e.message : String(e));
       }
