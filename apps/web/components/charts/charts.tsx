@@ -7,12 +7,43 @@ import clsx from "clsx";
  */
 export const SERIES = ["#2a78d6", "#eb6834"] as const;
 // rampa secuencial azul (100 → 650) para el mapa de calor
+// barras sin foco: el paso claro de la rampa (misma entidad, menos peso); el valor siempre va en texto al lado
+export const MUTED = "#c4d9f3";
 const SEQ = ["#eef4fc", "#cde2fb", "#9ec5f4", "#6da7ec", "#3987e5", "#256abf", "#184f95", "#104281"];
+
+/** Paso de la rampa secuencial para un valor (celdas de tabla de calor); el texto encima cambia a blanco en los pasos oscuros. */
+export function seqStep(v: number, max: number) {
+  if (!v || max <= 0) return { bg: "transparent", dark: false };
+  const i = Math.min(SEQ.length - 1, 1 + Math.floor((v / max) * (SEQ.length - 2)));
+  return { bg: SEQ[i], dark: i >= 5 };
+}
 
 const nf = new Intl.NumberFormat("es-MX");
 const cf = new Intl.NumberFormat("es-MX", { notation: "compact", maximumFractionDigits: 1 });
 export const fmtN = (n: number) => (n >= 10000 ? cf.format(n) : nf.format(n));
 export const fmtPct = (n: number) => `${n >= 10 || n === 0 ? Math.round(n) : n.toFixed(1)}%`;
+
+const UNKNOWN = /^sin (dato|ubicación)$/i;
+
+/**
+ * Quién lidera una lista y con qué parte del total. "Sin dato" nunca es el hallazgo, y si el segundo está a menos
+ * de 10% del primero no hay líder: van parejos (no se destaca a nadie y el título lo dice).
+ */
+export function leader<T extends { label: string; value: number }>(rows: T[]) {
+  const total = rows.reduce((a, r) => a + r.value, 0);
+  const known = rows.filter((r) => !UNKNOWN.test(r.label) && r.value > 0).sort((a, b) => b.value - a.value);
+  if (!known.length || !total) return null;
+  const [top, second] = known;
+  return { row: top, pct: (top.value / total) * 100, second, secondPct: second ? (second.value / total) * 100 : 0, tied: !!second && second.value >= top.value * 0.9, total };
+}
+
+/** Título con el hallazgo de una lista: quién lidera y cuánto; si van parejos, lo dice; sin datos, la métrica. */
+export function finding<T extends { label: string; value: number }>(rows: T[], say: (label: string, pct: string, row: T) => string, fallback: string) {
+  const l = leader(rows);
+  if (!l) return fallback;
+  if (l.tied && l.second) return `${l.row.label} y ${l.second.label} van parejos (${fmtPct(l.pct)} y ${fmtPct(l.secondPct)})`;
+  return say(l.row.label, fmtPct(l.pct), l.row);
+}
 
 export function Card({ title, subtitle, children, className, action }: { title: string; subtitle?: string; children: React.ReactNode; className?: string; action?: React.ReactNode }) {
   return (
@@ -44,38 +75,100 @@ export function Stat({ label, value, hint, hero }: { label: string; value: strin
   );
 }
 
-/** Barras horizontales de una sola serie: etiqueta, barra delgada y valor en la punta. */
-export function BarList({ rows, unit = "", showPct, color = SERIES[0], wideLabels }: {
+/**
+ * Barras horizontales de una sola serie: etiqueta, barra delgada y valor en la punta.
+ * `focus`: la barra de la que habla el título va en color y el resto en el tono claro de la misma rampa (siguen
+ * visibles para verificar). `reference`: línea punteada vertical (promedio, meta) con su etiqueta.
+ */
+export function BarList({ rows, unit = "", showPct, color = SERIES[0], wideLabels, focus, reference }: {
   rows: { label: string; sub?: string | null; value: number }[];
   unit?: string;
   showPct?: boolean;
   color?: string;
   wideLabels?: boolean;
+  /** etiqueta a destacar; "top" = la más grande */
+  focus?: string | "top";
+  reference?: { value: number; label: string };
 }) {
   if (!rows.length) return <Empty />;
-  const max = Math.max(...rows.map((r) => r.value), 1);
+  const max = Math.max(...rows.map((r) => r.value), reference?.value ?? 0, 1);
   const total = rows.reduce((a, r) => a + r.value, 0) || 1;
+  const lead = focus === "top" ? leader(rows) : null;
+  const focusLabel = focus === "top" ? (lead && !lead.tied ? lead.row.label : undefined) : focus;
+  // la barra ocupa hasta (100% - 4.5rem); la referencia se ubica en la misma escala
+  const at = (v: number) => `calc((100% - 4.5rem) * ${v / max})`;
   return (
-    <ul className="space-y-2.5">
-      {rows.map((r) => {
-        const pct = (r.value / total) * 100;
-        const tip = `${r.label}${r.sub ? ` (${r.sub})` : ""}: ${nf.format(r.value)}${unit}${showPct ? ` · ${fmtPct(pct)}` : ""}`;
-        return (
-          <li key={`${r.label}-${r.sub ?? ""}`} title={tip} className={clsx("group grid items-center gap-3 text-[13px]", wideLabels ? "grid-cols-[minmax(0,13rem)_1fr]" : "grid-cols-[minmax(0,9rem)_1fr]")}>
-            <span className="min-w-0 truncate">
-              <span className="font-medium text-ink">{r.label}</span>
-              {r.sub && <span className="text-ink-3"> · {r.sub}</span>}
-            </span>
-            <span className="flex items-center gap-2">
-              <span className="h-3 rounded-r-[4px] transition-opacity group-hover:opacity-80" style={{ width: r.value ? `${Math.max(2, (r.value / max) * 100)}%` : 0, background: color, maxWidth: "calc(100% - 4.5rem)" }} />
-              <span className="shrink-0 tabular-nums text-ink-2">
-                {fmtN(r.value)}{unit}{showPct && <span className="text-ink-3"> · {fmtPct(pct)}</span>}
+    <div>
+      <ul className="space-y-2.5">
+        {rows.map((r) => {
+          const pct = (r.value / total) * 100;
+          const on = !focusLabel || r.label === focusLabel;
+          const tip = `${r.label}${r.sub ? ` (${r.sub})` : ""}: ${nf.format(r.value)}${unit}${showPct ? ` · ${fmtPct(pct)}` : ""}`;
+          return (
+            <li key={`${r.label}-${r.sub ?? ""}`} title={tip} className={clsx("group grid items-center gap-3 text-[13px]", wideLabels ? "grid-cols-[minmax(0,13rem)_1fr]" : "grid-cols-[minmax(0,9rem)_1fr]")}>
+              <span className="min-w-0 truncate">
+                <span className={clsx("text-ink", focusLabel && on ? "font-semibold" : "font-medium")}>{r.label}</span>
+                {r.sub && <span className="text-ink-3"> · {r.sub}</span>}
               </span>
-            </span>
-          </li>
-        );
-      })}
-    </ul>
+              <span className="relative flex items-center gap-2">
+                <span className="h-3 rounded-r-[4px] transition-opacity group-hover:opacity-80" style={{ width: r.value ? `max(2px, ${at(r.value)})` : 0, background: on ? color : MUTED }} />
+                <span className="shrink-0 tabular-nums text-ink-2">
+                  {fmtN(r.value)}{unit}{showPct && <span className="text-ink-3"> · {fmtPct(pct)}</span>}
+                </span>
+                {reference && <span aria-hidden className="pointer-events-none absolute -inset-y-1.5 border-l border-dashed border-ink-3" style={{ left: at(reference.value) }} />}
+              </span>
+            </li>
+          );
+        })}
+      </ul>
+      {reference && (
+        <p className="mt-3 flex items-center gap-2 text-[12px] text-ink-2">
+          <span aria-hidden className="h-3 border-l border-dashed border-ink-3" />{reference.label}: <span className="tabular-nums">{fmtN(Math.round(reference.value * 10) / 10)}{unit}</span>
+        </p>
+      )}
+    </div>
+  );
+}
+
+/**
+ * Dos medidas comparables por renglón (p. ej. % de la demanda contra % de la oferta), en la misma escala.
+ * Dos barras delgadas por renglón, leyenda arriba y el valor en texto: nunca solo color.
+ */
+export function PairedBars({ rows, series, unit = "", flag }: {
+  rows: { label: string; a: number; b: number; note?: string }[];
+  series: [string, string];
+  unit?: string;
+  /** etiqueta corta para los renglones con alerta (va como texto, no solo color) */
+  flag?: (r: { a: number; b: number }) => string | null;
+}) {
+  if (!rows.length || rows.every((r) => !r.a && !r.b)) return <Empty />;
+  const max = Math.max(...rows.flatMap((r) => [r.a, r.b]), 1);
+  const bar = (v: number, i: 0 | 1, label: string) => (
+    <span className="flex items-center gap-2" title={`${label}: ${fmtN(Math.round(v))}${unit}`}>
+      <span className="h-2 rounded-r-[3px]" style={{ width: v ? `max(2px, calc((100% - 3.5rem) * ${v / max}))` : 0, background: SERIES[i] }} />
+      <span className="shrink-0 text-[12px] tabular-nums text-ink-2">{Math.round(v)}{unit}</span>
+    </span>
+  );
+  return (
+    <div>
+      <ul className="mb-3 flex gap-4 text-[12px] text-ink-2">
+        {series.map((s, i) => <li key={s} className="flex items-center gap-1.5"><span className="h-2 w-3 rounded-[2px]" style={{ background: SERIES[i] }} />{s}</li>)}
+      </ul>
+      <ul className="space-y-3">
+        {rows.map((r) => {
+          const f = flag?.(r);
+          return (
+            <li key={r.label} className="grid grid-cols-[minmax(0,9rem)_1fr] items-center gap-3 text-[13px]">
+              <span className="min-w-0">
+                <span className={clsx("block truncate text-ink", f ? "font-semibold" : "font-medium")}>{r.label}</span>
+                {(f || r.note) && <span className="block truncate text-[11px] text-ink-3">{[f && <b key="f" className="font-semibold text-[#8a5300]">{f}</b>, r.note].filter(Boolean).reduce<React.ReactNode[]>((acc, x, i) => (i ? [...acc, " · ", x] : [x]), [])}</span>}
+              </span>
+              <span className="space-y-1">{bar(r.a, 0, series[0])}{bar(r.b, 1, series[1])}</span>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
   );
 }
 
@@ -115,10 +208,12 @@ const dayLabel = (d: string) => new Date(`${d}T12:00:00`).toLocaleDateString("es
  * El trazo es SVG estirable (preserveAspectRatio="none", trazo que no escala); ejes, puntos y
  * etiquetas son HTML, así el texto mide lo mismo en una columna angosta que a todo lo ancho.
  */
-export function LineChart({ days, series, compact }: {
+export function LineChart({ days, series, compact, average }: {
   days: { day: string; [k: string]: number | string }[];
   series: { key: string; label: string }[];
   compact?: boolean;
+  /** línea punteada con el promedio diario de la primera serie (referencia interna) */
+  average?: boolean;
 }) {
   if (!days.length) return <Empty />;
   const val = (d: (typeof days)[number], k: string) => Number(d[k]) || 0;
@@ -130,6 +225,11 @@ export function LineChart({ days, series, compact }: {
   const ticks = [max, max / 2, 0];
   const xTicks = n <= 7 ? days.map((_, i) => i) : [0, Math.floor((n - 1) / 2), n - 1];
   const last = n - 1;
+  // anotación: el pico de la primera serie (si no es el último punto, que ya lleva su valor)
+  const first = series[0].key;
+  const peak = days.reduce((m, d, i) => (val(d, first) > val(days[m], first) ? i : m), 0);
+  const showPeak = n > 2 && peak !== last && val(days[peak], first) > 0;
+  const avg = days.reduce((a, d) => a + val(d, first), 0) / n;
   return (
     <div>
       {series.length > 1 && (
@@ -162,6 +262,19 @@ export function LineChart({ days, series, compact }: {
             );
           })}
         </svg>
+        {average && avg > 0 && (
+          <div aria-hidden className="pointer-events-none absolute inset-x-0 border-t border-dashed border-ink-3" style={{ top: `${yp(avg)}%` }}>
+            <span className="absolute right-0 -translate-y-full pb-0.5 text-[11px] tabular-nums text-ink-2">prom. {fmtN(Math.round(avg * 10) / 10)}/día</span>
+          </div>
+        )}
+        {showPeak && (
+          <div className="pointer-events-none absolute" style={{ left: `${xp(peak)}%`, top: `${yp(val(days[peak], first))}%` }}>
+            <span className="absolute h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 bg-white" style={{ borderColor: SERIES[0] }} />
+            <span className={clsx("absolute bottom-2 whitespace-nowrap text-[11px] font-medium tabular-nums text-ink", peak < n * 0.15 ? "" : peak > n * 0.85 ? "-translate-x-full" : "-translate-x-1/2")}>
+              máx. {fmtN(val(days[peak], first))} · {dayLabel(days[peak].day)}
+            </span>
+          </div>
+        )}
         {/* punto final con anillo del color de la superficie + valor al final de la línea */}
         {series.map((s, i) => (
           <div key={s.key} className="pointer-events-none absolute" style={{ left: `${xp(last)}%`, top: `${yp(val(days[last], s.key))}%` }}>
@@ -191,12 +304,24 @@ export function LineChart({ days, series, compact }: {
 }
 
 const DOW = ["L", "M", "M", "J", "V", "S", "D"];
+const DOW_LONG = ["lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"];
+
+/** Celda con más actividad y la franja del día donde se concentra: para el título del mapa de calor. */
+export function heatPeak(cells: { dow: number; hour: number; n: number }[]) {
+  if (!cells.length) return null;
+  const top = cells.reduce((m, c) => (c.n > m.n ? c : m));
+  const total = cells.reduce((a, c) => a + c.n, 0) || 1;
+  const weekend = cells.filter((c) => c.dow >= 5).reduce((a, c) => a + c.n, 0);
+  const evening = cells.filter((c) => c.hour >= 18).reduce((a, c) => a + c.n, 0);
+  return { ...top, day: DOW_LONG[top.dow - 1], weekendPct: (weekend / total) * 100, eveningPct: (evening / total) * 100 };
+}
 /** Día de la semana × hora (hora de México), rampa secuencial azul por cuantiles. */
 export function Heatmap({ cells, unit = "vistas" }: { cells: { dow: number; hour: number; n: number }[]; unit?: string }) {
   if (!cells.length) return <Empty />;
   const grid = new Map(cells.map((c) => [`${c.dow}-${c.hour}`, c.n]));
   const max = Math.max(...cells.map((c) => c.n), 1);
   const color = (n: number) => (n ? SEQ[Math.min(SEQ.length - 1, 1 + Math.floor((n / max) * (SEQ.length - 2)))] : SEQ[0]);
+  const peak = heatPeak(cells)!;
   return (
     <div className="overflow-x-auto">
       <div className="grid min-w-[520px] grid-cols-[1.25rem_repeat(24,minmax(0,1fr))] gap-[2px] text-[10px] text-ink-3">
@@ -205,15 +330,17 @@ export function Heatmap({ cells, unit = "vistas" }: { cells: { dow: number; hour
             <span className="self-center">{d}</span>
             {Array.from({ length: 24 }, (_, h) => {
               const n = grid.get(`${di + 1}-${h}`) ?? 0;
-              return <span key={h} title={`${["lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"][di]} ${h}:00 · ${fmtN(n)} ${unit}`} className="aspect-square rounded-[3px]" style={{ background: color(n) }} />;
+              const top = peak.dow === di + 1 && peak.hour === h;
+              return <span key={h} title={`${DOW_LONG[di]} ${h}:00 · ${fmtN(n)} ${unit}`} className={clsx("aspect-square rounded-[3px]", top && "ring-2 ring-ink ring-offset-1")} style={{ background: color(n) }} />;
             })}
           </div>
         ))}
         <span />
         {Array.from({ length: 24 }, (_, h) => <span key={h} className="text-center">{h % 6 === 0 ? `${h}h` : ""}</span>)}
       </div>
-      <div className="mt-3 flex items-center gap-2 text-[11px] text-ink-3">
-        Menos {SEQ.slice(1).map((c) => <span key={c} className="h-2.5 w-4 rounded-[2px]" style={{ background: c }} />)} Más
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-[11px] text-ink-3">
+        <span className="flex items-center gap-2">Menos {SEQ.slice(1).map((c) => <span key={c} className="h-2.5 w-4 rounded-[2px]" style={{ background: c }} />)} Más</span>
+        <span className="flex items-center gap-1.5 text-ink-2"><span className="h-2.5 w-2.5 rounded-[2px] ring-2 ring-ink" />Pico: {DOW_LONG[peak.dow - 1]} {peak.hour}:00 · {fmtN(peak.n)} {unit}</span>
       </div>
     </div>
   );

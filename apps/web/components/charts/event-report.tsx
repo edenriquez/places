@@ -1,6 +1,6 @@
 import { CATEGORY_LABEL, type Category } from "@/lib/types";
 import { regionLabel, SOURCE_LABEL } from "@/lib/analytics";
-import { BarList, Card, Empty, fmtN, fmtPct, Heatmap, LineChart, SplitBar, Stat } from "./charts";
+import { BarList, Card, Empty, fmtN, fmtPct, Heatmap, heatPeak, LineChart, SplitBar, Stat, finding } from "./charts";
 
 /** Forma del jsonb de public._event_report (supabase/migrations/20260925000000_analytics.sql). */
 export type EventReportData = {
@@ -28,6 +28,28 @@ export function EventReport({ r, forCommerce }: { r: EventReportData; forCommerc
   const vsMedian = r.benchmark.median_views ? k.views / r.benchmark.median_views : null;
   const likesTotal = r.likes.reduce((a, l) => a + l.w, 0) || 1;
 
+  // títulos que dicen el hallazgo; sin datos, el nombre de la métrica
+  const dayLabel = (d: string) => new Date(`${d}T12:00:00`).toLocaleDateString("es-MX", { day: "numeric", month: "short" });
+  const peakDay = r.daily.reduce<(typeof r.daily)[number] | null>((m, d) => (!m || d.views > m.views ? d : m), null);
+  const actionRows = [
+    { label: "Guardados", value: k.saves },
+    { label: "Me interesa", value: k.interests },
+    { label: "Llamadas y WhatsApp", value: k.contact },
+    { label: "Cómo llegar", value: k.directions },
+    { label: "Compartidos", value: k.shares },
+    { label: "Redes y sitio", value: k.links },
+  ].filter((x) => x.value > 0);
+  const sourceRows = r.sources.map((x) => ({ label: SOURCE_LABEL[x.source] ?? x.source, value: x.n }));
+  const placeRows = r.places.map((p) => ({ label: p.label, sub: stateName(p.state), value: p.n }));
+  const distRows = BUCKETS.map((b) => ({ label: b, value: r.distance.find((d) => d.bucket === b)?.n ?? 0 }));
+  const distTotal = distRows.reduce((a, x) => a + x.value, 0);
+  const near = distRows[0].value + distRows[1].value;
+  const likeRows = r.likes.map((l) => ({ label: CATEGORY_LABEL[l.category] ?? l.category, value: Math.round((l.w / likesTotal) * 100) }));
+  const searchedRows = r.searched.map((x) => ({ label: x.label, value: x.n }));
+  const mobile = r.devices.find((d) => d.device === "mobile")?.n ?? 0;
+  const desktop = r.devices.find((d) => d.device === "desktop")?.n ?? 0;
+  const heat = heatPeak(r.heatmap);
+
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
@@ -41,47 +63,40 @@ export function EventReport({ r, forCommerce }: { r: EventReportData; forCommerc
         />
       </div>
 
-      <Card title="Vistas y acciones por día" subtitle="Hora de la Ciudad de México">
-        <LineChart days={r.daily} series={[{ key: "views", label: "Vistas" }, { key: "actions", label: "Acciones" }]} />
+      <Card
+        title={peakDay?.views ? `${fmtN(k.views)} vistas; el día más fuerte fue el ${dayLabel(peakDay.day)} con ${fmtN(peakDay.views)}` : "Vistas y acciones por día"}
+        subtitle="Vistas y acciones por día, hora de la Ciudad de México · la línea punteada es el promedio diario"
+      >
+        <LineChart average days={r.daily} series={[{ key: "views", label: "Vistas" }, { key: "actions", label: "Acciones" }]} />
       </Card>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <Card title="Qué hizo la gente" subtitle="Acciones sobre el evento">
-          <BarList rows={[
-            { label: "Guardados", value: k.saves },
-            { label: "Me interesa", value: k.interests },
-            { label: "Llamadas y WhatsApp", value: k.contact },
-            { label: "Cómo llegar", value: k.directions },
-            { label: "Compartidos", value: k.shares },
-            { label: "Redes y sitio", value: k.links },
-          ].filter((x) => x.value > 0)} />
+        <Card title={finding(actionRows, (l) => `${l} es lo que más hizo la gente con el evento`, "Qué hizo la gente")} subtitle="Acciones sobre el evento">
+          <BarList focus="top" rows={actionRows} />
         </Card>
-        <Card title="De dónde llegaron" subtitle="Personas por fuente de la visita">
-          <BarList showPct rows={r.sources.map((s) => ({ label: SOURCE_LABEL[s.source] ?? s.source, value: s.n }))} />
+        <Card title={finding(sourceRows, (l, p) => `${l} trajo el ${p} de las visitas`, "De dónde llegaron")} subtitle="Personas por fuente de la visita">
+          <BarList showPct focus="top" rows={sourceRows} />
         </Card>
-        <Card title="De dónde son" subtitle="Ubicación aproximada de quien lo vio">
-          <BarList showPct rows={r.places.map((p) => ({ label: p.label, sub: stateName(p.state), value: p.n }))} />
+        <Card title={finding(placeRows, (l, p) => `El ${p} de su público es de ${l}`, "De dónde son")} subtitle="Personas por ubicación aproximada">
+          <BarList showPct focus="top" rows={placeRows} />
         </Card>
-        <Card title="Qué tan lejos están" subtitle="Distancia entre la persona y el evento">
+        <Card title={distTotal ? `El ${fmtPct((near / distTotal) * 100)} está a menos de 30 km` : "Qué tan lejos están"} subtitle="Personas por distancia al evento">
           {r.distance.length ? (
-            <BarList showPct rows={BUCKETS.map((b) => ({ label: b, value: r.distance.find((d) => d.bucket === b)?.n ?? 0 }))} />
+            <BarList showPct focus="top" rows={distRows} />
           ) : <Empty />}
         </Card>
-        <Card title="Qué más le gusta a su público" subtitle="Otras categorías que ve y prefiere esta audiencia">
+        <Card title={finding(likeRows, (l) => `A su público también le gusta ${l.toLowerCase()}`, "Qué más le gusta a su público")} subtitle="Otras categorías que ve y prefiere esta audiencia, en %">
           {r.likes.length ? (
-            <BarList rows={r.likes.map((l) => ({ label: CATEGORY_LABEL[l.category] ?? l.category, value: Math.round((l.w / likesTotal) * 100) }))} unit="%" />
+            <BarList focus="top" rows={likeRows} unit="%" />
           ) : <Empty>Aún no hay suficiente historial de esta audiencia.</Empty>}
         </Card>
-        <Card title="Zonas donde buscaban" subtitle="Municipio elegido en el buscador">
-          <BarList rows={r.searched.map((s) => ({ label: s.label, value: s.n }))} />
+        <Card title={finding(searchedRows, (l) => `Lo buscaban sobre todo desde ${l}`, "Zonas donde buscaban")} subtitle="Personas por municipio elegido en el buscador">
+          <BarList focus="top" rows={searchedRows} />
         </Card>
-        <Card title="Dispositivo">
-          <SplitBar parts={[
-            { label: "Celular", value: r.devices.find((d) => d.device === "mobile")?.n ?? 0 },
-            { label: "Computadora", value: r.devices.find((d) => d.device === "desktop")?.n ?? 0 },
-          ]} />
+        <Card title={mobile + desktop ? `El ${fmtPct((mobile / (mobile + desktop)) * 100)} lo vio desde el celular` : "Dispositivo"} subtitle="Personas por dispositivo">
+          <SplitBar parts={[{ label: "Celular", value: mobile }, { label: "Computadora", value: desktop }]} />
         </Card>
-        <Card title="Cuándo lo vieron" subtitle="Día y hora de las vistas">
+        <Card title={heat ? `Lo vieron más el ${heat.day} a las ${heat.hour}:00` : "Cuándo lo vieron"} subtitle="Vistas por día y hora">
           <Heatmap cells={r.heatmap} />
         </Card>
       </div>
