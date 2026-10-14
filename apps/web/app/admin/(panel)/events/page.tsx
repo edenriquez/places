@@ -8,10 +8,13 @@ import { CATEGORY_LABEL, type Category } from "@/lib/types";
 import { StatusPill } from "../status-pill";
 import { EventStatusButtons } from "./status-buttons";
 import { EventImageButton } from "./image-button";
+import { EventKeepButton } from "./keep-button";
 
 export const metadata = { title: "Eventos · Admin" };
 
 const PAGE_SIZE = 50;
+const PURGE_DAYS = 7; // purge_past_events: una semana después de la última fecha
+const DAY = 86_400_000;
 const STATUSES = [["", "Todos"], ["published", "Publicados"], ["pending", "Pendientes"], ["cancelled", "Cancelados"], ["rejected", "Descartados"]] as const;
 // columnas ordenables en el servidor (la fecha vive en event_occurrences y no ordena al evento)
 const SORTS = { created: { col: "created_at", label: "agregado" }, title: { col: "title", label: "nombre" }, status: { col: "status", label: "estado" } } as const;
@@ -31,7 +34,7 @@ export default async function EventsAdminPage({ searchParams }: { searchParams: 
   const sb = await createClient();
   const { data: munis } = await sb.from("municipalities_view").select("cvegeo,name").order("name");
   let q = sb.from("events")
-    .select("id, slug, title, category, status, is_free, price_min, image_path, raw_ingestion_id, created_at, municipalities:municipality_cvegeo(name), event_occurrences(starts_at)", { count: "exact" })
+    .select("id, slug, title, category, status, is_free, price_min, image_path, raw_ingestion_id, purged_at, keep, created_at, municipalities:municipality_cvegeo(name), event_occurrences(starts_at, ends_at)", { count: "exact" })
     .order(SORTS[sort].col, { ascending: dir === "asc" })
     .order("id")
     .range(from, from + PAGE_SIZE - 1);
@@ -53,7 +56,7 @@ export default async function EventsAdminPage({ searchParams }: { searchParams: 
     const nextDir = sort === key ? (dir === "asc" ? "desc" : "asc") : key === "created" ? "desc" : "asc";
     return link({ o: key === "created" ? "" : key, d: nextDir });
   };
-  const rows = (data ?? []) as unknown as { id: string; slug: string; title: string; category: Category; status: string; is_free: boolean; price_min: number | null; image_path: string | null; raw_ingestion_id: string | null; created_at: string; municipalities: { name: string } | null; event_occurrences: { starts_at: string }[] }[];
+  const rows = (data ?? []) as unknown as { id: string; slug: string; title: string; category: Category; status: string; is_free: boolean; price_min: number | null; image_path: string | null; raw_ingestion_id: string | null; purged_at: string | null; keep: boolean; created_at: string; municipalities: { name: string } | null; event_occurrences: { starts_at: string; ends_at: string | null }[] }[];
   const muniName = munis?.find((m) => m.cvegeo === muni)?.name;
   const chips = [
     search && { label: `“${search}”`, href: link({ q: "" }) },
@@ -67,7 +70,7 @@ export default async function EventsAdminPage({ searchParams }: { searchParams: 
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-[28px] font-bold">Eventos · {total}</h1>
-          <p className="mt-1 text-[14px] text-ink-2">Publica, despublica y sube la imagen de cada evento. La imagen de una fiesta se reutiliza cada año.</p>
+          <p className="mt-1 text-[14px] text-ink-2">Publica, despublica y sube la imagen de cada evento. La imagen de una fiesta se reutiliza cada año. Una semana después de su última fecha, el evento se purga: pierde flyer y contacto y quedan sus métricas.</p>
         </div>
         <nav aria-label="Filtrar por estado" className="flex flex-wrap gap-2 text-[13px]">
           {STATUSES.map(([k, l]) => (
@@ -130,6 +133,8 @@ export default async function EventsAdminPage({ searchParams }: { searchParams: 
               {rows.map((e) => {
                 const url = flyerUrl(e.image_path);
                 const first = e.event_occurrences.map((o) => o.starts_at).sort()[0];
+                const { lastEnd, purgeIn } = purgeSchedule(e.event_occurrences);
+                const purged = !!e.purged_at;
                 return (
                   <tr key={e.id} className="group bg-white hover:bg-bg-2/60 focus-within:bg-bg-2/60">
                     <th scope="row" className="sticky left-0 z-10 max-w-[58vw] border-b md:max-w-[300px] border-line bg-inherit px-3 py-2 text-left font-normal shadow-[1px_0_0_var(--line)]">
@@ -145,14 +150,27 @@ export default async function EventsAdminPage({ searchParams }: { searchParams: 
                       <span className="block tabular-nums">{first ? fmtWhenShort(first) : "sin fecha"}</span>
                       <span className="block text-[12px] text-ink-2">{e.municipalities?.name ?? "—"}</span>
                     </td>
-                    <td className="border-b border-line px-3 py-2"><StatusPill status={e.status} /></td>
+                    <td className="border-b border-line px-3 py-2">
+                      <StatusPill status={e.status} />
+                      {purged
+                        ? <span className="mt-1 block text-[12px] text-ink-2" title="Sin flyer ni contacto; quedan sus métricas">Purgado</span>
+                        : e.keep
+                          ? <span className="mt-1 block text-[12px] text-ink-2">Se conserva</span>
+                          : purgeIn != null && <span className="mt-1 block text-[12px] font-medium text-[#a86400]">{purgeIn === 0 ? "se purga hoy" : `se purga en ${purgeIn} ${purgeIn === 1 ? "día" : "días"}`}</span>}
+                    </td>
                     <td className="whitespace-nowrap border-b border-line px-3 py-2 text-[13px] text-ink-2 tabular-nums">{fmtShortDate(e.created_at)}</td>
                     <td className="border-b border-line px-3 py-2">
                       <div className="flex items-center justify-end gap-2">
-                        {e.status === "published" && <IconLink href={`/admin/events/${e.id}/metricas`} label="Métricas"><BarChart3 size={15} aria-hidden /></IconLink>}
-                        {e.raw_ingestion_id && <IconLink href={`/admin/review/${e.raw_ingestion_id}`} label="Editar"><Pencil size={15} aria-hidden /></IconLink>}
-                        <EventImageButton eventId={e.id} hasImage={!!e.image_path} />
-                        <EventStatusButtons id={e.id} status={e.status} title={e.title} />
+                        {(e.status === "published" || purged) && <IconLink href={`/admin/events/${e.id}/metricas`} label="Métricas"><BarChart3 size={15} aria-hidden /></IconLink>}
+                        {/* purgado: solo quedan las métricas, ya no hay nada que editar */}
+                        {!purged && (
+                          <>
+                            {e.raw_ingestion_id && <IconLink href={`/admin/review/${e.raw_ingestion_id}`} label="Editar"><Pencil size={15} aria-hidden /></IconLink>}
+                            <EventImageButton eventId={e.id} hasImage={!!e.image_path} />
+                            {lastEnd > 0 && <EventKeepButton id={e.id} keep={e.keep} />}
+                            <EventStatusButtons id={e.id} status={e.status} title={e.title} />
+                          </>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -214,6 +232,13 @@ function IconLink({ href, label, children }: { href: string; label: string; chil
 function PageLink({ href, disabled, children }: { href: string; disabled: boolean; children: React.ReactNode }) {
   if (disabled) return <span aria-disabled className="rounded-control border border-line px-3 py-1.5 font-semibold text-ink-3">{children}</span>;
   return <Link href={href} className="rounded-control border border-line-2 px-3 py-1.5 font-semibold text-ink">{children}</Link>;
+}
+
+/** Última fecha del evento y en cuántos días lo purga purge_past_events (null si todavía no pasa). */
+function purgeSchedule(occ: { starts_at: string; ends_at: string | null }[], now = Date.now()) {
+  const lastEnd = Math.max(0, ...occ.map((o) => new Date(o.ends_at ?? o.starts_at).getTime()));
+  const purgeIn = lastEnd && lastEnd < now ? Math.max(0, Math.ceil((lastEnd + PURGE_DAYS * DAY - now) / DAY)) : null;
+  return { lastEnd, purgeIn };
 }
 
 const shortDate = new Intl.DateTimeFormat("es-MX", { day: "numeric", month: "short", timeZone: "America/Mexico_City" });

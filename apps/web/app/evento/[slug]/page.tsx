@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { DesktopHeader } from "@/components/desktop";
-import { EventDesktop, EventMobile } from "@/components/event-detail";
+import { EventDesktop, EventMobile, EventPast } from "@/components/event-detail";
 import { JsonLd } from "@/components/json-ld";
 import { SearchBar } from "@/components/location-picker";
 import { fmtPrice, fmtWhenLong } from "@/lib/format";
@@ -20,6 +20,8 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const data = await eventBySlug(slug);
   if (!data) return { title: "Evento no encontrado", robots: { index: false, follow: true } };
   const { event, occurrences, place, municipality } = data;
+  // purgado: la página queda para quien llegue por un link viejo, pero ya no se indexa
+  if (event.purged_at) return { title: event.title, robots: { index: false, follow: true } };
   // la próxima fecha (no la primera): un link compartido de un evento con varias fechas debe decir la que viene
   const next = occurrences.find((o) => new Date(o.ends_at ?? o.starts_at) >= new Date()) ?? occurrences[0];
   const when = next ? fmtWhenLong(next.starts_at, next.ends_at, next.is_all_day) : "";
@@ -51,6 +53,15 @@ export default async function EventPage({ params }: Params) {
     data.municipality ? municipalityEvents(data.municipality.cvegeo, 7, data.municipality) : Promise.resolve([]),
   ]);
   const others = around.filter((e) => e.event_id !== data.event.id);
+
+  if (data.event.purged_at) {
+    return (
+      <>
+        <div className="hidden lg:block"><DesktopHeader><SearchBar loc={loc} municipalities={munis} isSet={isSet} header /></DesktopHeader></div>
+        <EventPast d={data} nearby={others.slice(0, 6)} />
+      </>
+    );
+  }
 
   // teléfono y escritorio no comparten layout: cada uno tiene su presentación
   const crumbs = [

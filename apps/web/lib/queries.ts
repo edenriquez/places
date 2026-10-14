@@ -187,6 +187,7 @@ export const publishedEventsIndex = unstable_cache(
       .from("events")
       .select("slug, title, updated_at, image_path, is_free, municipality_cvegeo, event_occurrences(starts_at, ends_at)")
       .eq("status", "published")
+      .is("purged_at", null)
       .order("updated_at", { ascending: false })
       .limit(5000);
     if (error) throw error;

@@ -426,6 +426,38 @@ export function EventDesktop({ d, nearby }: { d: EventData; nearby: NearRow[] })
   );
 }
 
+/** Evento purgado (pasó hace más de una semana): ya no hay flyer ni contacto; se dice cuándo fue y qué viene cerca. */
+export function EventPast({ d, nearby }: { d: EventData; nearby: NearRow[] }) {
+  const { event, occurrences, municipality } = d;
+  const last = occurrences.at(-1);
+  return (
+    <main className="mx-auto max-w-[1120px] px-5 pb-16 pt-[max(env(safe-area-inset-top),12px)] lg:px-8 lg:pt-6">
+      <BackButton className="grid h-10 w-10 place-items-center rounded-full border border-line hover:bg-bg-2" />
+      <header className="mt-5 max-w-[640px]">
+        <Category d={d} />
+        <h1 className="mt-3 text-[26px] font-bold leading-tight lg:text-[34px]">{event.title}</h1>
+        <p className="mt-2 text-[15px] text-ink-2">
+          Este evento ya pasó{last ? `: fue ${fmtWhenLong(last.starts_at, last.ends_at, last.is_all_day)}` : ""}
+          {municipality ? ` en ${municipality.name}, ${municipality.state}` : ""}.
+        </p>
+      </header>
+
+      {nearby.length > 0 ? (
+        <section className="mt-10 border-t border-line pt-8">
+          <h2 className="text-[18px] font-bold lg:text-[22px]">Lo que viene cerca</h2>
+          <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 [&>a]:px-0">
+            {nearby.map((e) => <EventCard key={e.event_id} e={e} />)}
+          </div>
+        </section>
+      ) : (
+        <Link href={municipality ? `/municipio/${municipality.slug}` : "/"} className="mt-8 inline-flex items-center gap-2 rounded-control border border-ink px-4 py-2.5 text-[14px] font-semibold">
+          Ver qué hay {municipality ? `en ${municipality.name}` : "cerca"} <ArrowRight size={16} aria-hidden />
+        </Link>
+      )}
+    </main>
+  );
+}
+
 /** Panel izquierdo de /mapa: detalle completo sin salir del mapa; "Volver" regresa a la lista. */
 export function EventPanel({ d, backHref, sheet }: { d: EventData; backHref: string; sheet?: boolean }) {
   const x = derive(d);

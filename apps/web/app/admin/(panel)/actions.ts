@@ -406,6 +406,15 @@ export async function setEventStatus(id: string, status: "published" | "pending"
   updateTag(EVENTS_TAG);
 }
 
+/** "Conservar": el evento no se purga una semana después de su última fecha (o vuelve a la purga). */
+export async function setEventKeep(id: string, keep: boolean) {
+  const sb = await admin();
+  const { error } = await sb.from("events").update({ keep }).eq("id", id);
+  if (error) return { ok: false as const, error: error.message };
+  revalidatePath("/admin/events");
+  return { ok: true as const };
+}
+
 /** Asigna imagen a un evento; si viene de una fiesta recurrente, la guarda también ahí para años futuros. */
 export async function setEventImage(eventId: string, path: string) {
   const sb = await admin();

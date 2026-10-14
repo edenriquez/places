@@ -55,7 +55,8 @@ export async function ExploreView({ sp, split = false, basePath = "/" }: { sp: E
     ? Object.fromEntries((await withCoords([...lists.live, ...upcoming, ...lists.nearby, ...lists.suggestions])).map((e) => [e.event_id, [e.lat, e.lng] as [number, number]]))
     : {};
   // /mapa en escritorio: ?e=slug abre el detalle en el panel izquierdo (el mapa se centra en el evento)
-  const detail = split && sp.e ? await eventBySlug(sp.e) : null;
+  const found = split && sp.e ? await eventBySlug(sp.e) : null;
+  const detail = found?.event.purged_at ? null : found; // purgado: ya no hay detalle que mostrar
   const listQs = new URLSearchParams(Object.entries({ r: sp.r, c: sp.c, i: sp.i, v: sp.v, k: sp.k }).filter((kv): kv is [string, string] => !!kv[1])).toString();
   const listHref = listQs ? `${basePath}?${listQs}` : basePath;
   const focusCoords = detail ? eventCoords(detail) : null;

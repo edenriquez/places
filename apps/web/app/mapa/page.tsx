@@ -42,7 +42,8 @@ export default async function MapPage({ searchParams }: { searchParams: Promise<
 
   const stateBounds = stateBox(munis, loc.stateCve);
   // móvil: ?e=slug abre el evento en una hoja inferior sobre el mapa
-  const detail = sp.e ? await eventBySlug(sp.e) : null;
+  const found = sp.e ? await eventBySlug(sp.e) : null;
+  const detail = found?.event.purged_at ? null : found; // purgado: ya no hay detalle que mostrar
   const coords = detail ? eventCoords(detail) : null;
   const focus = detail && coords ? { id: detail.event.id, ...coords } : null;
   const listQs = new URLSearchParams(Object.entries({ r: sp.r, c: sp.c, ver: sp.ver }).filter((kv): kv is [string, string] => !!kv[1])).toString();

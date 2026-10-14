@@ -89,6 +89,10 @@ export type Event = {
   status: "pending" | "published" | "cancelled" | "rejected";
   confidence: number | null;
   raw_ingestion_id: string | null;
+  /** una semana después de su última fecha se purga: queda el esqueleto para las métricas, sin flyer ni contacto */
+  purged_at: string | null;
+  /** "Conservar": el admin lo sacó de la purga */
+  keep: boolean;
   created_at: string;
 };
 
