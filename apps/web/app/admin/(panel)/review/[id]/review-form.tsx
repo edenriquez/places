@@ -74,7 +74,11 @@ export function ReviewForm({ ingestion, event, organizerName, occurrences, munic
       : (ex.dates ?? []).map((d) => ({ date: d.date, start: d.start_time?.slice(0, 5) ?? "", end: d.end_time?.slice(0, 5) ?? "" })),
   );
   const [focus, setFocus] = useState<Focus>({ x: event?.image_focus_x ?? 50, y: event?.image_focus_y ?? 50 });
-  const [gallery, setGallery] = useState<string[]>(event?.gallery_paths ?? []);
+  // la primera es la portada; el flyer publicado puede haberse reemplazado desde Eventos
+  const [photos, setPhotos] = useState<string[]>(() => {
+    const cover = event ? event.image_path : ingestion.media_path;
+    return [...new Set([cover, ...(event?.gallery_paths ?? [])].filter((p): p is string => !!p))];
+  });
   const [experienceId, setExperienceId] = useState(event?.experience_id ?? "");
   const [dup, setDup] = useState("");
   const [ocrOpen, setOcrOpen] = useState(false);
@@ -88,8 +92,12 @@ export function ReviewForm({ ingestion, event, organizerName, occurrences, munic
   }, [placeText, placeId, places]);
   const selectedPlace = places.find((p) => p.id === placeId);
   const url = flyerUrl(ingestion.media_path);
-  // el flyer publicado puede haberse reemplazado desde Eventos
-  const shownUrl = flyerUrl(event?.image_path ?? ingestion.media_path);
+  const shownUrl = flyerUrl(photos[0] ?? null);
+  function changePhotos(next: string[]) {
+    // el recorte se eligió para la portada anterior
+    if (next[0] !== photos[0]) setFocus({ x: 50, y: 50 });
+    setPhotos(next);
+  }
   const firstDate = dates.find((d) => d.date);
   const previewWhen = firstDate ? fmtWhenShort(new Date(`${firstDate.date}T${firstDate.start || "12:00"}:00-06:00`).toISOString(), !firstDate.start) : "Fecha por definir";
   const previewPlace = [selectedPlace?.name ?? placeText, municipalities.find((m) => m.cvegeo === municipality)?.name].filter(Boolean).join(" · ");
@@ -101,7 +109,8 @@ export function ReviewForm({ ingestion, event, organizerName, occurrences, munic
       placeId, placeText, departureText, municipality, isFree,
       contactPhone, contactWhatsapp, instagram, facebook, tiktok, website,
       priceMin: priceMin ? Number(priceMin) : null, priceMax: priceMax ? Number(priceMax) : null,
-      organizer, dates, imageFocusX: focus.x, imageFocusY: focus.y, galleryPaths: gallery,
+      organizer, dates, imageFocusX: focus.x, imageFocusY: focus.y,
+      imagePath: photos[0] ?? null, galleryPaths: photos.slice(1),
       experienceId: experienceId || null,
     };
   }
@@ -134,9 +143,7 @@ export function ReviewForm({ ingestion, event, organizerName, occurrences, munic
             price={fmtPrice(isFree, priceMin ? Number(priceMin) : null, priceMax ? Number(priceMax) : null)}
           />
         )}
-        {shownUrl && (
-          <GalleryEditor folder={ingestion.id} cover={shownUrl} coverStyle={focusStyle(focus.x, focus.y)} value={gallery} onChange={setGallery} title={title} />
-        )}
+        <GalleryEditor folder={ingestion.id} coverStyle={focusStyle(focus.x, focus.y)} value={photos} onChange={changePhotos} title={title} />
       </div>
 
       <div className="space-y-4 pb-24">

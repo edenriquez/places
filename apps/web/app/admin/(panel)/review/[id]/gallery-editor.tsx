@@ -2,12 +2,14 @@
 
 import Image from "next/image";
 import { useRef, useState } from "react";
+import clsx from "clsx";
 import { ChevronLeft, ChevronRight, ImagePlus, Loader2, X } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { flyerUrl } from "@/lib/format";
 import { FlyerCarousel } from "@/components/flyer-carousel";
 
-const MAX = 9;
+// portada + 9 extra
+const MAX = 10;
 
 async function sha256(file: File) {
   const buf = await crypto.subtle.digest("SHA-256", await file.arrayBuffer());
@@ -15,16 +17,18 @@ async function sha256(file: File) {
 }
 
 /**
- * Fotos extra del evento. Se suben al bucket en cuanto se eligen, pero el evento solo cambia al guardar.
- * El flyer sigue de portada (tarjetas y primera foto del carrusel).
+ * Fotos del evento en orden: la primera es la portada (tarjetas, recorte y primera del carrusel) y el resto
+ * va después en el carrusel. Se reordenan arrastrando o con las flechas; quitar la portada sube la siguiente.
+ * Se suben al bucket en cuanto se eligen, pero el evento solo cambia al guardar.
  */
-export function GalleryEditor({ folder, cover, coverStyle, value, onChange, title }: {
-  folder: string; cover: string; coverStyle?: React.CSSProperties;
+export function GalleryEditor({ folder, coverStyle, value, onChange, title }: {
+  folder: string; coverStyle?: React.CSSProperties;
   value: string[]; onChange: (paths: string[]) => void; title: string;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const [dragging, setDragging] = useState<number | null>(null);
   const room = MAX - value.length;
 
   async function onFiles(list: FileList | null) {
@@ -54,38 +58,50 @@ export function GalleryEditor({ folder, cover, coverStyle, value, onChange, titl
     }
   }
 
-  function move(i: number, d: -1 | 1) {
+  function moveTo(from: number, to: number) {
+    if (from === to || to < 0 || to >= value.length) return;
     const next = [...value];
-    [next[i], next[i + d]] = [next[i + d], next[i]];
+    next.splice(to, 0, ...next.splice(from, 1));
     onChange(next);
   }
 
   return (
     <section className="mt-5 rounded-card border border-line p-4">
       <div className="flex items-baseline justify-between gap-3">
-        <h2 className="text-[15px] font-bold">Más fotos</h2>
+        <h2 className="text-[15px] font-bold">Fotos</h2>
         <span className="text-[12px] tabular-nums text-ink-3">{value.length}/{MAX}</span>
       </div>
       <p className="mt-0.5 text-[13px] text-ink-2">
-        En la página del evento se ven en carrusel después del flyer. Las tarjetas siguen mostrando solo el flyer.
+        La primera es la portada: la que se ve en las tarjetas. Arrastra o usa las flechas para cambiar el orden del carrusel.
       </p>
 
       <ul className="mt-3 grid grid-cols-4 gap-2">
-        <li className="relative aspect-square overflow-hidden rounded-[10px] bg-bg-2">
-          <Image src={cover} alt="" fill sizes="100px" className="object-cover" style={coverStyle} />
-          <span className="absolute inset-x-1 bottom-1 rounded-full bg-black/60 py-0.5 text-center text-[10px] font-semibold text-white">Portada</span>
-        </li>
         {value.map((p, i) => (
-          <li key={p} className="group relative aspect-square overflow-hidden rounded-[10px] bg-bg-2">
-            <Image src={flyerUrl(p)!} alt="" fill sizes="100px" className="object-cover" />
-            <button type="button" onClick={() => onChange(value.filter((x) => x !== p))} aria-label={`Quitar foto ${i + 2}`} className="absolute right-1 top-1 grid h-6 w-6 place-items-center rounded-full bg-white/95 text-ink shadow-soft">
+          <li
+            key={p}
+            draggable
+            onDragStart={(e) => { setDragging(i); e.dataTransfer.effectAllowed = "move"; }}
+            onDragOver={(e) => { if (dragging != null) e.preventDefault(); }}
+            onDrop={(e) => { e.preventDefault(); if (dragging != null) moveTo(dragging, i); setDragging(null); }}
+            onDragEnd={() => setDragging(null)}
+            className={clsx(
+              "group relative aspect-square cursor-grab overflow-hidden rounded-[10px] bg-bg-2 active:cursor-grabbing",
+              i === 0 && "ring-2 ring-ink ring-offset-1",
+              dragging === i && "opacity-40",
+            )}
+          >
+            <Image src={flyerUrl(p)!} alt="" fill sizes="100px" draggable={false} className="pointer-events-none object-cover" style={i === 0 ? coverStyle : undefined} />
+            <button type="button" onClick={() => onChange(value.filter((x) => x !== p))} aria-label={i === 0 ? "Quitar portada" : `Quitar foto ${i + 1}`} className="absolute right-1 top-1 grid h-6 w-6 place-items-center rounded-full bg-white/95 text-ink shadow-soft">
               <X size={13} />
             </button>
+            {i === 0 && (
+              <span className="absolute left-1 top-1 rounded-full bg-black/60 px-1.5 py-0.5 text-[10px] font-semibold text-white">Portada</span>
+            )}
             <div className="absolute inset-x-1 bottom-1 flex justify-between">
-              <button type="button" disabled={i === 0} onClick={() => move(i, -1)} aria-label={`Mover foto ${i + 2} antes`} className="grid h-6 w-6 place-items-center rounded-full bg-white/95 text-ink shadow-soft disabled:invisible">
+              <button type="button" disabled={i === 0} onClick={() => moveTo(i, i - 1)} aria-label={`Mover foto ${i + 1} antes`} className="grid h-6 w-6 place-items-center rounded-full bg-white/95 text-ink shadow-soft disabled:invisible">
                 <ChevronLeft size={13} />
               </button>
-              <button type="button" disabled={i === value.length - 1} onClick={() => move(i, 1)} aria-label={`Mover foto ${i + 2} después`} className="grid h-6 w-6 place-items-center rounded-full bg-white/95 text-ink shadow-soft disabled:invisible">
+              <button type="button" disabled={i === value.length - 1} onClick={() => moveTo(i, i + 1)} aria-label={`Mover foto ${i + 1} después`} className="grid h-6 w-6 place-items-center rounded-full bg-white/95 text-ink shadow-soft disabled:invisible">
                 <ChevronRight size={13} />
               </button>
             </div>
@@ -108,13 +124,15 @@ export function GalleryEditor({ folder, cover, coverStyle, value, onChange, titl
       <input ref={inputRef} type="file" accept="image/jpeg,image/png,image/webp" multiple hidden onChange={(e) => onFiles(e.target.files)} />
       {err && <p className="mt-2 text-[12px] text-error">{err}</p>}
 
-      {value.length > 0 && (
+      {value.length === 0 && <p className="mt-2 text-[12px] text-ink-2">Sin fotos el evento se publica sin imagen.</p>}
+
+      {value.length > 1 && (
         <>
           <p className="mt-5 text-[12px] font-semibold uppercase tracking-[0.04em] text-ink-2">Así se verá en el evento</p>
           <div className="mt-2 w-[320px] max-w-full">
             <FlyerCarousel
               key={value.join()}
-              slides={[{ src: cover, style: coverStyle }, ...value.map((p) => ({ src: flyerUrl(p)! }))]}
+              slides={value.map((p, i) => ({ src: flyerUrl(p)!, style: i === 0 ? coverStyle : undefined }))}
               alt={title || "Evento"}
               sizes="280px"
               slideClassName="aspect-[4/3]"

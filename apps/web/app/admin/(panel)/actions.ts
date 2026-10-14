@@ -65,6 +65,8 @@ type ReviewInput = {
   /** punto de enfoque del flyer en las tarjetas (0–100 %) */
   imageFocusX: number;
   imageFocusY: number;
+  /** portada (null = sin foto); sin el campo se conserva la del evento o el flyer de la ingesta */
+  imagePath?: string | null;
   /** fotos extra ya subidas al bucket; sin el campo se conservan las que tenga el evento */
   galleryPaths?: string[];
   /** experiencia de la que esta fecha es una salida con guía; sin el campo se conserva */
@@ -95,6 +97,18 @@ function toIso(date: string, time: string) {
 }
 
 async function upsertEvent(sb: Awaited<ReturnType<typeof admin>>, input: ReviewInput, status: "pending" | "published") {
+  // las fotos se pueden reordenar: el flyer original puede pasar a la galería y una foto extra a portada,
+  // así que solo se aceptan rutas de galería o las que ya tenían el evento o la ingesta
+  const photosTouched = input.imagePath !== undefined || input.galleryPaths !== undefined;
+  const known = new Set<string>();
+  if (photosTouched) {
+    const [{ data: ing }, { data: ev }] = await Promise.all([
+      sb.from("raw_ingestions").select("media_path").eq("id", input.ingestionId).single(),
+      input.eventId ? sb.from("events").select("image_path").eq("id", input.eventId).single() : Promise.resolve({ data: null }),
+    ]);
+    for (const p of [ing?.media_path, ev?.image_path]) if (p) known.add(p);
+  }
+  const okPath = (p: unknown): p is string => typeof p === "string" && (known.has(p) || /^gallery\/[\w-]+\/[\w.-]+$/.test(p));
   const slugBase = input.title.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 70);
   const base = {
     title: input.title,
@@ -115,8 +129,9 @@ async function upsertEvent(sb: Awaited<ReturnType<typeof admin>>, input: ReviewI
     price_max: input.isFree ? null : input.priceMax,
     image_focus_x: pct(input.imageFocusX),
     image_focus_y: pct(input.imageFocusY),
+    ...(input.imagePath !== undefined && { image_path: okPath(input.imagePath) ? input.imagePath : null }),
     ...(input.galleryPaths && {
-      gallery_paths: [...new Set(input.galleryPaths.filter((p) => typeof p === "string" && /^gallery\/[\w-]+\/[\w.-]+$/.test(p)))].slice(0, MAX_GALLERY),
+      gallery_paths: [...new Set(input.galleryPaths.filter(okPath))].filter((p) => p !== input.imagePath).slice(0, MAX_GALLERY),
     }),
     ...(input.experienceId !== undefined && { experience_id: input.experienceId || null }),
     status,
@@ -141,7 +156,7 @@ async function upsertEvent(sb: Awaited<ReturnType<typeof admin>>, input: ReviewI
       ...base,
       published_at: status === "published" ? new Date().toISOString() : null,
       slug: `${slugBase}-${input.ingestionId.slice(0, 8)}`,
-      image_path: ing?.media_path,
+      ...(input.imagePath === undefined && { image_path: ing?.media_path }),
       source_id: ing?.source_id,
       raw_ingestion_id: input.ingestionId,
       confidence: 1,
