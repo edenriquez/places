@@ -141,6 +141,31 @@ function tokenOf(ctx: { http?: { authInfo?: { token: string } } }) {
   return token;
 }
 
+/**
+ * Llave de idempotencia de crear_evento: municipio + primera fecha + título normalizado. Si el asistente reintenta
+ * (o manda el mismo evento dos veces) choca con el índice único de raw_ingestions.dedup_key.
+ */
+function dedupKey(municipality: string, dates: string[], title: string) {
+  return `mcp:${municipality}:${[...dates].sort()[0]}:${slugify(title)}`;
+}
+
+type Existing = { id: string; slug: string; title: string; status: string; municipality: string; starts_at: string; reason: string };
+
+/** Respuesta cuando el evento ya estaba: éxito (no error) para que el asistente no lo intente de nuevo. */
+function alreadyThere(e: Pick<Existing, "id" | "slug" | "title" | "status"> & { reason?: string }, ingestionId?: string | null) {
+  return text({
+    ok: true,
+    ya_existia: true,
+    no_se_creo_otro: `Ya hay un evento así (${e.reason ?? "mismo flyer"}): “${e.title}”. No se creó un duplicado.`,
+    evento_id: e.id,
+    slug: e.slug,
+    estado: e.status === "published" ? "publicado" : "pendiente de revisión",
+    ...(ingestionId && { revisar: `${siteUrl()}/admin/review/${ingestionId}` }),
+    siguiente: "Si trae datos nuevos, díselo al admin; si solo falta la imagen, usa agregar_imagen con este evento_id. " +
+      "Si de verdad es OTRO evento distinto, vuelve a llamar crear_evento con forzar_nuevo: true.",
+  });
+}
+
 const date = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "YYYY-MM-DD");
 const time = z.string().regex(/^\d{2}:\d{2}(:\d{2})?$/, "HH:MM");
 
@@ -194,7 +219,9 @@ export function registerTools(server: McpServer) {
       title: "Crear evento (a revisión)",
       description:
         "Crea un evento con los datos que leíste del flyer o del post. Queda PENDIENTE en /admin/review hasta que el admin lo apruebe. " +
-        "Antes: buscar_municipio (cvegeo), buscar_lugar (lugar_id si hay coincidencia) y buscar_duplicados. Fechas en hora de México.",
+        "Antes: buscar_municipio (cvegeo), buscar_lugar (lugar_id si hay coincidencia) y buscar_duplicados. Fechas en hora de México. " +
+        "Si ya existe un evento parecido (mismo lugar o cerca, ±1 día) NO crea otro: responde ya_existia con su evento_id. " +
+        "Es seguro reintentar: no duplica.",
       inputSchema: z.object({
         titulo: z.string().min(3).max(160),
         categoria: z.enum(CATEGORIES),
@@ -210,6 +237,7 @@ export function registerTools(server: McpServer) {
         url_origen: z.string().url().optional().describe("post o página de donde salió"),
         flyer: flyerSchema.optional().describe("imagen del flyer para la tarjeta del evento"),
         confianza: z.number().min(0).max(1).optional().describe("qué tan seguro estás de los datos (0 a 1)"),
+        forzar_nuevo: z.boolean().optional().describe("solo si el admin confirmó que es un evento DISTINTO al que respondió ya_existia"),
       }),
       _meta: { "openai/fileParams": ["flyer"] },
     },
@@ -217,8 +245,21 @@ export function registerTools(server: McpServer) {
       const sb = userClient(tokenOf(ctx));
       const userId = (ctx.http?.authInfo?.extra?.userId as string | undefined) ?? null;
       try {
+        // el servidor revisa duplicados (no depende de que el asistente haya llamado buscar_duplicados), antes de subir nada
+        if (!a.forzar_nuevo) {
+          const { data: hit, error: dupErr } = await sb.rpc("mcp_existing_event", {
+            p_title: a.titulo, p_municipality: a.municipio, p_dates: a.fechas.map((d) => d.fecha), p_origin_url: a.url_origen ?? null,
+          }).maybeSingle<Existing>();
+          if (dupErr) throw new Error(dupErr.message);
+          if (hit) return alreadyThere(hit);
+        }
         const flyer = a.flyer ? await storeFlyer(sb, a.flyer) : null;
-        if (flyer?.dup) return fail(`Ese flyer ya estaba registrado (ingesta ${flyer.dup.id}, estado ${flyer.dup.status}).`);
+        if (flyer?.dup) {
+          const { data: e } = flyer.dup.event_id ? await sb.from("events").select("id, slug, title, status").eq("id", flyer.dup.event_id).maybeSingle() : { data: null };
+          if (e) return alreadyThere({ ...e, reason: "mismo flyer" }, flyer.dup.id);
+          return fail(`Ese flyer ya estaba registrado (ingesta ${flyer.dup.id}, estado ${flyer.dup.status}).`);
+        }
+        const key = a.forzar_nuevo ? null : dedupKey(a.municipio, a.fechas.map((d) => d.fecha), a.titulo);
         const src = await sourceId(sb);
         const isFree = a.gratis ?? false;
         const conf = Math.round((a.confianza ?? 0.8) * 100) / 100;
@@ -246,11 +287,20 @@ export function registerTools(server: McpServer) {
           municipality_hint: a.municipio,
           organizer_hint: a.organizador ?? null,
           payload: { via: "mcp", client: ctx.http?.authInfo?.clientId ?? null },
+          dedup_key: key,
           extraction,
           extraction_model: "mcp",
           confidence: conf,
           processed_at: new Date().toISOString(),
         }).select("id").single();
+        // otra llamada igual ganó la carrera (reintento simultáneo): devolver la suya
+        if (ingErr?.code === "23505" && key && ingErr.message.includes("dedup_key")) {
+          const { data: other } = await sb.from("raw_ingestions").select("id, event_id").eq("dedup_key", key)
+            .not("status", "in", "(failed,rejected,duplicate)").maybeSingle();
+          const { data: e } = other?.event_id ? await sb.from("events").select("id, slug, title, status").eq("id", other.event_id).maybeSingle() : { data: null };
+          if (e) return alreadyThere({ ...e, reason: "misma llamada repetida" }, other!.id);
+          return fail("Este mismo evento se está creando en otra llamada en este momento. Espera unos segundos y revisa con buscar_duplicados; no lo vuelvas a crear.");
+        }
         if (ingErr) throw new Error(ingErr.message);
 
         const { data: ev, error: evErr } = await sb.from("events").insert({
