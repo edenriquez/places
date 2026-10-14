@@ -42,7 +42,12 @@ export const SOURCE_LABEL: Record<string, string> = {
   "sin dato": "Sin dato",
 };
 
+/** Navegador del equipo (lo pone el proxy al entrar a /admin o /api/t al ver una cuenta admin): no se cuenta. */
+export const STAFF_COOKIE = "el_staff";
+
 const has = (s: string | null | undefined, re: RegExp) => !!s && re.test(s);
+// regreso del login (Google OAuth / Supabase Auth): es la misma visita, no una llegada desde Google
+const AUTH_HOST = /^accounts\.google\.[a-z.]+$|(^|\.)supabase\.co$/;
 
 /**
  * Fuente de una visita. Primero la UTM (los links que compartimos la llevan), luego pistas de la URL
@@ -65,7 +70,7 @@ export function classifySource(url: URL, referrer: string | undefined, selfHost:
   if (url.searchParams.has("igshid")) return { source: "instagram", referrerHost: refHost };
   if (url.searchParams.has("gclid")) return { source: "google", referrerHost: refHost };
   if (!refHost) return { source: "directo", referrerHost: null };
-  if (refHost === selfHost) return { source: "interno", referrerHost: refHost };
+  if (refHost === selfHost || AUTH_HOST.test(refHost)) return { source: "interno", referrerHost: refHost };
   if (has(refHost, /(^|\.)(wa\.me|whatsapp\.com)$|com\.whatsapp/)) return { source: "whatsapp", referrerHost: refHost };
   if (has(refHost, /(^|\.)(facebook\.com|fb\.com|fb\.me|messenger\.com)$|com\.facebook/)) return { source: "facebook", referrerHost: refHost };
   if (has(refHost, /(^|\.)instagram\.com$|com\.instagram/)) return { source: "instagram", referrerHost: refHost };

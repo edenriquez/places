@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { STAFF_COOKIE } from "@/lib/analytics";
 
 /** Refresca la sesión de Supabase (admin y páginas con cuenta) y protege /admin (excepto /admin/login). */
 export async function proxy(request: NextRequest) {
@@ -36,6 +37,10 @@ export async function proxy(request: NextRequest) {
       url.pathname = "/admin/login";
       url.searchParams.set("error", "no-admin");
       return NextResponse.redirect(url);
+    }
+    // este navegador es del equipo: /api/t no cuenta su uso como público (ni después de cerrar sesión)
+    if (!request.cookies.has(STAFF_COOKIE)) {
+      response.cookies.set(STAFF_COOKIE, "1", { path: "/", maxAge: 60 * 60 * 24 * 365 * 2, sameSite: "lax", secure: request.nextUrl.protocol === "https:" });
     }
   }
   return response;

@@ -37,7 +37,8 @@ function sessionId() {
 }
 
 export function track(type: TrackType, extra: { event?: string; props?: TrackPayload["props"] } = {}) {
-  if (typeof window === "undefined" || IGNORED.test(location.pathname)) return;
+  // navigator.webdriver: Playwright/Puppeteer/Selenium (la prueba de rendimiento del CI, scrapers): no es público
+  if (typeof window === "undefined" || navigator.webdriver || IGNORED.test(location.pathname)) return;
   try {
     visitorId();
     const path = location.pathname + location.search;
