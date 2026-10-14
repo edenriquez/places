@@ -194,3 +194,21 @@ export async function setExperienceStatus(id: string, status: "draft" | "publish
   updateTag(EVENTS_TAG);
   return { ok: true as const };
 }
+
+/**
+ * Borra la experiencia para siempre. Sus salidas quedan como eventos sueltos (experience_id → null) y los planes
+ * en grupo hechos sobre ella se borran (cascade). Las fotos de experiences/ se quitan del bucket.
+ */
+export async function deleteExperience(id: string) {
+  const sb = await admin();
+  const { data: cur, error: readError } = await sb.from("experiences").select("image_path, gallery_paths").eq("id", id).maybeSingle();
+  if (readError) return { ok: false as const, error: readError.message };
+  if (!cur) return { ok: false as const, error: "La experiencia ya no existe." };
+  const { error } = await sb.from("experiences").delete().eq("id", id);
+  if (error) return { ok: false as const, error: error.message };
+  const photos = [cur.image_path, ...((cur.gallery_paths as string[] | null) ?? [])].filter((p): p is string => !!p && p.startsWith("experiences/"));
+  if (photos.length) await sb.storage.from("flyers").remove(photos);
+  revalidatePath("/admin/experiencias");
+  updateTag(EVENTS_TAG);
+  return { ok: true as const };
+}
