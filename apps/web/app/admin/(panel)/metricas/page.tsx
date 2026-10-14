@@ -5,6 +5,7 @@ import { COMPANIONS } from "@/lib/account";
 import { regionLabel, SOURCE_LABEL } from "@/lib/analytics";
 import { createClient } from "@/lib/supabase/server";
 import { CATEGORY_LABEL, type Category } from "@/lib/types";
+import { MetricsTabs } from "./tabs";
 
 export const metadata = { title: "Métricas · Admin" };
 
@@ -69,6 +70,7 @@ export default async function MetricsPage({ searchParams }: { searchParams: Prom
           ))}
         </nav>
       </div>
+      <MetricsTabs active="general" range={range} />
 
       <div className="mt-5 space-y-4">
         {/* lo que se le cuenta a un comercio en una frase */}

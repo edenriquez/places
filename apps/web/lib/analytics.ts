@@ -2,7 +2,7 @@
 export const TRACK_TYPES = [
   "pageview", "share_whatsapp", "call", "whatsapp_contact", "maps", "waze", "social", "website",
   "flyer_zoom", "save", "unsave", "interest", "uninterest", "login_start", "search", "filter",
-  "plan_create", "plan_join", "plan_invite",
+  "plan_create", "plan_join", "plan_invite", "no_results",
 ] as const;
 export type TrackType = (typeof TRACK_TYPES)[number];
 

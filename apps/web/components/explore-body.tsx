@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { EventCard } from "@/components/event-card";
@@ -14,6 +14,7 @@ import { INTENTS, intentByKey, type IntentKey } from "@/lib/intents";
 import type { Loc } from "@/lib/location";
 import type { Range } from "@/lib/queries";
 import { SITE_NAME } from "@/lib/site";
+import { track } from "@/lib/track";
 import type { ExperienceRow, NearRow } from "@/lib/types";
 
 /** `short`: cabe en la pestaña de Agenda en un teléfono angosto */
@@ -98,6 +99,7 @@ export function ExploreBody({ lists, experiences, range, basePath, split, isSet,
 
   const upcomingPane = (
     <>
+      {isSet && !upcoming.length && <TrackEmpty intent={intent} when={range} tab="agenda" fallback={nearby.length > 0} />}
       {isSet && !upcoming.length && (
         <p className="px-5 pb-1 text-[14px] text-ink-2">
           Nada en {area} {range === "todo" ? "por ahora" : rangeLabel.toLowerCase()}{nearby.length ? "; te sugerimos lo más cercano." : "."}
@@ -213,6 +215,7 @@ function AnyDayPane({ experiences, intent, area, hideDistance }: { experiences: 
         </div>
       ) : (
         <div className="pt-2">
+          <TrackEmpty intent={intent} kind={active ?? undefined} tab="dia" fallback={false} />
           <EmptyState
             title={`Aún no hay experiencias de ${active ? `“${EXPERIENCE_KINDS[active].label}”` : intentByKey(intent)!.label.toLowerCase()} en ${SITE_NAME}`}
             hint={active && forIntent.length ? "Prueba otro tipo de esta categoría." : "Prueba otra categoría."}
@@ -281,4 +284,19 @@ function Shelf({ count, split, title, subtitle, children }: { count: number; spl
       <div className="divide-y divide-line/60 lg:contents">{children}</div>
     </section>
   );
+}
+
+/**
+ * Analítica: la persona eligió algo y en su zona no había nada (la zona la pone /api/t desde la cookie).
+ * Es la señal de demanda sin oferta en /admin/metricas/comportamiento. Una vez por combinación mientras se ve.
+ */
+function TrackEmpty({ intent, kind, when, tab, fallback }: { intent?: string; kind?: string; when?: string; tab: "agenda" | "dia"; fallback: boolean }) {
+  const key = [intent, kind, when, tab].join("|");
+  const sent = useRef<string | null>(null);
+  useEffect(() => {
+    if (sent.current === key) return;
+    sent.current = key;
+    track("no_results", { props: { intent: intent ?? "todo", tab, fallback, ...(kind && { kind }), ...(when && { when }) } });
+  }, [key, intent, kind, when, tab, fallback]);
+  return null;
 }
