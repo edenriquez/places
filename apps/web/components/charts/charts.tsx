@@ -192,7 +192,7 @@ export function LineChart({ days, series, compact }: {
 
 const DOW = ["L", "M", "M", "J", "V", "S", "D"];
 /** Día de la semana × hora (hora de México), rampa secuencial azul por cuantiles. */
-export function Heatmap({ cells }: { cells: { dow: number; hour: number; n: number }[] }) {
+export function Heatmap({ cells, unit = "vistas" }: { cells: { dow: number; hour: number; n: number }[]; unit?: string }) {
   if (!cells.length) return <Empty />;
   const grid = new Map(cells.map((c) => [`${c.dow}-${c.hour}`, c.n]));
   const max = Math.max(...cells.map((c) => c.n), 1);
@@ -205,7 +205,7 @@ export function Heatmap({ cells }: { cells: { dow: number; hour: number; n: numb
             <span className="self-center">{d}</span>
             {Array.from({ length: 24 }, (_, h) => {
               const n = grid.get(`${di + 1}-${h}`) ?? 0;
-              return <span key={h} title={`${["lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"][di]} ${h}:00 · ${fmtN(n)} vistas`} className="aspect-square rounded-[3px]" style={{ background: color(n) }} />;
+              return <span key={h} title={`${["lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"][di]} ${h}:00 · ${fmtN(n)} ${unit}`} className="aspect-square rounded-[3px]" style={{ background: color(n) }} />;
             })}
           </div>
         ))}

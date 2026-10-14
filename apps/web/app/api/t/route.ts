@@ -1,6 +1,6 @@
 import { geolocation } from "@vercel/functions";
 import { NextResponse, type NextRequest } from "next/server";
-import { classifySource, deviceOf, isBot, TRACK_TYPES, type TrackPayload } from "@/lib/analytics";
+import { classifySource, deviceOf, isBot, STAFF_COOKIE, TRACK_TYPES, type TrackPayload } from "@/lib/analytics";
 import { parseLoc, LOC_COOKIE } from "@/lib/location";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createServiceClient } from "@/lib/supabase/service";
@@ -24,6 +24,17 @@ async function eventIdFor(sb: SupabaseClient, url: URL) {
   return slugIds.get(slug) ?? null;
 }
 
+// cuentas admin (user_id → es admin); en memoria mientras viva la función
+const adminIds = new Map<string, boolean>();
+async function isAdminUser(sb: SupabaseClient, uid: string) {
+  if (!adminIds.has(uid)) {
+    const { data } = await sb.from("admin_users").select("user_id").eq("user_id", uid).maybeSingle();
+    if (adminIds.size > 2000) adminIds.clear();
+    adminIds.set(uid, !!data);
+  }
+  return adminIds.get(uid)!;
+}
+
 /** Recibe los beacons de components/tracker.tsx. Siempre responde 204: la analítica nunca rompe la página. */
 export async function POST(request: NextRequest) {
   const done = new NextResponse(null, { status: 204 });
@@ -31,12 +42,18 @@ export async function POST(request: NextRequest) {
     const ua = request.headers.get("user-agent");
     const visitor = uuidOr(request.cookies.get("el_vid")?.value);
     const sb = createServiceClient();
-    if (!sb || !visitor || isBot(ua)) return done;
+    if (!sb || !visitor || isBot(ua) || request.cookies.has(STAFF_COOKIE)) return done;
 
     const raw = await request.text();
     if (raw.length > MAX_BODY) return done;
     const p = JSON.parse(raw) as TrackPayload & { uid?: string };
     if (!TYPES.has(p.type) || typeof p.path !== "string") return done;
+    // el equipo usando el sitio con su cuenta: no cuenta, y el navegador queda marcado para cuando no tenga sesión
+    const uid = uuidOr(p.uid);
+    if (uid && (await isAdminUser(sb, uid))) {
+      done.cookies.set(STAFF_COOKIE, "1", { path: "/", maxAge: 60 * 60 * 24 * 365 * 2, sameSite: "lax", secure: request.nextUrl.protocol === "https:" });
+      return done;
+    }
 
     const url = new URL(p.path, request.nextUrl.origin);
     if (/^\/(admin|reporte|api|auth)(\/|$)/.test(url.pathname)) return done;
@@ -55,7 +72,7 @@ export async function POST(request: NextRequest) {
       event_id: uuidOr(p.event) ?? (await eventIdFor(sb, url)),
       visitor_id: visitor,
       session_id: uuidOr(p.sessionId),
-      user_id: uuidOr(p.uid),
+      user_id: uid,
       source: p.type === "pageview" ? source : "interno",
       referrer_host: clip(referrerHost, 120),
       utm_source: clip(url.searchParams.get("utm_source"), 60),
