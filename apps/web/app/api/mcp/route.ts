@@ -9,10 +9,12 @@ import { registerTools, userClient } from "@/lib/mcp";
 const handler = createMcpHandler(registerTools, {
   serverInfo: { name: "entrelugares", version: "1.0.0" },
   instructions:
-    "Captura de eventos culturales de municipios de México para entrelugares. " +
-    "Flujo: buscar_municipio → buscar_lugar → buscar_duplicados → crear_evento (con el flyer si lo tienes). " +
+    "Captura de eventos y experiencias de municipios de México para entrelugares. " +
+    "Un evento ocurre en una fecha; una experiencia es algo que se puede hacer sin fecha fija (sendero, cascada, taller, recorrido). " +
+    "Eventos: buscar_municipio → buscar_lugar → buscar_duplicados → crear_evento (con el flyer si lo tienes). " +
     "Si el evento quedó sin imagen, agrégala con agregar_imagen (usa el evento_id); buscar_eventos_sin_imagen lista los que faltan. " +
-    "Todo queda pendiente de revisión; no inventes datos que no estén en el flyer o el post.",
+    "Experiencias: buscar_municipio → buscar_lugar → buscar_experiencias → crear_experiencia (con la portada) → agregar_foto_experiencia para cada foto extra. " +
+    "Todo queda pendiente de revisión (eventos) o en borrador (experiencias); no inventes datos que no estén en la fuente.",
 });
 
 async function verifyToken(_req: Request, token?: string): Promise<AuthInfo | undefined> {
