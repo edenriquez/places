@@ -2,14 +2,18 @@ import "server-only";
 import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import { cache } from "react";
+import type { Metadata } from "next";
 import { Marked, type Tokens } from "marked";
 import { parse as parseYaml } from "yaml";
+import { BLOG_BASE, BLOG_COPY, LANG_TAG, LOCALES, postPath, type Locale } from "./blog-copy";
+import { pageMetadata } from "./site";
 
 /**
- * Blog: guías en Markdown dentro de `content/blog/<slug>.md`, con un encabezado YAML entre `---`.
+ * Blog: guías en Markdown dentro de `content/blog/<idioma>/<slug>.md`, con un encabezado YAML entre `---`.
  * Publicar es agregar el archivo; un post con `published` en el futuro no aparece hasta ese día (hora de la CDMX),
  * así que se pueden dejar listos semanas antes de cada fiesta. La línea `<!-- eventos -->` marca dónde va el
- * bloque de eventos en vivo; si falta, va al final del texto.
+ * bloque de eventos en vivo; si falta, va al final del texto. `translation` es el slug del mismo post en el otro
+ * idioma: con él se enlazan entre sí y se declaran como alternos (hreflang).
  */
 
 const DIR = path.join(process.cwd(), "content/blog");
@@ -20,6 +24,7 @@ export type FaqItem = { q: string; a: string };
 
 export type PostMeta = {
   slug: string;
+  locale: Locale;
   title: string;
   /** título para compartir y para la tarjeta OG; si falta, `title` */
   ogTitle?: string;
@@ -34,6 +39,8 @@ export type PostMeta = {
   eventos?: { desde: string; hasta: string };
   faq: FaqItem[];
   readingMinutes: number;
+  /** slug del mismo post en el otro idioma */
+  translation?: string;
 };
 
 export type Post = PostMeta & {
@@ -73,24 +80,25 @@ export const plainText = (md: string) => md.replace(/\[([^\]]+)\]\([^)]+\)/g, "$
 
 const todayMx = () => new Intl.DateTimeFormat("en-CA", { timeZone: "America/Mexico_City" }).format(new Date());
 
-function parseFile(slug: string, raw: string): Post {
+function parseFile(locale: Locale, slug: string, raw: string): Post {
+  const file = `content/blog/${locale}/${slug}.md`;
   const m = raw.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
-  if (!m) throw new Error(`content/blog/${slug}.md: falta el encabezado entre ---`);
+  if (!m) throw new Error(`${file}: falta el encabezado entre ---`);
   const fm = parseYaml(m[1]) as Record<string, unknown>;
   const body = m[2];
 
   const str = (k: string, required = true) => {
     const v = fm[k] instanceof Date ? (fm[k] as Date).toISOString().slice(0, 10) : fm[k];
     if (v == null && !required) return undefined;
-    if (typeof v !== "string" || !v.trim()) throw new Error(`content/blog/${slug}.md: falta "${k}"`);
+    if (typeof v !== "string" || !v.trim()) throw new Error(`${file}: falta "${k}"`);
     return v.trim();
   };
   const published = str("published")!;
   const updated = str("updated", false) ?? published;
-  for (const d of [published, updated]) if (!DATE.test(d)) throw new Error(`content/blog/${slug}.md: fecha inválida "${d}" (YYYY-MM-DD)`);
+  for (const d of [published, updated]) if (!DATE.test(d)) throw new Error(`${file}: fecha inválida "${d}" (YYYY-MM-DD)`);
   const ev = fm.eventos as { desde?: unknown; hasta?: unknown } | undefined;
   const eventos = ev ? { desde: String(ev.desde), hasta: String(ev.hasta) } : undefined;
-  if (eventos && (!DATE.test(eventos.desde) || !DATE.test(eventos.hasta))) throw new Error(`content/blog/${slug}.md: "eventos" necesita desde y hasta (YYYY-MM-DD)`);
+  if (eventos && (!DATE.test(eventos.desde) || !DATE.test(eventos.hasta))) throw new Error(`${file}: "eventos" necesita desde y hasta (YYYY-MM-DD)`);
 
   const [beforeMd, afterMd = ""] = body.split(EVENTS_MARKER);
   const h2 = (md: string) => marked.lexer(md)
@@ -101,6 +109,7 @@ function parseFile(slug: string, raw: string): Post {
 
   return {
     slug,
+    locale,
     title: str("title")!,
     ogTitle: str("ogTitle", false),
     description: str("description")!,
@@ -110,6 +119,7 @@ function parseFile(slug: string, raw: string): Post {
     eventos,
     faq: Array.isArray(fm.faq) ? (fm.faq as FaqItem[]).map((f) => ({ q: String(f.q), a: String(f.a) })) : [],
     readingMinutes: Math.max(1, Math.round(words / 200)),
+    translation: str("translation", false),
     before: marked.parse(beforeMd) as string,
     after: marked.parse(afterMd) as string,
     toc: [...tocBefore, ...h2(afterMd)],
@@ -117,28 +127,81 @@ function parseFile(slug: string, raw: string): Post {
   };
 }
 
-const allPosts = cache(async (): Promise<Post[]> => {
-  const files = (await readdir(DIR)).filter((f) => f.endsWith(".md"));
-  const posts = await Promise.all(files.map(async (f) => parseFile(f.slice(0, -3), await readFile(path.join(DIR, f), "utf8"))));
+const allPosts = cache(async (locale: Locale): Promise<Post[]> => {
+  const dir = path.join(DIR, locale);
+  const files = (await readdir(dir).catch(() => [] as string[])).filter((f) => f.endsWith(".md"));
+  const posts = await Promise.all(files.map(async (f) => parseFile(locale, f.slice(0, -3), await readFile(path.join(dir, f), "utf8"))));
   return posts.sort((a, b) => b.published.localeCompare(a.published));
 });
 
 /** Los publicados a hoy, del más nuevo al más viejo. */
-export async function listPosts(): Promise<PostMeta[]> {
+export async function listPosts(locale: Locale = "es"): Promise<PostMeta[]> {
   const today = todayMx();
-  return (await allPosts()).filter((p) => p.published <= today);
+  return (await allPosts(locale)).filter((p) => p.published <= today);
 }
 
-export async function postBySlug(slug: string): Promise<Post | null> {
-  const p = (await allPosts()).find((x) => x.slug === slug);
+export async function postBySlug(slug: string, locale: Locale = "es"): Promise<Post | null> {
+  const p = (await allPosts(locale)).find((x) => x.slug === slug);
   return p && p.published <= todayMx() ? p : null;
 }
 
-/** Guías que mencionan un municipio (para enlazarlas desde su página). */
-export async function postsForMunicipality(slug: string): Promise<PostMeta[]> {
-  return (await listPosts()).filter((p) => p.municipios.includes(slug));
+/** La traducción publicada del post, si existe. */
+export async function translationOf(p: PostMeta): Promise<PostMeta | null> {
+  if (!p.translation) return null;
+  const other = LOCALES.find((l) => l !== p.locale)!;
+  return postBySlug(p.translation, other);
 }
 
-/** "15 de octubre de 2026" */
-export const fmtPostDate = (d: string) =>
-  new Intl.DateTimeFormat("es-MX", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(`${d}T12:00:00Z`));
+/** Guías en español que mencionan un municipio (para enlazarlas desde su página). */
+export async function postsForMunicipality(slug: string): Promise<PostMeta[]> {
+  return (await listPosts("es")).filter((p) => p.municipios.includes(slug));
+}
+
+/** "15 de octubre de 2026" / "October 15, 2026" */
+export const fmtPostDate = (d: string, locale: Locale = "es") =>
+  new Intl.DateTimeFormat(LANG_TAG[locale], { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(`${d}T12:00:00Z`));
+
+/** hreflang: las dos versiones se declaran entre sí; x-default es la española. */
+function languageAlternates(es: string | null, en: string | null) {
+  const languages: Record<string, string> = {};
+  if (es) languages[LANG_TAG.es] = es;
+  if (en) languages[LANG_TAG.en] = en;
+  if (es) languages["x-default"] = es;
+  return Object.keys(languages).length > 1 ? languages : undefined;
+}
+
+export async function postAlternates(p: PostMeta) {
+  const t = await translationOf(p);
+  const self = postPath(p.slug, p.locale);
+  const other = t ? postPath(t.slug, t.locale) : null;
+  return p.locale === "es" ? languageAlternates(self, other) : languageAlternates(other, self);
+}
+
+export async function postMetadata(slug: string, locale: Locale): Promise<Metadata> {
+  const p = await postBySlug(slug, locale);
+  if (!p) return { title: BLOG_COPY[locale].notFound, robots: { index: false, follow: true } };
+  const path = postPath(p.slug, locale);
+  const meta = pageMetadata({
+    title: p.title,
+    ogTitle: p.ogTitle,
+    description: p.description,
+    path,
+    type: "article",
+    images: [{ url: `${path}/opengraph-image`, alt: p.ogTitle ?? p.title, type: "image/jpeg" }],
+  });
+  return {
+    ...meta,
+    alternates: { ...meta.alternates, languages: await postAlternates(p) },
+    openGraph: { ...meta.openGraph, type: "article", locale: LANG_TAG[locale].replace("-", "_"), publishedTime: p.published, modifiedTime: p.updated },
+  };
+}
+
+export function blogIndexMetadata(locale: Locale): Metadata {
+  const c = BLOG_COPY[locale];
+  const meta = pageMetadata({ title: c.indexMetaTitle, ogTitle: c.indexOgTitle, description: c.indexMetaDescription, path: BLOG_BASE[locale] });
+  return {
+    ...meta,
+    alternates: { ...meta.alternates, languages: languageAlternates(BLOG_BASE.es, BLOG_BASE.en) },
+    openGraph: { ...meta.openGraph, locale: LANG_TAG[locale].replace("-", "_") },
+  };
+}

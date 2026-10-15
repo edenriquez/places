@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { EventCard } from "./event-card";
-import { EmptyState } from "./ui";
+import { EventCard } from "../event-card";
 import { eventsInMunicipalities } from "@/lib/queries";
+import { BLOG_COPY, type Locale } from "@/lib/blog-copy";
 import type { Municipality, NearRow } from "@/lib/types";
 
 /** Inicio y fin del día en la CDMX (sin horario de verano desde 2022). */
@@ -12,7 +12,8 @@ const endOfDay = (d: string) => new Date(`${d}T23:59:59-06:00`);
  * Eventos publicados de los municipios de la guía dentro de sus fechas. Sale de la cartelera, así que la guía
  * no se queda vieja: lo que se aprueba en /admin/review aparece aquí solo.
  */
-export async function PostEvents({ munis, desde, hasta }: { munis: Municipality[]; desde: string; hasta: string }) {
+export async function PostEvents({ munis, desde, hasta, locale }: { munis: Municipality[]; desde: string; hasta: string; locale: Locale }) {
+  const c = BLOG_COPY[locale];
   const now = new Date();
   const to = endOfDay(hasta);
   const from = new Date(Math.max(now.getTime(), startOfDay(desde).getTime()));
@@ -24,27 +25,24 @@ export async function PostEvents({ munis, desde, hasta }: { munis: Municipality[
   } catch {}
 
   return (
-    <section aria-labelledby="eventos" className="-mx-5 mt-10 scroll-mt-24">
+    <section aria-labelledby="eventos" className="reveal -mx-5 mt-16 scroll-mt-20">
       <div className="px-5">
-        <h2 id="eventos" className="text-[22px] font-bold leading-tight text-ink">Eventos en estas fechas</h2>
-        <p className="mt-1 text-[14px] text-ink-2">
-          {past
-            ? "Esta temporada ya pasó. Las fechas del próximo año aparecen en cada pueblo:"
-            : "Lo que ya está en la cartelera. Cada evento lo revisa una persona; las fiestas sin flyer aparecen con fecha estimada."}
-        </p>
+        <h2 id="eventos" className="text-[24px] font-bold leading-tight tracking-[-0.02em] text-ink">{c.events}</h2>
+        <p className="mt-2 text-[14px] leading-relaxed text-ink-3">{past ? c.eventsPast : c.eventsLead}</p>
       </div>
       {events.length > 0 ? (
-        <div className="mt-2">{events.map((e) => <EventCard key={e.event_id} e={e} hideDistance />)}</div>
+        <div className="mt-3">{events.map((e) => <EventCard key={e.event_id} e={e} hideDistance />)}</div>
       ) : (
-        <div className="mt-4">
-          {!past && <EmptyState title="Aún no hay eventos confirmados para estas fechas" hint="Los agregamos conforme llegan los flyers. Mientras, revisa cada pueblo:" />}
-          <div className="mt-3 flex flex-wrap gap-2 px-5">
-            {munis.map((m) => (
-              <Link key={m.slug} href={`/municipio/${m.slug}`} className="rounded-full border border-line-2 px-3 py-1.5 text-[13px] font-medium hover:border-ink">
-                {m.name}
-              </Link>
-            ))}
-          </div>
+        <div className="mx-5 mt-5 border-y border-line py-6">
+          {!past && (
+            <>
+              <p className="text-[15px] font-semibold text-ink">{c.eventsEmpty}</p>
+              <p className="mt-1 text-[14px] text-ink-2">{c.eventsEmptyHint}</p>
+            </>
+          )}
+          <p className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-[15px]">
+            {munis.map((m) => <Link key={m.slug} href={`/municipio/${m.slug}`} className="link-line">{m.name}</Link>)}
+          </p>
         </div>
       )}
     </section>
@@ -53,7 +51,7 @@ export async function PostEvents({ munis, desde, hasta }: { munis: Municipality[
 
 export function PostEventsSkeleton() {
   return (
-    <div className="-mx-5 mt-10 px-5" aria-hidden>
+    <div className="mt-16" aria-hidden>
       <div className="h-7 w-56 rounded bg-bg-2" />
       <div className="mt-4 aspect-[4/3] rounded-card bg-bg-2" />
     </div>

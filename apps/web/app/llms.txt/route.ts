@@ -1,4 +1,5 @@
 import { listPosts } from "@/lib/blog";
+import { postPath } from "@/lib/blog-copy";
 import { fmtPrice, fmtWhenShort } from "@/lib/format";
 import { municipalities, publishedEventsIndex } from "@/lib/queries";
 import { absUrl, SITE_DESCRIPTION, SITE_NAME } from "@/lib/site";
@@ -10,7 +11,7 @@ export const dynamic = "force-dynamic";
  * cómo están armadas las URLs y lista municipios y próximos eventos con link, para que puedan citarlos.
  */
 export async function GET() {
-  const [munis, events, posts] = await Promise.all([municipalities(), publishedEventsIndex(), listPosts()]);
+  const [munis, events, posts, postsEn] = await Promise.all([municipalities(), publishedEventsIndex(), listPosts("es"), listPosts("en")]);
   const byCve = new Map(munis.map((m) => [m.cvegeo, m]));
   const now = Date.now();
 
@@ -45,9 +46,13 @@ export async function GET() {
     `- Evento: ${absUrl("/evento/{slug}")}. Trae fecha, lugar, precio, contacto y datos estructurados schema.org/Event.`,
     `- Municipio: ${absUrl("/municipio/{slug}")}. Próximos eventos, fiestas del año y lugares para visitar.`,
     `- Guía: ${absUrl("/blog/{slug}")}. Artículo por temporada o fiesta, con preguntas frecuentes (schema.org/FAQPage).`,
+    `- Guide (English): ${absUrl("/en/blog/{slug}")}. Las mismas guías traducidas para visitantes que no hablan español.`,
     "",
     ...(posts.length
-      ? ["## Guías", "", ...posts.map((p) => `- [${p.title}](${absUrl(`/blog/${p.slug}`)}): ${p.description}`), ""]
+      ? ["## Guías", "", ...posts.map((p) => `- [${p.title}](${absUrl(postPath(p.slug, "es"))}): ${p.description}`), ""]
+      : []),
+    ...(postsEn.length
+      ? ["## Guides in English", "", ...postsEn.map((p) => `- [${p.title}](${absUrl(postPath(p.slug, "en"))}): ${p.description}`), ""]
       : []),
     ...states.flatMap((state) => [
       `## Municipios de ${state}`,

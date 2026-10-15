@@ -183,17 +183,83 @@ h1, h2, h3, .font-display {
 .el-range:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px var(--accent-soft), 0 2px 8px rgba(0,0,0,.18); }
 .el-range:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 4px var(--accent-soft), 0 2px 8px rgba(0,0,0,.18); }
 
-/* texto de las guías del blog (HTML que sale del Markdown de content/blog) */
-.post-body { font-size: 16px; line-height: 1.7; color: var(--ink-2); }
-.post-body > * + * { margin-top: 1rem; }
-.post-body h2 { margin-top: 2.5rem; font-size: 22px; font-weight: 700; line-height: 1.25; color: var(--ink); scroll-margin-top: 6rem; }
-.post-body h3 { margin-top: 1.75rem; font-size: 18px; font-weight: 700; line-height: 1.3; color: var(--ink); }
+/* ---------------------------------------------------------------------------
+   Blog (components/blog): tipografía, filetes y nada más. Todo el movimiento es CSS: entrada escalonada al cargar
+   (.rise con --i), párrafos que aparecen al entrar en pantalla y barra de lectura ligadas al scroll (solo donde
+   el navegador soporta animation-timeline; sin soporte, el texto se ve quieto y completo).
+   --------------------------------------------------------------------------- */
+
+/* subrayado fino que se retira hacia la derecha al pasar el cursor */
+@utility link-line {
+  color: var(--ink);
+  text-decoration: none;
+  background: linear-gradient(currentColor, currentColor) 0 100% / 100% 1px no-repeat;
+  transition: background-size 400ms var(--vt-ease), color 200ms ease;
+  &:hover { color: var(--accent); background-position: 100% 100%; background-size: 0% 1px; }
+}
+/* lo contrario: el subrayado crece desde la izquierda cuando se pasa sobre el renglón (.group) */
+.link-grow {
+  background: linear-gradient(currentColor, currentColor) 0 100% / 0% 2px no-repeat;
+  transition: background-size 500ms var(--vt-ease);
+}
+.group:hover .link-grow { background-size: 100% 2px; }
+
+/* texto de las guías (HTML que sale del Markdown de content/blog) */
+.post-body { font-size: 17px; line-height: 1.75; color: var(--ink-2); }
+.post-body > * + * { margin-top: 1.15rem; }
+.post-body h2 {
+  margin-top: 3.75rem; font-size: 25px; font-weight: 700; line-height: 1.2; letter-spacing: -0.025em;
+  color: var(--ink); scroll-margin-top: 5rem; text-wrap: balance;
+}
+.post-body h2 + * { margin-top: 0.9rem; }
+.post-body h3 { margin-top: 2rem; font-size: 19px; font-weight: 700; line-height: 1.3; color: var(--ink); }
+.post-body p { text-wrap: pretty; }
 .post-body strong { color: var(--ink); font-weight: 600; }
-.post-body a { color: var(--ink); font-weight: 500; text-decoration: underline; text-underline-offset: 2px; }
-.post-body a:hover { color: var(--accent); }
-.post-body ul, .post-body ol { padding-left: 1.25rem; }
-.post-body ul { list-style: disc; }
+.post-body a { @apply link-line; font-weight: 500; }
+.post-body ul, .post-body ol { padding-left: 1.15rem; }
+.post-body ul { list-style: none; }
+.post-body ul > li { position: relative; }
+.post-body ul > li::before { content: ""; position: absolute; left: -1.15rem; top: 0.82em; width: 0.55rem; height: 1px; background: var(--ink-3); }
 .post-body ol { list-style: decimal; }
-.post-body li + li { margin-top: 0.375rem; }
-.post-body blockquote { border-left: 3px solid var(--accent); padding: 0.25rem 0 0.25rem 1rem; color: var(--ink); }
-.post-body hr { border-color: var(--line); margin: 2rem 0; }
+.post-body ol > li::marker { color: var(--ink-3); font-size: 0.85em; }
+.post-body li + li { margin-top: 0.5rem; }
+.post-body blockquote { border-left: 1px solid var(--accent); padding-left: 1.25rem; font-size: 19px; color: var(--ink); }
+.post-body hr { border-color: var(--line); margin: 3rem 0; }
+
+@keyframes blog-rise { from { opacity: 0; transform: translateY(18px); filter: blur(6px); } }
+@keyframes blog-fade-up { from { opacity: 0; transform: translateY(22px); } }
+@keyframes blog-draw { from { transform: scaleX(0); } }
+@keyframes blog-unveil { from { clip-path: inset(0 0 100% 0); } }
+@keyframes blog-zoom { from { transform: scale(1.12); } }
+@keyframes blog-progress { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+.rise { animation: blog-rise 900ms var(--vt-ease) both; animation-delay: calc(var(--i, 0) * 90ms); }
+.draw-line { transform-origin: left; animation: blog-draw 1200ms var(--vt-ease) 450ms both; }
+.unveil { animation: blog-unveil 1100ms var(--vt-ease) 300ms both; }
+.unveil img { animation: blog-zoom 1800ms var(--vt-ease) 300ms both; }
+
+.read-progress { display: none; position: fixed; inset: 0 0 auto 0; z-index: 50; height: 2px; background: var(--accent); transform-origin: left; }
+
+@supports (animation-timeline: view()) {
+  .post-body > *, .reveal {
+    animation: blog-fade-up linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 40%;
+  }
+  .read-progress { display: block; animation: blog-progress linear both; animation-timeline: scroll(root); }
+}
+
+/* preguntas frecuentes: abren deslizándose donde el navegador sabe animar <details> */
+.faq-list { interpolate-size: allow-keywords; }
+details.faq::details-content {
+  block-size: 0; overflow-y: clip;
+  transition: block-size 400ms var(--vt-ease), content-visibility 400ms allow-discrete;
+}
+details.faq[open]::details-content { block-size: auto; }
+details.faq .faq-icon { transition: transform 400ms var(--vt-ease), color 200ms ease; }
+details.faq[open] .faq-icon { transform: rotate(45deg); color: var(--accent); }
+
+@media (prefers-reduced-motion: reduce) {
+  .rise, .draw-line, .unveil, .unveil img, .post-body > *, .reveal { animation: none !important; }
+  details.faq::details-content, details.faq .faq-icon { transition: none; }
+}
