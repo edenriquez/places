@@ -9,6 +9,7 @@ municipios: [cuernavaca, tepoztlan, tlayacapan, tetela-del-volcan, amecameca]
 eventos:
   desde: 2026-10-24
   hasta: 2026-11-09
+relacionadas: [dia-de-muertos-cdmx-2026, dia-de-muertos-puebla-2026, que-hacer-este-fin-de-semana-cerca-de-cdmx]
 faq:
   - q: "¿Cuándo es el Día de Muertos 2026?"
     a: "El 1 y el 2 de noviembre, que en 2026 caen en domingo y lunes. En muchos pueblos empieza antes: el 28 de octubre se recuerda a quienes murieron en accidentes y el 31 llegan los niños, así que el sábado 31 ya hay ofrendas puestas."
@@ -19,7 +20,7 @@ faq:
   - q: "¿Hay que pagar para ver las ofrendas o entrar a los panteones?"
     a: "Las ofrendas en casas, los panteones y los recorridos de esta guía no cobran entrada. Lo que sí se gasta es en comida, estacionamiento y velas, así que lleva efectivo."
   - q: "¿Y Mixquic?"
-    a: "San Andrés Mixquic, en Tláhuac (CDMX), es el más famoso por su alumbrada en el panteón la noche del 2 de noviembre, y por eso también el más lleno. Si buscas algo con menos gente y más de pueblo, los cinco de esta guía son buena alternativa."
+    a: "San Andrés Mixquic, en Tláhuac (CDMX), es el más famoso por su alumbrada en el panteón la noche del 2 de noviembre, y por eso también el más lleno. Si buscas algo con menos gente y más de pueblo, los cinco de esta guía son buena alternativa. Mixquic, el desfile y la ofrenda del Zócalo están en la [guía de Día de Muertos en la CDMX](/blog/dia-de-muertos-cdmx-2026)."
 ---
 
 El Día de Muertos en los pueblos de Morelos y del oriente del Estado de México no se parece al desfile de la ciudad. Aquí se visitan ofrendas dentro de las casas, se lleva una vela, se come lo que convidan las familias y se acompaña a la banda al panteón. Esta guía junta cinco pueblos a menos de dos horas y media de la CDMX, qué pasa en cada uno y qué día conviene ir.
@@ -83,3 +84,5 @@ La invitación es a llevar **veladora o antorcha** para iluminar el camino. En e
 - **Sal temprano el sábado.** Es el fin de semana con más visitantes del año en Morelos y las autopistas se cargan desde la mañana.
 - **Lleva velas, efectivo y abrigo.** Las velas son para las ofrendas y los recorridos, y en los pueblos casi nadie acepta tarjeta. Tetela del Volcán y Amecameca están junto a los volcanes y en la noche baja mucho la temperatura.
 - **Respeta el duelo.** Las ofrendas nuevas son de familias que perdieron a alguien este año. Saluda, pide permiso para las fotos y no te quedes en la puerta estorbando.
+
+¿Quieres más opciones? En Puebla están las catrinas gigantes de Atlixco y los altares de tres pisos de Huaquechula: [Día de Muertos en Puebla](/blog/dia-de-muertos-puebla-2026). Si prefieres quedarte en la ciudad, revisa el [Día de Muertos en la CDMX](/blog/dia-de-muertos-cdmx-2026).
