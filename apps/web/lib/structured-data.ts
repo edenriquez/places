@@ -65,21 +65,29 @@ function municipalityPlace(m: Municipality) {
 /**
  * Un Event por fecha (Google pide uno por ocurrencia); se omiten las que ya pasaron salvo si no queda ninguna.
  * El precio solo va si lo sabemos: inventar un 0 haría que el resultado diga "Gratis" sin serlo.
+ * Para el recuadro de eventos de Google: la imagen OG (1200×630) va siempre, después del flyer, porque los flyers
+ * suelen ser verticales y Google prefiere horizontales; sin lugar ligado, la calle es lo que dice el flyer.
  */
 export function eventGraph(d: EventData) {
   const { event, occurrences, place, municipality, organization } = d;
   const url = absUrl(`/evento/${event.slug}`);
-  const images = [event.image_path, ...(event.gallery_paths ?? [])].map((p) => flyerUrl(p)).filter((s): s is string => !!s);
+  const images = [
+    ...[event.image_path, ...(event.gallery_paths ?? [])].map((p) => flyerUrl(p)).filter((s): s is string => !!s),
+    `${url}/opengraph-image`,
+  ];
   const now = Date.now();
   const upcoming = occurrences.filter((o) => new Date(o.ends_at ?? o.starts_at).getTime() >= now);
   const dates = (upcoming.length ? upcoming : occurrences.slice(-1)).slice(0, 12);
 
+  const street = place?.address || event.place_text;
   const address = {
     "@type": "PostalAddress",
-    ...(place?.address && { streetAddress: place.address }),
+    ...(street && { streetAddress: street }),
     ...(municipality && { addressLocality: municipality.name, addressRegion: municipality.state }),
     addressCountry: "MX",
   };
+  const where = [place?.name ?? event.place_text, municipality && `${municipality.name}, ${municipality.state}`].filter(Boolean).join(", ");
+  const description = event.description || `${CATEGORY_LABEL[event.category]}${where ? ` en ${where}` : ""}.`;
   const lat = place?.lat ?? municipality?.lat;
   const lng = place?.lng ?? municipality?.lng;
   const location = {
@@ -102,23 +110,23 @@ export function eventGraph(d: EventData) {
         }),
       }
     : undefined;
+  const sameAs = [event.website_url, event.facebook_url, event.instagram_url, event.tiktok_url].filter((s): s is string => !!s);
   const organizer = organization
-    ? { "@type": "Organization", name: organization.name, ...(event.website_url && { url: event.website_url }) }
+    ? { "@type": "Organization", name: organization.name, ...(sameAs[0] && { url: sameAs[0] }) }
     : undefined;
-  const sameAs = [event.website_url, event.facebook_url, event.instagram_url, event.tiktok_url].filter(Boolean);
 
   return dates.map((o, i) => ({
     "@context": "https://schema.org",
     "@type": "Event",
     "@id": `${url}#${i + 1}`,
     name: event.title,
-    ...(event.description && { description: event.description }),
+    description,
     url,
     ...when(o),
     eventStatus: "https://schema.org/EventScheduled",
     eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
     location,
-    ...(images.length > 0 && { image: images }),
+    image: images,
     isAccessibleForFree: event.is_free,
     ...(offers && { offers }),
     ...(organizer && { organizer }),
