@@ -1,3 +1,4 @@
+import { listPosts } from "@/lib/blog";
 import { fmtPrice, fmtWhenShort } from "@/lib/format";
 import { municipalities, publishedEventsIndex } from "@/lib/queries";
 import { absUrl, SITE_DESCRIPTION, SITE_NAME } from "@/lib/site";
@@ -9,7 +10,7 @@ export const dynamic = "force-dynamic";
  * cómo están armadas las URLs y lista municipios y próximos eventos con link, para que puedan citarlos.
  */
 export async function GET() {
-  const [munis, events] = await Promise.all([municipalities(), publishedEventsIndex()]);
+  const [munis, events, posts] = await Promise.all([municipalities(), publishedEventsIndex(), listPosts()]);
   const byCve = new Map(munis.map((m) => [m.cvegeo, m]));
   const now = Date.now();
 
@@ -33,6 +34,7 @@ export async function GET() {
     "",
     `- [Explorar](${absUrl("/")}): lo que pasa hoy y los próximos días cerca de una ubicación, por fecha.`,
     `- [Mapa](${absUrl("/mapa")}): los mismos eventos en el mapa, filtrados por tiempo de camino.`,
+    `- [Guías](${absUrl("/blog")}): fiestas, ferias y escapadas por temporada, con los eventos confirmados de esas fechas.`,
     `- [Publicar un evento](${absUrl("/publicar")}): los organizadores suben el flyer gratis.`,
     `- [Aviso de privacidad](${absUrl("/privacidad")})`,
     `- [Términos y condiciones](${absUrl("/terminos")})`,
@@ -42,7 +44,11 @@ export async function GET() {
     "",
     `- Evento: ${absUrl("/evento/{slug}")}. Trae fecha, lugar, precio, contacto y datos estructurados schema.org/Event.`,
     `- Municipio: ${absUrl("/municipio/{slug}")}. Próximos eventos, fiestas del año y lugares para visitar.`,
+    `- Guía: ${absUrl("/blog/{slug}")}. Artículo por temporada o fiesta, con preguntas frecuentes (schema.org/FAQPage).`,
     "",
+    ...(posts.length
+      ? ["## Guías", "", ...posts.map((p) => `- [${p.title}](${absUrl(`/blog/${p.slug}`)}): ${p.description}`), ""]
+      : []),
     ...states.flatMap((state) => [
       `## Municipios de ${state}`,
       "",
