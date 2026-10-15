@@ -1,1 +1,1 @@
-"""places-ingest: job local de entrelugares.mx."""
+"""places-ingest: job local de entrelugar.es."""

@@ -15,6 +15,7 @@ import { SaveButton } from "./save-button";
 import { PriceTag } from "./ui";
 import { cleanAddress, flyerUrl, fmtPhone, fmtPrice, fmtWhenLong, focusStyle, waLink } from "@/lib/format";
 import type { eventBySlug } from "@/lib/queries";
+import { CONTACT_EMAIL } from "@/lib/site";
 import { CATEGORY_LABEL, type NearRow } from "@/lib/types";
 
 /**
@@ -251,7 +252,7 @@ function Directions({ x, title = true }: { x: Derived; title?: boolean }) {
 
 function Report({ d }: { d: EventData }) {
   return (
-    <a href={`mailto:hola@entrelugares.mx?subject=Dato incorrecto: ${encodeURIComponent(d.event.title)}`} className="inline-flex items-center gap-1.5 text-[13px] text-ink-2 underline">
+    <a href={`mailto:${CONTACT_EMAIL}?subject=Dato incorrecto: ${encodeURIComponent(d.event.title)}`} className="inline-flex items-center gap-1.5 text-[13px] text-ink-2 underline">
       <Flag size={14} /> Reportar un dato incorrecto
     </a>
   );
