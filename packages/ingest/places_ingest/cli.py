@@ -8,7 +8,7 @@ import typer
 from rich.console import Console
 from rich.table import Table
 
-app = typer.Typer(help="Job local de entrelugares.mx (corre en la Mac).", no_args_is_help=True)
+app = typer.Typer(help="Job local de entrelugar.es (corre en la Mac).", no_args_is_help=True)
 console = Console()
 
 

@@ -1,4 +1,4 @@
-# entrelugares.mx
+# entrelugar.es
 
 Qué está pasando cerca este fin de semana en pueblos de Morelos y Estado de México. Monorepo del MVP.
 

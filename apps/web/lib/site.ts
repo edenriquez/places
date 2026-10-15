@@ -19,7 +19,7 @@ export const SITE_KEYWORDS = [
   "Pueblos Mágicos", "conciertos", "mercados", "Tepoztlán", "Morelos", "Estado de México", "Puebla", "CDMX",
 ];
 export const LOCALE = "es_MX";
-export const CONTACT_EMAIL = "hola@entrelugares.mx";
+export const CONTACT_EMAIL = "hola@entrelugar.es";
 /** Search Console. Es público: sale en el <head> de cada página. */
 export const GOOGLE_SITE_VERIFICATION = "HUjRRNKVNXeK3M8HEAGwG8aEa_yhk6I26Ii3caVGNgE";
 

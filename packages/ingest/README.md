@@ -1,4 +1,4 @@
-# places-ingest — job local de entrelugares.mx
+# places-ingest — job local de entrelugar.es
 
 Corre **en tu Mac**, nunca en la nube. Hace dos cosas:
 

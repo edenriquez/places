@@ -9,7 +9,7 @@ el DNS en Cloudflare. Cambios de infra = PR en ese repo; el plan sale como comen
 | Web (`apps/web`) | Vercel, proyecto `entrelugares-web` | Vercel escucha este repo: push a `main` = producción, PR = preview. Env vars las pone Terraform. |
 | Base de datos | Supabase, proyecto `entrelugares` (org personal, `us-west-2`) | `supabase/migrations` se aplican con `.github/workflows/supabase.yml` en push a `main`. |
 | Ingest (`packages/ingest`) | Esta Mac como worker remoto, launchd (`ops/worker.sh install`) | Polling a `jobs` + heartbeat a `workers` por el session pooler de Supabase (IPv4, 5432) con `.env.prod`. Estado y cola en `/admin/jobs`. |
-| Dominio | `entrelugares.mx`, pendiente de compra | Al comprarlo en Cloudflare: en `infra` setear `TF_VAR_domain`, `TF_VAR_cloudflare_zone_id`, `CLOUDFLARE_API_TOKEN`. Mientras: `entrelugares-web.vercel.app`. |
+| Dominio | `entrelugar.es`, apunta al proyecto `entrelugares-web` de Vercel | Es la URL canónica (sitemap, Open Graph, datos estructurados). También responde `entrelugares-web.vercel.app`. |
 
 ## Secrets que necesita este repo
 

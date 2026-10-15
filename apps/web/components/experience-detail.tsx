@@ -12,6 +12,7 @@ import { PriceTag } from "./ui";
 import { DIFFICULTY_LABEL, fmtExperiencePrice, fmtKm } from "@/lib/experiences";
 import { flyerUrl, fmtPhone, fmtPrice, fmtWhenShort, focusStyle, waLink } from "@/lib/format";
 import type { experienceBySlug } from "@/lib/queries";
+import { CONTACT_EMAIL } from "@/lib/site";
 
 /**
  * Detalle de experiencia. Como el de eventos, teléfono y escritorio comparten secciones pero no layout.
@@ -257,7 +258,7 @@ function Directions({ x, title = true }: { x: Derived; title?: boolean }) {
 
 function Report({ x }: { x: Derived }) {
   return (
-    <a href={`mailto:hola@entrelugares.mx?subject=Dato incorrecto: ${encodeURIComponent(x.x.title)}`} className="inline-flex items-center gap-1.5 text-[13px] text-ink-2 underline">
+    <a href={`mailto:${CONTACT_EMAIL}?subject=Dato incorrecto: ${encodeURIComponent(x.x.title)}`} className="inline-flex items-center gap-1.5 text-[13px] text-ink-2 underline">
       <Flag size={14} aria-hidden /> Reportar un dato incorrecto
     </a>
   );

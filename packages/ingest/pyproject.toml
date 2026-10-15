@@ -1,7 +1,7 @@
 [project]
 name = "places-ingest"
 version = "0.1.0"
-description = "Job local de entrelugares.mx: seed, OCR + modelo local. Corre en la Mac, nunca en la nube."
+description = "Job local de entrelugar.es: seed, OCR + modelo local. Corre en la Mac, nunca en la nube."
 requires-python = ">=3.12"
 dependencies = [
   "typer>=0.12",
