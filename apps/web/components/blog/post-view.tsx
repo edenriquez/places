@@ -2,12 +2,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { ArrowRight, Plus } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Plus } from "lucide-react";
 import { BottomNav } from "../bottom-nav";
 import { JsonLd } from "../json-ld";
 import { BlogHeader } from "./blog-header";
 import { PostEvents, PostEventsSkeleton } from "./post-events";
-import { fmtPostDate, inlineHtml, postBySlug, translationOf } from "@/lib/blog";
+import { eventWindow, fmtPostDate, inlineHtml, postBySlug, relatedPosts, translationOf } from "@/lib/blog";
 import { BLOG_BASE, BLOG_COPY, LANG_TAG, postPath, type Locale } from "@/lib/blog-copy";
 import { municipalities } from "@/lib/queries";
 import { breadcrumbs, postGraph } from "@/lib/structured-data";
@@ -29,11 +29,13 @@ export async function PostView({ slug, locale }: { slug: string; locale: Locale 
   const p = await postBySlug(slug, locale);
   if (!p) notFound();
   const c = BLOG_COPY[locale];
-  const [munis, translation] = await Promise.all([postMunicipalities(p.municipios), translationOf(p)]);
+  const [munis, translation, related] = await Promise.all([postMunicipalities(p.municipios), translationOf(p), relatedPosts(p)]);
   const cover = munis.find((m) => m.cover_image_url);
+  const range = p.eventos && eventWindow(p.eventos);
+  const eventsTitle = !p.eventos || "desde" in p.eventos ? c.events : p.eventos.rango === "fin-de-semana" ? c.eventsWeekend : c.eventsNext(p.eventos.dias);
   const toc = [
     ...p.toc.slice(0, p.eventsAt),
-    ...(p.eventos ? [{ id: "eventos", label: c.events }] : []),
+    ...(range ? [{ id: "eventos", label: eventsTitle }] : []),
     ...p.toc.slice(p.eventsAt),
     ...(p.faq.length ? [{ id: "preguntas", label: c.faq }] : []),
   ];
@@ -93,9 +95,9 @@ export async function PostView({ slug, locale }: { slug: string; locale: Locale 
 
         <div className="post-body mt-6" dangerouslySetInnerHTML={{ __html: p.before }} />
 
-        {p.eventos && (
+        {range && (
           <Suspense fallback={<PostEventsSkeleton />}>
-            <PostEvents munis={munis} desde={p.eventos.desde} hasta={p.eventos.hasta} locale={locale} />
+            <PostEvents munis={munis} desde={range.desde} hasta={range.hasta} title={eventsTitle} locale={locale} />
           </Suspense>
         )}
 
@@ -131,6 +133,25 @@ export async function PostView({ slug, locale }: { slug: string; locale: Locale 
             ))}
           </ul>
         </section>
+      )}
+
+      {related.length > 0 && (
+        <nav aria-labelledby="sigue-leyendo" className="reveal mt-16">
+          <h2 id="sigue-leyendo" className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-3">{c.related}</h2>
+          <ul className="mt-4 border-b border-line">
+            {related.map((r) => (
+              <li key={r.slug} className="border-t border-line">
+                <Link href={postPath(r.slug, locale)} className="group flex items-baseline justify-between gap-6 py-5">
+                  <span className="min-w-0">
+                    <span className="link-grow font-display text-balance text-[18px] font-bold leading-snug tracking-[-0.015em] text-ink">{r.ogTitle ?? r.title}</span>
+                    <span className="mt-1 line-clamp-1 block text-[14px] text-ink-3">{r.description}</span>
+                  </span>
+                  <ArrowUpRight size={18} className="shrink-0 self-center text-ink-3 transition duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-accent" />
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
       )}
 
       <aside className="reveal mt-16 border-t border-line pt-8">

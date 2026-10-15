@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { EventCard } from "../event-card";
 import { eventsInMunicipalities } from "@/lib/queries";
+import { fmtDateRange } from "@/lib/blog";
 import { BLOG_COPY, type Locale } from "@/lib/blog-copy";
 import type { Municipality, NearRow } from "@/lib/types";
 
@@ -12,7 +13,7 @@ const endOfDay = (d: string) => new Date(`${d}T23:59:59-06:00`);
  * Eventos publicados de los municipios de la guía dentro de sus fechas. Sale de la cartelera, así que la guía
  * no se queda vieja: lo que se aprueba en /admin/review aparece aquí solo.
  */
-export async function PostEvents({ munis, desde, hasta, locale }: { munis: Municipality[]; desde: string; hasta: string; locale: Locale }) {
+export async function PostEvents({ munis, desde, hasta, title, locale }: { munis: Municipality[]; desde: string; hasta: string; title: string; locale: Locale }) {
   const c = BLOG_COPY[locale];
   const now = new Date();
   const to = endOfDay(hasta);
@@ -27,7 +28,8 @@ export async function PostEvents({ munis, desde, hasta, locale }: { munis: Munic
   return (
     <section aria-labelledby="eventos" className="reveal -mx-5 mt-16 scroll-mt-20">
       <div className="px-5">
-        <h2 id="eventos" className="text-[24px] font-bold leading-tight tracking-[-0.02em] text-ink">{c.events}</h2>
+        <h2 id="eventos" className="text-[24px] font-bold leading-tight tracking-[-0.02em] text-ink">{title}</h2>
+        <p className="mt-1 text-[13px] font-semibold uppercase tracking-[0.12em] text-accent">{fmtDateRange(desde, hasta, locale)}</p>
         <p className="mt-2 text-[14px] leading-relaxed text-ink-3">{past ? c.eventsPast : c.eventsLead}</p>
       </div>
       {events.length > 0 ? (

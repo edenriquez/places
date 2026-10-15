@@ -14,13 +14,19 @@ import { pageMetadata } from "./site";
  * así que se pueden dejar listos semanas antes de cada fiesta. La línea `<!-- eventos -->` marca dónde va el
  * bloque de eventos en vivo; si falta, va al final del texto. `translation` es el slug del mismo post en el otro
  * idioma: con él se enlazan entre sí y se declaran como alternos (hreflang).
+ *
+ * `eventos` acepta fechas fijas (`{ desde, hasta }`) o un rango que se recalcula en cada visita, para las guías
+ * que no caducan: `fin-de-semana` (de viernes a domingo, el que está en curso o el siguiente) o `proximos-30-dias`.
  */
 
 const DIR = path.join(process.cwd(), "content/blog");
 const EVENTS_MARKER = /^<!--\s*eventos\s*-->\s*$/m;
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
+const NEXT_DAYS = /^proximos-(\d{1,3})-dias$/;
 
 export type FaqItem = { q: string; a: string };
+
+export type EventWindow = { desde: string; hasta: string } | { rango: "fin-de-semana" } | { rango: "proximos"; dias: number };
 
 export type PostMeta = {
   slug: string;
@@ -35,12 +41,14 @@ export type PostMeta = {
   updated: string;
   /** slugs de municipio: enlaces, portada y de dónde salen los eventos en vivo */
   municipios: string[];
-  /** rango de fechas (YYYY-MM-DD, inclusive) de los eventos en vivo; sin él no hay bloque */
-  eventos?: { desde: string; hasta: string };
+  /** fechas de los eventos en vivo (ver `eventWindow`); sin ellas no hay bloque */
+  eventos?: EventWindow;
   faq: FaqItem[];
   readingMinutes: number;
   /** slug del mismo post en el otro idioma */
   translation?: string;
+  /** slugs de guías del mismo idioma que van primero en "Sigue leyendo" */
+  relacionadas: string[];
 };
 
 export type Post = PostMeta & {
@@ -80,6 +88,40 @@ export const plainText = (md: string) => md.replace(/\[([^\]]+)\]\([^)]+\)/g, "$
 
 const todayMx = () => new Intl.DateTimeFormat("en-CA", { timeZone: "America/Mexico_City" }).format(new Date());
 
+const ymd = (v: unknown) => (v instanceof Date ? v.toISOString().slice(0, 10) : String(v));
+
+function parseEventWindow(file: string, v: unknown): EventWindow | undefined {
+  if (v == null) return undefined;
+  if (v === "fin-de-semana") return { rango: "fin-de-semana" };
+  const next = typeof v === "string" ? v.match(NEXT_DAYS) : null;
+  if (next) return { rango: "proximos", dias: Number(next[1]) };
+  const { desde, hasta } = (typeof v === "object" ? v : {}) as { desde?: unknown; hasta?: unknown };
+  const w = { desde: ymd(desde), hasta: ymd(hasta) };
+  if (!DATE.test(w.desde) || !DATE.test(w.hasta)) {
+    throw new Error(`${file}: "eventos" va con desde y hasta (YYYY-MM-DD), "fin-de-semana" o "proximos-N-dias"`);
+  }
+  return w;
+}
+
+/** Suma días a una fecha YYYY-MM-DD. */
+const addDays = (d: string, n: number) => {
+  const t = new Date(`${d}T12:00:00Z`);
+  t.setUTCDate(t.getUTCDate() + n);
+  return t.toISOString().slice(0, 10);
+};
+
+/**
+ * Fechas concretas del bloque de eventos, hoy en la CDMX. Fin de semana = viernes a domingo: de viernes a
+ * domingo es el que está en curso; de lunes a jueves, el siguiente.
+ */
+export function eventWindow(w: EventWindow, today = todayMx()): { desde: string; hasta: string } {
+  if ("desde" in w) return w;
+  if (w.rango === "proximos") return { desde: today, hasta: addDays(today, w.dias - 1) };
+  const sinceFriday = (new Date(`${today}T12:00:00Z`).getUTCDay() + 2) % 7;
+  const friday = sinceFriday <= 2 ? addDays(today, -sinceFriday) : addDays(today, 7 - sinceFriday);
+  return { desde: friday, hasta: addDays(friday, 2) };
+}
+
 function parseFile(locale: Locale, slug: string, raw: string): Post {
   const file = `content/blog/${locale}/${slug}.md`;
   const m = raw.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
@@ -96,9 +138,7 @@ function parseFile(locale: Locale, slug: string, raw: string): Post {
   const published = str("published")!;
   const updated = str("updated", false) ?? published;
   for (const d of [published, updated]) if (!DATE.test(d)) throw new Error(`${file}: fecha inválida "${d}" (YYYY-MM-DD)`);
-  const ev = fm.eventos as { desde?: unknown; hasta?: unknown } | undefined;
-  const eventos = ev ? { desde: String(ev.desde), hasta: String(ev.hasta) } : undefined;
-  if (eventos && (!DATE.test(eventos.desde) || !DATE.test(eventos.hasta))) throw new Error(`${file}: "eventos" necesita desde y hasta (YYYY-MM-DD)`);
+  const eventos = parseEventWindow(file, fm.eventos);
 
   const [beforeMd, afterMd = ""] = body.split(EVENTS_MARKER);
   const h2 = (md: string) => marked.lexer(md)
@@ -120,6 +160,7 @@ function parseFile(locale: Locale, slug: string, raw: string): Post {
     faq: Array.isArray(fm.faq) ? (fm.faq as FaqItem[]).map((f) => ({ q: String(f.q), a: String(f.a) })) : [],
     readingMinutes: Math.max(1, Math.round(words / 200)),
     translation: str("translation", false),
+    relacionadas: Array.isArray(fm.relacionadas) ? fm.relacionadas.map(String) : [],
     before: marked.parse(beforeMd) as string,
     after: marked.parse(afterMd) as string,
     toc: [...tocBefore, ...h2(afterMd)],
@@ -152,6 +193,18 @@ export async function translationOf(p: PostMeta): Promise<PostMeta | null> {
   return postBySlug(p.translation, other);
 }
 
+/**
+ * "Sigue leyendo": primero las `relacionadas` del encabezado, luego las que comparten más municipios y al final
+ * las más nuevas, para que toda guía enlace a otras aunque no tenga nada en común.
+ */
+export async function relatedPosts(p: PostMeta, n = 3): Promise<PostMeta[]> {
+  const others = (await listPosts(p.locale)).filter((x) => x.slug !== p.slug);
+  const pinned = p.relacionadas.map((s) => others.find((x) => x.slug === s)).filter((x): x is PostMeta => !!x);
+  const shared = (x: PostMeta) => x.municipios.filter((m) => p.municipios.includes(m)).length;
+  const rest = others.filter((x) => !pinned.includes(x)).sort((a, b) => shared(b) - shared(a));
+  return [...pinned, ...rest].slice(0, n);
+}
+
 /** Guías en español que mencionan un municipio (para enlazarlas desde su página). */
 export async function postsForMunicipality(slug: string): Promise<PostMeta[]> {
   return (await listPosts("es")).filter((p) => p.municipios.includes(slug));
@@ -160,6 +213,11 @@ export async function postsForMunicipality(slug: string): Promise<PostMeta[]> {
 /** "15 de octubre de 2026" / "October 15, 2026" */
 export const fmtPostDate = (d: string, locale: Locale = "es") =>
   new Intl.DateTimeFormat(LANG_TAG[locale], { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(`${d}T12:00:00Z`));
+
+/** "16–18 de octubre" / "October 16 – 18"; un solo día si coinciden. */
+export const fmtDateRange = (desde: string, hasta: string, locale: Locale = "es") =>
+  new Intl.DateTimeFormat(LANG_TAG[locale], { day: "numeric", month: "long", timeZone: "UTC" })
+    .formatRange(new Date(`${desde}T12:00:00Z`), new Date(`${hasta}T12:00:00Z`));
 
 /** hreflang: las dos versiones se declaran entre sí; x-default es la española. */
 function languageAlternates(es: string | null, en: string | null) {

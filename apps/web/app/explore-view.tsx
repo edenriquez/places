@@ -1,4 +1,5 @@
 import { ViewTransition } from "react";
+import { HomeGuides } from "@/components/blog/home-guides";
 import { BottomNav } from "@/components/bottom-nav";
 import { DesktopHeader, DesktopOnly } from "@/components/desktop";
 import { EventPanel, eventCoords } from "@/components/event-detail";
@@ -93,6 +94,7 @@ export async function ExploreView({ sp, split = false, basePath = "/" }: { sp: E
             hideDistance={!!loc.stateCve}
             startAnyDay={sp.v === "dia"}
           />
+          {!split && <HomeGuides />}
         </>
       )}
 

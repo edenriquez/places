@@ -9,6 +9,7 @@ municipios: [cuernavaca, tepoztlan, tlayacapan, tetela-del-volcan, amecameca]
 eventos:
   desde: 2026-10-24
   hasta: 2026-11-09
+relacionadas: [day-of-the-dead-mexico-city-2026, things-to-do-mexico-city-october-2026]
 faq:
   - q: "When is Day of the Dead 2026?"
     a: "November 1 and 2, which fall on a Sunday and a Monday in 2026. Many towns start earlier: October 28 is for people who died in accidents and October 31 is for children, so altars are already up on Saturday the 31st."
@@ -21,7 +22,7 @@ faq:
   - q: "Can I visit without speaking Spanish?"
     a: "Yes. A smile, a candle and *gracias* go a long way. Signs, programs and most event listings are only in Spanish, so a translation app helps; the [Entre Lugares listings](/) are in Spanish too."
   - q: "What about Mixquic?"
-    a: "San Andrés Mixquic, in Tláhuac (Mexico City), is the most famous for its candlelit cemetery on the night of November 2, which is why it is also the most crowded. If you want something quieter and more local, the five towns in this guide are a good alternative."
+    a: "San Andrés Mixquic, in Tláhuac (Mexico City), is the most famous for its candlelit cemetery on the night of November 2, which is why it is also the most crowded. If you want something quieter and more local, the five towns in this guide are a good alternative. Mixquic, the parade and the Zócalo altar are covered in [Day of the Dead in Mexico City](/en/blog/day-of-the-dead-mexico-city-2026)."
 ---
 
 Day of the Dead in the towns of Morelos and the eastern State of Mexico looks nothing like the parade in Mexico City. Here you visit *ofrendas* (altars) inside people's homes, bring a candle, eat what families offer you and follow the band to the cemetery. This guide brings together five towns less than two and a half hours from the city: what happens in each one and which day to go.
