@@ -2,12 +2,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { ArrowLeft, Heart, Landmark } from "lucide-react";
+import { ArrowLeft, BookOpen, ChevronRight, Heart, Landmark } from "lucide-react";
 import { BottomNav } from "@/components/bottom-nav";
 import { EventCard, LiveCard } from "@/components/event-card";
 import { ExperienceCard, ExperienceTile } from "@/components/experience-card";
 import { JsonLd } from "@/components/json-ld";
 import { EmptyState, SectionHeader } from "@/components/ui";
+import { postsForMunicipality } from "@/lib/blog";
 import { fmtMonthShort } from "@/lib/format";
 import {
   eventsLiveNear, municipalityBySlug, municipalityEvents, municipalityExperiences, municipalityFestivities, municipalityPlaces, placeCounts, placesByIds,
@@ -49,12 +50,13 @@ export default async function MunicipalityPage({ params }: Params) {
   const m = await municipalityBySlug(slug);
   if (!m) notFound();
   const loc = { lat: m.lat, lng: m.lng, radiusKm: 25, label: m.name, cvegeo: m.cvegeo };
-  const [events, live, fests, catalog, experiences] = await Promise.all([
+  const [events, live, fests, catalog, experiences, guides] = await Promise.all([
     municipalityEvents(m.cvegeo, 12, m),
     eventsLiveNear(loc),
     municipalityFestivities(m.cvegeo),
     municipalityPlaces(m.cvegeo, 8),
     municipalityExperiences(m.cvegeo, m),
+    postsForMunicipality(m.slug),
   ]);
   const freeCount = events.filter((e) => e.is_free).length + experiences.filter((x) => x.is_free).length;
   const minPrice = events.filter((e) => !e.is_free && e.price_min != null).map((e) => e.price_min!).sort((a, b) => a - b)[0];
@@ -134,6 +136,23 @@ export default async function MunicipalityPage({ params }: Params) {
                   <span className="block text-[15px] font-medium">{f.name}</span>
                   {(f.locality || f.description) && <span className="block text-[13px] text-ink-2">{[f.locality, f.description].filter(Boolean).join(" · ")}</span>}
                 </span>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+
+      {guides.length > 0 && (
+        <>
+          <SectionHeader title="Guías" subtitle={`Para planear tu visita a ${m.name}`} />
+          <ul className="mx-5 divide-y divide-line rounded-card border border-line">
+            {guides.map((g) => (
+              <li key={g.slug}>
+                <Link href={`/blog/${g.slug}`} className="flex items-center gap-3 px-4 py-3 hover:bg-bg-2/60">
+                  <BookOpen size={18} className="shrink-0 text-ink-2" />
+                  <span className="min-w-0 flex-1 text-[15px] font-medium leading-snug">{g.ogTitle ?? g.title}</span>
+                  <ChevronRight size={18} className="shrink-0 text-ink-3" />
+                </Link>
               </li>
             ))}
           </ul>

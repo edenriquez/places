@@ -220,6 +220,20 @@ export async function municipalityEvents(cvegeo: string, limit = 12, at?: { lat:
     .slice(0, limit);
 }
 
+/** Eventos de varios municipios entre dos fechas (el bloque en vivo de una guía del blog), por fecha asc. */
+export async function eventsInMunicipalities(munis: Municipality[], from: Date, to: Date, limit = 24): Promise<NearRow[]> {
+  if (!munis.length || to <= from) return [];
+  const rows = await Promise.all(munis.map((m) => rpcEventsNear({
+    lat: round(m.lat), lng: round(m.lng), radius_m: 25000, from_ts: bucket(from), to_ts: bucket(to),
+  })));
+  const cves = new Set(munis.map((m) => m.cvegeo));
+  const seen = new Set<string>();
+  return rows.flat()
+    .sort((a, b) => a.starts_at.localeCompare(b.starts_at))
+    .filter((r) => cves.has(r.municipality_cvegeo) && !seen.has(r.event_id) && !!seen.add(r.event_id))
+    .slice(0, limit);
+}
+
 export async function municipalityFestivities(cvegeo: string): Promise<Festivity[]> {
   const sb = createAnonClient();
   const { data } = await sb.from("festivities").select("*").eq("municipality_cvegeo", cvegeo).order("month", { nullsFirst: false });

@@ -16,6 +16,8 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "images.unsplash.com" },
     ],
   },
+  // las guías se leen de disco al pedirlas (lib/blog.ts): el rastreo de archivos no las ve solo
+  outputFileTracingIncludes: { "/**": ["./content/blog/**/*.md"] },
   // el service worker no debe quedarse en caché del navegador ni de la CDN: si no, las actualizaciones tardan en llegar
   async headers() {
     return [
