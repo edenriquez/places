@@ -1,6 +1,7 @@
 import type { EventData } from "@/components/event-detail";
 import type { ExperienceData } from "@/components/experience-detail";
 import { plainText, type PostMeta } from "./blog";
+import { LANG_TAG, postPath } from "./blog-copy";
 import { EXPERIENCE_KINDS } from "./experiences";
 import { flyerUrl } from "./format";
 import { absUrl, CONTACT_EMAIL, SITE_DESCRIPTION, SITE_NAME, SITE_REGIONS, SITE_URL } from "./site";
@@ -161,8 +162,8 @@ export function experienceGraph(d: ExperienceData) {
 }
 
 /** Guía del blog: el artículo (con los pueblos de los que habla) y sus preguntas frecuentes. */
-export function postGraph(p: PostMeta, munis: Municipality[]) {
-  const url = absUrl(`/blog/${p.slug}`);
+export function postGraph(p: PostMeta, munis: Municipality[], translation?: PostMeta | null) {
+  const url = absUrl(postPath(p.slug, p.locale));
   return [
     {
       "@context": "https://schema.org",
@@ -172,20 +173,24 @@ export function postGraph(p: PostMeta, munis: Municipality[]) {
       description: p.description,
       url,
       mainEntityOfPage: url,
-      image: absUrl(`/blog/${p.slug}/opengraph-image`),
+      image: `${url}/opengraph-image`,
       datePublished: p.published,
       dateModified: p.updated,
       author: { "@id": ORG_ID },
       publisher: { "@id": ORG_ID },
       isPartOf: { "@id": SITE_ID },
       ...(munis.length && { about: munis.map((m) => ({ ...municipalityPlace(m), url: absUrl(`/municipio/${m.slug}`) })) }),
-      inLanguage: "es-MX",
+      ...(translation && {
+        workTranslation: { "@type": "BlogPosting", url: absUrl(postPath(translation.slug, translation.locale)), inLanguage: LANG_TAG[translation.locale] },
+      }),
+      inLanguage: LANG_TAG[p.locale],
     },
     ...(p.faq.length
       ? [{
           "@context": "https://schema.org",
           "@type": "FAQPage",
           "@id": `${url}#preguntas`,
+          inLanguage: LANG_TAG[p.locale],
           mainEntity: p.faq.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: plainText(f.a) } })),
         }]
       : []),

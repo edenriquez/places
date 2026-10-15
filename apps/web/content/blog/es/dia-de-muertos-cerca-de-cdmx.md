@@ -4,6 +4,7 @@ ogTitle: "Día de Muertos en pueblos cerca de la CDMX"
 description: "Ofrendas nuevas en Ocotepec, la Huehuenchada de Tetela del Volcán, la banda de Tlayacapan en el panteón: qué ver, qué días ir y cuánto se hace desde la CDMX."
 published: 2026-10-15
 updated: 2026-10-15
+translation: day-of-the-dead-near-mexico-city
 municipios: [cuernavaca, tepoztlan, tlayacapan, tetela-del-volcan, amecameca]
 eventos:
   desde: 2026-10-24

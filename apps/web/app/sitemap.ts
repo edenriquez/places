@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
-import { listPosts } from "@/lib/blog";
+import { listPosts, postAlternates } from "@/lib/blog";
+import { BLOG_BASE, postPath } from "@/lib/blog-copy";
 import { flyerUrl } from "@/lib/format";
 import { municipalities, publishedEventsIndex, publishedExperiencesIndex } from "@/lib/queries";
 import { absUrl } from "@/lib/site";
@@ -9,7 +10,21 @@ export const dynamic = "force-dynamic";
 
 /** Páginas públicas: portada, mapa, publicar, municipios, experiencias vigentes, eventos (los que vienen, con su flyer como imagen) y guías. */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [munis, events, experiences, posts] = await Promise.all([municipalities(), publishedEventsIndex(), publishedExperiencesIndex(), listPosts()]);
+  const [munis, events, experiences, postsEs, postsEn] = await Promise.all([
+    municipalities(), publishedEventsIndex(), publishedExperiencesIndex(), listPosts("es"), listPosts("en"),
+  ]);
+  const posts = [...postsEs, ...postsEn];
+  const postEntries = await Promise.all(posts.map(async (p) => {
+    const languages = await postAlternates(p);
+    return {
+      url: absUrl(postPath(p.slug, p.locale)),
+      lastModified: p.updated,
+      changeFrequency: "weekly" as const,
+      priority: 0.8,
+      ...(languages && { alternates: { languages: Object.fromEntries(Object.entries(languages).map(([k, v]) => [k, absUrl(v)])) } }),
+    };
+  }));
+  const blogLanguages = { "es-MX": absUrl(BLOG_BASE.es), en: absUrl(BLOG_BASE.en) };
   const today = new Date().toISOString().slice(0, 10);
   const now = Date.now();
   const latest = events[0]?.updated_at ?? new Date().toISOString();
@@ -44,8 +59,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         return { url: absUrl(`/experiencia/${x.slug}`), lastModified: x.updated_at, changeFrequency: "weekly" as const, priority: 0.7, ...(img && { images: [img] }) };
       }),
     ...eventEntries,
-    { url: absUrl("/blog"), lastModified: posts[0]?.updated, changeFrequency: "weekly", priority: 0.7 },
-    ...posts.map((p) => ({ url: absUrl(`/blog/${p.slug}`), lastModified: p.updated, changeFrequency: "weekly" as const, priority: 0.8 })),
+    { url: absUrl(BLOG_BASE.es), lastModified: postsEs[0]?.updated, changeFrequency: "weekly", priority: 0.7, alternates: { languages: blogLanguages } },
+    ...(postsEn.length
+      ? [{ url: absUrl(BLOG_BASE.en), lastModified: postsEn[0]?.updated, changeFrequency: "weekly" as const, priority: 0.6, alternates: { languages: blogLanguages } }]
+      : []),
+    ...postEntries,
     { url: absUrl("/publicar"), changeFrequency: "monthly", priority: 0.5 },
     { url: absUrl("/privacidad"), changeFrequency: "yearly", priority: 0.2 },
     { url: absUrl("/terminos"), changeFrequency: "yearly", priority: 0.2 },
