@@ -20,6 +20,8 @@ export const SITE_KEYWORDS = [
 ];
 export const LOCALE = "es_MX";
 export const CONTACT_EMAIL = "hola@entrelugares.mx";
+/** Search Console. Es público: sale en el <head> de cada página. */
+export const GOOGLE_SITE_VERIFICATION = "HUjRRNKVNXeK3M8HEAGwG8aEa_yhk6I26Ii3caVGNgE";
 
 /** Colores de marca (globals.css) para íconos e imágenes generadas, donde no hay CSS. */
 export const BRAND = { accent: "#ff385c", ink: "#222222", ink2: "#6a6a6a", ink3: "#9a9a9a", bg2: "#f7f7f7", free: "#008a05" };
