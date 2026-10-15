@@ -39,7 +39,7 @@ const PERIOD_LABEL: Record<string, string> = {
 };
 const ENTRY_LABEL: Record<string, string> = {
   explorar: "Portada (Explorar)", mapa: "Mapa", evento: "Página de un evento", experiencia: "Página de una experiencia",
-  municipio: "Página de un municipio", plan: "Plan compartido", mis_planes: "Mis planes", perfil: "Perfil", publicar: "Publicar", otra: "Otra",
+  municipio: "Página de un municipio", plan: "Plan compartido", mis_planes: "Mis planes", perfil: "Perfil", publicar: "Publicar", blog: "Blog (una guía)", otra: "Otra",
 };
 const LEAD_LABEL = ["El mismo día o ya empezó", "1–2 días antes", "3–7 días antes", "1–4 semanas antes", "Más de un mes antes"];
 const FREQ_LABEL = ["1 día", "2–3 días", "4–7 días", "8 días o más"];
