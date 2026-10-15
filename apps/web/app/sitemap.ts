@@ -8,7 +8,7 @@ import { absUrl } from "@/lib/site";
 // se arma al pedirlo (la BD no está disponible en el build) y queda en caché una hora
 export const dynamic = "force-dynamic";
 
-/** Páginas públicas: portada, mapa, publicar, municipios, experiencias vigentes, eventos (los que vienen, con su flyer como imagen) y guías. */
+/** Páginas públicas: portada, mapa, publicar, municipios, experiencias vigentes, eventos (los que vienen, con su flyer o su imagen OG) y guías. */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [munis, events, experiences, postsEs, postsEn] = await Promise.all([
     municipalities(), publishedEventsIndex(), publishedExperiencesIndex(), listPosts("es"), listPosts("en"),
@@ -32,13 +32,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const eventEntries = events.map((e) => {
     const end = Math.max(0, ...e.event_occurrences.map((o) => new Date(o.ends_at ?? o.starts_at).getTime()));
     const upcoming = end >= now;
-    const img = flyerUrl(e.image_path);
+    const url = absUrl(`/evento/${e.slug}`);
     return {
-      url: absUrl(`/evento/${e.slug}`),
+      url,
       lastModified: e.updated_at,
       changeFrequency: upcoming ? ("daily" as const) : ("yearly" as const),
       priority: upcoming ? 0.8 : 0.3,
-      ...(img && { images: [img] }),
+      images: [flyerUrl(e.image_path) ?? `${url}/opengraph-image`],
     };
   });
 
