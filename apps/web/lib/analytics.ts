@@ -35,6 +35,7 @@ export const SOURCE_LABEL: Record<string, string> = {
   instagram: "Instagram",
   tiktok: "TikTok",
   google: "Google",
+  ia: "Asistentes de IA",
   buscador: "Otros buscadores",
   interno: "entrelugares",
   directo: "Directo",
@@ -48,6 +49,9 @@ export const STAFF_COOKIE = "el_staff";
 const has = (s: string | null | undefined, re: RegExp) => !!s && re.test(s);
 // regreso del login (Google OAuth / Supabase Auth): es la misma visita, no una llegada desde Google
 const AUTH_HOST = /^accounts\.google\.[a-z.]+$|(^|\.)supabase\.co$/;
+// asistentes de IA (web y apps Android); el mismo patrón reclasifica lo guardado en la migración analytics_blog
+const AI_HOST = /(^|\.)(chatgpt\.com|openai\.com|perplexity\.ai|claude\.ai|gemini\.google\.com|bard\.google\.com|copilot\.microsoft\.com|deepseek\.com|meta\.ai|grok\.com)$|^com\.openai\.chatgpt|^ai\.perplexity/;
+const AI_UTM = /chatgpt|openai|perplexity|claude|gemini|copilot|deepseek/;
 
 /**
  * Fuente de una visita. Primero la UTM (los links que compartimos la llevan), luego pistas de la URL
@@ -62,6 +66,7 @@ export function classifySource(url: URL, referrer: string | undefined, selfHost:
   }
   const utm = url.searchParams.get("utm_source")?.toLowerCase() ?? "";
   if (utm) {
+    if (AI_UTM.test(utm)) return { source: "ia", referrerHost: refHost ?? utm };
     for (const s of ["whatsapp", "facebook", "instagram", "tiktok", "google"]) if (utm.includes(s)) return { source: s, referrerHost: refHost };
     if (utm === "wa" || utm === "wa.me") return { source: "whatsapp", referrerHost: refHost };
     return { source: "otro", referrerHost: refHost ?? utm };
@@ -75,6 +80,7 @@ export function classifySource(url: URL, referrer: string | undefined, selfHost:
   if (has(refHost, /(^|\.)(facebook\.com|fb\.com|fb\.me|messenger\.com)$|com\.facebook/)) return { source: "facebook", referrerHost: refHost };
   if (has(refHost, /(^|\.)instagram\.com$|com\.instagram/)) return { source: "instagram", referrerHost: refHost };
   if (has(refHost, /(^|\.)tiktok\.com$|musically/)) return { source: "tiktok", referrerHost: refHost };
+  if (has(refHost, AI_HOST)) return { source: "ia", referrerHost: refHost };
   if (has(refHost, /(^|\.)google\.[a-z.]+$|com\.google/)) return { source: "google", referrerHost: refHost };
   if (has(refHost, /(^|\.)(bing\.com|duckduckgo\.com|yahoo\.com|ecosia\.org)$/)) return { source: "buscador", referrerHost: refHost };
   return { source: "otro", referrerHost: refHost };
