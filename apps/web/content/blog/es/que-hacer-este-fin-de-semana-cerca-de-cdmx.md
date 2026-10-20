@@ -47,7 +47,7 @@ Del **31 de octubre al 2 de noviembre** es el Día de Muertos, el fin de semana 
 - **[Tetela del Volcán](/municipio/tetela-del-volcan), 2 h 20.** En las faldas del Popocatépetl, con huertas de durazno y ciruela y otro convento del siglo XVI.
 - **[Atlixco](/municipio/atlixco), unas 2 h 30.** Pueblo Mágico de viveros y flores. Hasta el 9 de noviembre tiene el Valle de Catrinas.
 
-¿Buscas pueblos con más encanto para un fin de semana completo? Revisa los [Pueblos Mágicos cerca de la CDMX](/blog/pueblos-magicos-cerca-de-cdmx).
+¿Buscas pueblos con más encanto para un fin de semana completo? Revisa los [Pueblos Mágicos cerca de la CDMX](/blog/pueblos-magicos-cerca-de-cdmx). Para caminar, [senderismo cerca de la CDMX](/blog/senderismo-cerca-de-cdmx). Para comer, [qué comer cerca de la CDMX](/blog/que-comer-cerca-de-la-cdmx).
 
 ## Antes de salir
 

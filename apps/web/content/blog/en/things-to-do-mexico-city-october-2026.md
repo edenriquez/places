@@ -83,3 +83,5 @@ Buy only from each venue's official ticket seller: fake tickets are common at th
 ## Getting out of the city
 
 October is also high season outside Mexico City. Less than two and a half hours away there are towns where Day of the Dead happens in homes and cemeteries: see [Day of the Dead near Mexico City](/en/blog/day-of-the-dead-near-mexico-city). In Puebla, the town of [Atlixco](/municipio/atlixco) has *catrinas* up to eight meters tall in its streets until November 9 (the town page is in Spanish).
+
+December in the towns is in [Christmas near Mexico City](/en/blog/christmas-near-mexico-city-2026). For a hike or a meal the rest of the year, see [hiking near Mexico City](/en/blog/hiking-near-mexico-city) and [what to eat near Mexico City](/en/blog/what-to-eat-near-mexico-city).
