@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { ExternalLink, Megaphone } from "lucide-react";
 import { EventReport, type EventReportData } from "@/components/charts/event-report";
+import { CONTACT_EMAIL } from "@/lib/site";
 import { createAnonClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -42,7 +43,7 @@ export default async function CommerceReportPage({ params }: { params: Promise<{
             <p className="mt-1 text-[14px] text-white/70">Destacamos tu evento en la zona y te mandamos este reporte al terminar.</p>
           </div>
         </div>
-        <a href={`mailto:hola@entrelugares.mx?subject=${encodeURIComponent(`Promocionar: ${r.event.title}`)}`} className="rounded-control bg-white px-5 py-3 text-[14px] font-semibold text-ink">Quiero promocionarlo</a>
+        <a href={`mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(`Promocionar: ${r.event.title}`)}`} className="rounded-control bg-white px-5 py-3 text-[14px] font-semibold text-ink">Quiero promocionarlo</a>
       </section>
     </main>
   );

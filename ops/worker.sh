@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Worker remoto de entrelugares.mx en esta Mac (apunta a producción).
+# Worker remoto de entrelugar.es en esta Mac (apunta a producción).
 #
 #   ops/worker.sh setup      crea packages/ingest/.env.prod (URL + service_role por la CLI de Supabase; pide la contraseña de la BD)
 #   ops/worker.sh check      prueba la conexión a producción con ese perfil (doctor)
