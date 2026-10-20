@@ -84,4 +84,4 @@ Compra solo en la boletera oficial de cada recinto: en estas fechas circulan muc
 
 Octubre también es temporada fuerte fuera de la CDMX. A menos de dos horas y media hay pueblos donde el Día de Muertos se vive en las casas y en los panteones: está todo en [Día de Muertos cerca de la CDMX](/blog/dia-de-muertos-cerca-de-cdmx). En Puebla, el [Valle de Catrinas de Atlixco](/blog/dia-de-muertos-puebla-2026) tiene catrinas de hasta ocho metros en las calles hasta el 9 de noviembre.
 
-Para un plan de un día cualquier fin de semana, revisa [qué hacer este fin de semana cerca de la CDMX](/blog/que-hacer-este-fin-de-semana-cerca-de-cdmx) o los [Pueblos Mágicos más cercanos](/blog/pueblos-magicos-cerca-de-cdmx).
+Para un plan de un día cualquier fin de semana, revisa [qué hacer este fin de semana cerca de la CDMX](/blog/que-hacer-este-fin-de-semana-cerca-de-cdmx) o los [Pueblos Mágicos más cercanos](/blog/pueblos-magicos-cerca-de-cdmx). Lo que sigue en el calendario, ya en diciembre, está en [Navidad cerca de la CDMX](/blog/navidad-cerca-de-cdmx-2026).

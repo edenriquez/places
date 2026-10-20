@@ -86,4 +86,4 @@ Hay más Pueblos Mágicos a menos de tres horas que Entre Lugares todavía no cu
 - **Lleva efectivo.** En mercados y puestos casi nadie acepta tarjeta.
 - **Revisa la página de cada pueblo.** Ahí están sus próximos eventos y sus fiestas del año.
 
-Si solo tienes un día, mira [qué hacer este fin de semana cerca de la CDMX](/blog/que-hacer-este-fin-de-semana-cerca-de-cdmx).
+Si solo tienes un día, mira [qué hacer este fin de semana cerca de la CDMX](/blog/que-hacer-este-fin-de-semana-cerca-de-cdmx). Para caminar, [senderismo cerca de la CDMX](/blog/senderismo-cerca-de-cdmx). Para los conventos del siglo XVI, [la ruta de un día](/blog/conventos-siglo-xvi-cerca-de-cdmx).
