@@ -2,6 +2,11 @@
 title: "Pueblos Mágicos cerca de la CDMX: 10 para ir este fin de semana"
 ogTitle: "Pueblos Mágicos cerca de la CDMX"
 description: "Tepoztlán, Tlayacapan, Malinalco, Cholula, Atlixco y más: 10 Pueblos Mágicos cerca de la CDMX, con tiempo de camino, qué hacer y sus fiestas del año."
+resumen:
+  - "El Pueblo Mágico más cercano de esta guía es Tepoztlán, a 1 h 30; Tlayacapan queda a 1 h 40 y Cholula a unas 2 h."
+  - "Tepoztlán, Tlayacapan y Cholula se recorren en un día; Malinalco, Ixtapan de la Sal y Atlixco rinden más con una noche."
+  - "Ixtapan de la Sal y Tonatico, a unas 2 h 30, son el plan clásico con niños: aguas termales, grutas y una cascada."
+  - "Chignahuapan y Zacatlán, en la Sierra Norte de Puebla, están a unas 3 h; Cuetzalan, a unas 5 h, pide al menos dos noches."
 published: 2026-10-15
 updated: 2026-10-15
 municipios: [tepoztlan, tlayacapan, malinalco, san-pedro-cholula, atlixco, ixtapan-de-la-sal, tonatico, chignahuapan, zacatlan, cuetzalan-del-progreso]

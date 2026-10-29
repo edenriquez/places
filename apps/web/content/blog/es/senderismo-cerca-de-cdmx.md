@@ -2,6 +2,11 @@
 title: "Senderismo cerca de la CDMX: caminatas de un día"
 ogTitle: "Senderismo cerca de la CDMX"
 description: "Seis caminatas de un día a menos de 2 h 30 de la CDMX: Tepozteco, Sacromonte, Malinalco, Zempoala y los miradores de los volcanes, con dificultad y qué llevar."
+resumen:
+  - "La caminata más fácil es el Sacromonte de Amecameca, a 1 h 15: se sube en poco tiempo y se ven los dos volcanes de frente."
+  - "El Tepozteco, a 1 h 30, es cerca de una hora de subida empinada; revisa antes si el sendero está abierto."
+  - "Las Lagunas de Zempoala (cerca de 1 h 45) y Paso de Cortés pasan de los 2,800 metros: lleva chamarra."
+  - "Sal antes de las 8:00, lleva agua de más, calzado con suela y efectivo, y no subas con tormenta."
 published: 2026-10-20
 updated: 2026-10-20
 translation: hiking-near-mexico-city

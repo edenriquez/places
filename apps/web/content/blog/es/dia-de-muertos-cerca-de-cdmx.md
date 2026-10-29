@@ -2,6 +2,11 @@
 title: "Día de Muertos 2026 cerca de la CDMX: 5 pueblos para vivirlo"
 ogTitle: "Día de Muertos en pueblos cerca de la CDMX"
 description: "Ofrendas nuevas en Ocotepec, la Huehuenchada de Tetela del Volcán, la banda de Tlayacapan en el panteón: qué ver, qué días ir y cuánto se hace desde la CDMX."
+resumen:
+  - "Cinco pueblos: Amecameca (1 h 15), Ocotepec (1 h 20), Tepoztlán (1 h 30), Tlayacapan (1 h 40) y Tetela del Volcán (2 h 20)."
+  - "Los días fuertes son el sábado 31 de octubre y el domingo 1 de noviembre; el lunes 2 es día de panteón en casi todos."
+  - "En Ocotepec se visitan las ofrendas nuevas en las casas: le llevas una vela a la familia (cerear) y suelen convidar comida."
+  - "Ofrendas, panteones y recorridos no cobran entrada. Lleva velas, efectivo y abrigo, y pide permiso antes de tomar fotos."
 published: 2026-10-15
 updated: 2026-10-15
 translation: day-of-the-dead-near-mexico-city

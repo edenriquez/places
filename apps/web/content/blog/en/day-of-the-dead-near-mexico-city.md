@@ -2,6 +2,11 @@
 title: "Day of the Dead 2026 near Mexico City: 5 towns to experience it"
 ogTitle: "Day of the Dead in towns near Mexico City"
 description: "Home altars in Ocotepec, the Huehuenchada in Tetela del Volcán, a brass band in the Tlayacapan cemetery: what to see, which days to go and travel times."
+resumen:
+  - "Five towns: Amecameca (1 h 15), Ocotepec (1 h 20), Tepoztlán (1 h 30), Tlayacapan (1 h 40) and Tetela del Volcán (2 h 20) from Mexico City."
+  - "Go Saturday, October 31 or Sunday, November 1, the busiest days; Monday, November 2 is cemetery day almost everywhere."
+  - "In Ocotepec, bring a candle to the new altars; families usually offer mole, tamales, bread or coffee. Ask before taking photos."
+  - "Home altars, cemeteries and walks are free; bring cash for food, parking and candles, plus a jacket for cold nights near the volcanoes."
 published: 2026-10-15
 updated: 2026-10-15
 translation: dia-de-muertos-cerca-de-cdmx

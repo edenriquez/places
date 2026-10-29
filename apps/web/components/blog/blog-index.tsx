@@ -1,8 +1,9 @@
+import Image from "next/image";
 import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
 import { BottomNav } from "../bottom-nav";
 import { JsonLd } from "../json-ld";
 import { BlogHeader } from "./blog-header";
+import { coverOf, municipalityMap } from "./post-view";
 import { fmtPostDate, listPosts } from "@/lib/blog";
 import { BLOG_BASE, BLOG_COPY, LANG_TAG, LOCALES, postPath, type Locale } from "@/lib/blog-copy";
 import { absUrl, SITE_URL } from "@/lib/site";
@@ -14,7 +15,10 @@ export async function BlogIndex({ locale }: { locale: Locale }) {
   const c = BLOG_COPY[locale];
   const posts = await listPosts(locale);
   const other = LOCALES.find((l) => l !== locale)!;
-  const otherHasPosts = (await listPosts(other)).length > 0;
+  const [otherPosts, bySlug] = await Promise.all([listPosts(other), municipalityMap()]);
+  const otherHasPosts = otherPosts.length > 0;
+  const [featured, ...rest] = posts;
+  const featuredCover = featured && coverOf(featured, bySlug)?.cover_image_url;
 
   return (
     <main lang={LANG_TAG[locale]} className="mx-auto max-w-[760px] px-5 pb-28 pt-6 lg:pt-10">
@@ -47,24 +51,52 @@ export async function BlogIndex({ locale }: { locale: Locale }) {
         <p className="rise mt-6 max-w-[560px] text-pretty text-[18px] leading-relaxed text-ink-2" style={delay(3)}>{c.indexLead}</p>
       </header>
 
-      {posts.length ? (
-        <ol className="mt-16 border-b border-line sm:mt-20">
-          {posts.map((p, i) => (
-            <li key={p.slug} className="rise border-t border-line" style={delay(4 + i)}>
-              <Link href={postPath(p.slug, locale)} className="group grid grid-cols-[2rem_1fr_auto] items-baseline gap-x-4 py-7 sm:grid-cols-[3rem_1fr_auto] sm:py-9">
-                <span className="text-[13px] tabular-nums text-ink-3 transition-colors duration-300 group-hover:text-accent">{String(i + 1).padStart(2, "0")}</span>
-                <span className="min-w-0">
-                  <span className="link-grow font-display text-balance text-[22px] font-bold leading-snug tracking-[-0.02em] text-ink sm:text-[28px]">{p.title}</span>
-                  <span className="mt-2 line-clamp-2 block text-[15px] leading-relaxed text-ink-2">{p.description}</span>
-                  <span className="mt-3 block text-[12px] text-ink-3">
-                    <time dateTime={p.updated}>{fmtPostDate(p.updated, locale)}</time> · {c.minShort(p.readingMinutes)}
-                  </span>
-                </span>
-                <ArrowUpRight size={22} className="self-center text-ink-3 transition duration-300 group-hover:-translate-y-1 group-hover:translate-x-1 group-hover:text-accent" />
-              </Link>
-            </li>
-          ))}
-        </ol>
+      {featured ? (
+        <>
+          <Link href={postPath(featured.slug, locale)} className="rise group mt-14 block sm:mt-16" style={delay(4)}>
+            {featuredCover ? (
+              <div className="relative -mx-5 aspect-[16/9] overflow-hidden bg-bg-2 sm:mx-0 sm:rounded-[20px]">
+                <Image src={featuredCover} alt="" fill priority sizes="760px" className="object-cover transition-transform duration-700 group-hover:scale-[1.03]" />
+                <span className="absolute left-3 top-3 rounded-full bg-surface/95 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-accent">{c.latest}</span>
+              </div>
+            ) : (
+              <span className="inline-block rounded-full bg-accent-soft px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-accent">{c.latest}</span>
+            )}
+            <span className="mt-5 block font-display text-balance text-[26px] font-extrabold leading-[1.1] tracking-[-0.025em] text-ink sm:text-[34px]">
+              <span className="link-grow">{featured.title}</span>
+            </span>
+            <span className="mt-3 line-clamp-3 block text-[16px] leading-relaxed text-ink-2">{featured.resumen[0] ?? featured.description}</span>
+            <span className="mt-3 block text-[12px] text-ink-3">
+              <time dateTime={featured.updated}>{fmtPostDate(featured.updated, locale)}</time> · {c.minShort(featured.readingMinutes)}
+            </span>
+          </Link>
+
+          {rest.length > 0 && (
+            <ol className="mt-12 border-b border-line">
+              {rest.map((p, i) => {
+                const img = coverOf(p, bySlug)?.cover_image_url;
+                return (
+                  <li key={p.slug} className="rise border-t border-line" style={delay(5 + i)}>
+                    <Link href={postPath(p.slug, locale)} className="group flex items-start gap-4 py-6 sm:gap-6 sm:py-7">
+                      <span className="min-w-0 flex-1">
+                        <span className="link-grow font-display text-balance text-[19px] font-bold leading-snug tracking-[-0.02em] text-ink sm:text-[24px]">{p.title}</span>
+                        <span className="mt-2 line-clamp-2 block text-[14px] leading-relaxed text-ink-2 sm:text-[15px]">{p.description}</span>
+                        <span className="mt-2 block text-[12px] text-ink-3">
+                          <time dateTime={p.updated}>{fmtPostDate(p.updated, locale)}</time> · {c.minShort(p.readingMinutes)}
+                        </span>
+                      </span>
+                      {img && (
+                        <span className="relative aspect-square w-[88px] shrink-0 overflow-hidden rounded-[14px] bg-bg-2 sm:w-[132px]">
+                          <Image src={img} alt="" fill sizes="132px" className="object-cover transition-transform duration-500 group-hover:scale-105" />
+                        </span>
+                      )}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ol>
+          )}
+        </>
       ) : (
         <p className="mt-16 border-t border-line pt-8 text-[15px] text-ink-2">{c.empty}</p>
       )}

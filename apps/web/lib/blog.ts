@@ -36,6 +36,8 @@ export type PostMeta = {
   ogTitle?: string;
   /** meta description: 150–160 caracteres */
   description: string;
+  /** "De un vistazo": 3–4 datos que responden la guía de entrada (lectores con prisa y buscadores con IA) */
+  resumen: string[];
   /** YYYY-MM-DD */
   published: string;
   updated: string;
@@ -153,6 +155,7 @@ function parseFile(locale: Locale, slug: string, raw: string): Post {
     title: str("title")!,
     ogTitle: str("ogTitle", false),
     description: str("description")!,
+    resumen: Array.isArray(fm.resumen) ? fm.resumen.map(String) : [],
     published,
     updated,
     municipios: Array.isArray(fm.municipios) ? fm.municipios.map(String) : [],

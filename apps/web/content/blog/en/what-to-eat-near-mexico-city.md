@@ -2,6 +2,11 @@
 title: "What to eat near Mexico City: markets, mole and fairs"
 ogTitle: "What to eat near Mexico City"
 description: "Barbacoa in Tlalmanalco, mole in Milpa Alta, trout in Malinalco and cecina in Tenango del Aire: what to eat near Mexico City, and which fair to try it."
+resumen:
+  - "Closest food trips: barbacoa in Tlalmanalco (1 h 10), cecina in Tenango del Aire (about 1 h) and mole in Milpa Alta, inside the city."
+  - "San Pedro Atocpan, in Milpa Alta, is the city's mole town: the Feria Nacional del Mole is in October and the stalls stay open all year."
+  - "Malinalco, about 2 h 10 away, serves local trout and holds its trout fair in mid-October; Ozumba, a little over an hour away, is known for its bread."
+  - "Bring cash; markets need no reservation, but in Malinalco and Tepoztlán arrive early or call ahead for Saturday lunch."
 published: 2026-10-19
 updated: 2026-10-20
 translation: que-comer-cerca-de-la-cdmx

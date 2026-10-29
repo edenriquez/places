@@ -2,6 +2,11 @@
 title: "Day of the Dead 2026 in Mexico City: parade, Zócalo altar and Mixquic"
 ogTitle: "Day of the Dead 2026 in Mexico City"
 description: "The parade is on Saturday, Oct 31 at 2 pm, the Zócalo altar runs Oct 29 to Nov 2 and Mixquic lights its cemetery on Monday, Nov 2. Dates, routes and tips."
+resumen:
+  - "The Day of the Dead parade is Saturday, October 31 at 2 pm, along Paseo de la Reforma to the Zócalo, and it is free."
+  - "The Zócalo ofrenda is up from Thursday, October 29 to Monday, November 2, free; the downtown lighting stays on until November 4."
+  - "La Alumbrada in Mixquic, Tláhuac, is the night of Monday, November 2; go Saturday the 31st or Sunday the 1st for fewer people."
+  - "Reach Mixquic by Metro Line 12 to Tláhuac, then local transport; the Metro closes at midnight on weekdays, so plan your way back."
 published: 2026-10-15
 updated: 2026-10-15
 translation: dia-de-muertos-cdmx-2026

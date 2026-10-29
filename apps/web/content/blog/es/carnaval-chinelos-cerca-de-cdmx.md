@@ -2,6 +2,11 @@
 title: "Carnaval 2027 cerca de la CDMX: chinelos y pueblos"
 ogTitle: "Carnaval de chinelos cerca de la CDMX"
 description: "Brinco del chinelo en Tepoztlán, Tlayacapan y Yautepec: cuándo es el carnaval 2027 cerca de la CDMX, qué días ir y cómo verlo en una escapada de un día."
+resumen:
+  - "El carnaval 2027 con brinco del chinelo es del viernes 5 al martes 9 de febrero; el miércoles de ceniza es el 10."
+  - "Tepoztlán, a 1 h 30, es el más famoso y el más lleno; Tlayacapan (1 h 40) y Yautepec (1 h 45) se ven con más calma."
+  - "Para ir y volver de día conviene el sábado 6 o el domingo 7; el martes 9 es el cierre y en varios pueblos el brinco más largo."
+  - "Elige un solo pueblo: el brinco es por la tarde-noche. Lleva efectivo y abrigo, que en febrero de noche hace frío."
 published: 2026-10-19
 updated: 2026-10-20
 municipios: [tepoztlan, tlayacapan, yautepec, atlatlahucan, tepetlixpa, atlautla, juchitepec, malinalco]

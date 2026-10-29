@@ -2,6 +2,11 @@
 title: "Eventos en la CDMX en octubre 2026: fechas, desfiles y qué hacer"
 ogTitle: "Qué hacer en la CDMX en octubre de 2026"
 description: "Alebrijes el 17, Catrinas el 25, desfile de Día de Muertos el 31 y la Fórmula 1 del 30 al 1: el calendario de octubre 2026 en la CDMX, con horarios y rutas."
+resumen:
+  - "Octubre 2026 en la CDMX: Alebrijes el 17, Catrinas el 25, desfile de Día de Muertos el 31 y Fórmula 1 del 30 al 1 de noviembre."
+  - "El Desfile de Alebrijes sale del Zócalo el sábado 17 a las 12:00; las piezas se quedan en Reforma hasta el 8 de noviembre."
+  - "La Mega Procesión de las Catrinas sale del Ángel el domingo 25 a las 18:00 y llega al Zócalo hacia las 20:30."
+  - "Gratis: los desfiles, la ofrenda del Zócalo (29 de octubre al 2 de noviembre) y la Noche de Museos del miércoles 28."
 published: 2026-10-15
 updated: 2026-10-15
 translation: things-to-do-mexico-city-october-2026

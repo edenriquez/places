@@ -49,10 +49,10 @@ export async function GET() {
     `- Guide (English): ${absUrl("/en/blog/{slug}")}. Las mismas guías traducidas para visitantes que no hablan español.`,
     "",
     ...(posts.length
-      ? ["## Guías", "", ...posts.map((p) => `- [${p.title}](${absUrl(postPath(p.slug, "es"))}): ${p.description}`), ""]
+      ? ["## Guías", "", ...posts.flatMap((p) => [`- [${p.title}](${absUrl(postPath(p.slug, "es"))}): ${p.description}`, ...p.resumen.map((r) => `  - ${r}`)]), ""]
       : []),
     ...(postsEn.length
-      ? ["## Guides in English", "", ...postsEn.map((p) => `- [${p.title}](${absUrl(postPath(p.slug, "en"))}): ${p.description}`), ""]
+      ? ["## Guides in English", "", ...postsEn.flatMap((p) => [`- [${p.title}](${absUrl(postPath(p.slug, "en"))}): ${p.description}`, ...p.resumen.map((r) => `  - ${r}`)]), ""]
       : []),
     ...states.flatMap((state) => [
       `## Municipios de ${state}`,

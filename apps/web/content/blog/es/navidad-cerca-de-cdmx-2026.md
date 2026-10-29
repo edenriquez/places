@@ -2,6 +2,11 @@
 title: "Navidad 2026 cerca de la CDMX: ferias, flores y pueblos"
 ogTitle: "Navidad 2026 cerca de la CDMX"
 description: "Feria de la Nochebuena en Cuautla, pan de Ozumba, cerería en Tlayacapan y esferas en Chignahuapan: planes de Navidad 2026 cerca de la CDMX, con fechas."
+resumen:
+  - "La Feria de la Nochebuena de Cuautla, a 1 h 50 de la CDMX, arranca el 15 de diciembre de 2026 y dura unos doce días."
+  - "En Ozumba, a cerca de 1 h 25, la Feria de la Nochebuena y el Pan también empieza el 15 de diciembre y dura unos cinco días."
+  - "El sábado 12 de diciembre: Virgen de Guadalupe en el Sacromonte de Amecameca y Feria de la Cerería y el Barro en Tlayacapan."
+  - "Para esferas, Chignahuapan, a unas tres horas: los talleres abren todo el año y el viaje rinde más con una noche."
 published: 2026-10-20
 updated: 2026-10-20
 translation: christmas-near-mexico-city-2026

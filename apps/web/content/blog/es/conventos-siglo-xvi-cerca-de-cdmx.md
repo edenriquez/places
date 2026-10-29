@@ -2,6 +2,11 @@
 title: "Conventos del siglo XVI cerca de la CDMX: la ruta de un día"
 ogTitle: "Conventos del siglo XVI cerca de la CDMX"
 description: "Tlayacapan, Yecapixtla, Huejotzingo y Calpan: conventos del siglo XVI en las faldas del Popocatépetl, Patrimonio de la Humanidad, para ver en uno o dos días."
+resumen:
+  - "En un día caben tres o cuatro conventos: la ruta de Morelos es Tlayacapan, Atlatlahucan, Totolapan y Yecapixtla, a 1 h 40."
+  - "La ruta de Puebla es otro día: Huejotzingo, a unas 2 h; Calpan, a 20 minutos de ahí, y Tochimilco, más pegado al volcán."
+  - "Son conventos del siglo XVI en las faldas del Popocatépetl, declarados Patrimonio de la Humanidad por la UNESCO en 1994."
+  - "Varios claustros cobran una cuota pequeña y no hay boleto único: lleva efectivo y no uses flash sobre los murales."
 published: 2026-10-18
 updated: 2026-10-20
 municipios: [tlayacapan, atlatlahucan, totolapan, yecapixtla, tepoztlan, cuernavaca, huejotzingo, calpan, tochimilco, ocuituco, tetela-del-volcan, zacualpan-de-amilpas]

@@ -2,6 +2,11 @@
 title: "Día de Muertos 2026 en la CDMX: desfile, ofrenda del Zócalo y Mixquic"
 ogTitle: "Día de Muertos 2026 en la CDMX"
 description: "Desfile el sábado 31 a las 14:00, ofrenda del Zócalo del 29 de octubre al 2 de noviembre y la Alumbrada de Mixquic el lunes 2: fechas, rutas y consejos."
+resumen:
+  - "El Gran Desfile de Día de Muertos es el sábado 31 de octubre a las 14:00, por Reforma hasta el Zócalo, y es gratis."
+  - "La Ofrenda Monumental del Zócalo está del jueves 29 de octubre al lunes 2 de noviembre, con entrada libre."
+  - "La Alumbrada de Mixquic, en Tláhuac, es la noche del lunes 2 de noviembre; con menos gente, ve el sábado 31 o el domingo 1."
+  - "Si solo puedes un día, que sea el sábado 31. Muévete en Metro o Metrobús: hay cierres en Reforma y el Centro."
 published: 2026-10-15
 updated: 2026-10-15
 translation: day-of-the-dead-mexico-city-2026

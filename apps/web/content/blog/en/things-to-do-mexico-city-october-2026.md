@@ -2,6 +2,11 @@
 title: "Things to do in Mexico City in October 2026: dates, parades and events"
 ogTitle: "Mexico City in October 2026"
 description: "Alebrijes on the 17th, Catrinas on the 25th, the Day of the Dead parade on the 31st and Formula 1 from Oct 30 to Nov 1: Mexico City's October 2026 calendar."
+resumen:
+  - "Parades: Alebrijes on Saturday, October 17 at noon, Catrinas on Sunday the 25th at 6 pm and Day of the Dead on Saturday the 31st at 2 pm."
+  - "The Zócalo ofrenda runs October 29 to November 2, free; the alebrijes stay on Reforma until 8 pm on Sunday, November 8."
+  - "Formula 1 Mexico City Grand Prix: October 30 to November 1 at the Autódromo Hermanos Rodríguez; the race is Sunday at 2 pm."
+  - "Noche de Museos is Wednesday, October 28, 6 to 10 pm, free; expect Reforma closures the last weekend and use the Metro or Metrobús."
 published: 2026-10-15
 updated: 2026-10-15
 translation: eventos-cdmx-octubre-2026

@@ -179,6 +179,10 @@ export function postGraph(p: PostMeta, munis: Municipality[], translation?: Post
       "@id": `${url}#articulo`,
       headline: p.title,
       description: p.description,
+      // respuesta corta de la guía: lo primero que citan los buscadores con IA
+      ...(p.resumen.length && { abstract: p.resumen.join(" ") }),
+      speakable: { "@type": "SpeakableSpecification", cssSelector: ["h1", ".post-glance"] },
+      timeRequired: `PT${p.readingMinutes}M`,
       url,
       mainEntityOfPage: url,
       image: `${url}/opengraph-image`,
@@ -241,4 +245,24 @@ export function municipalityGraph(m: Municipality, events: NearRow[], experience
         }]
       : []),
   ];
+}
+
+/** Los eventos que la guía muestra, como lista ordenada con link a cada evento (que trae su propio schema.org/Event). */
+export function guideEventsList(p: PostMeta, events: NearRow[]) {
+  if (!events.length) return [];
+  const url = absUrl(postPath(p.slug, p.locale));
+  return [{
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "@id": `${url}#eventos`,
+    name: p.ogTitle ?? p.title,
+    numberOfItems: events.length,
+    itemListOrder: "https://schema.org/ItemListOrderAscending",
+    itemListElement: events.map((e, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      url: absUrl(`/evento/${e.slug}`),
+      name: e.title,
+    })),
+  }];
 }

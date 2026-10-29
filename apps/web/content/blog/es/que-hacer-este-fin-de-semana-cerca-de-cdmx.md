@@ -2,6 +2,11 @@
 title: "Qué hacer este fin de semana cerca de la CDMX: eventos y escapadas"
 ogTitle: "Qué hacer este fin de semana cerca de la CDMX"
 description: "Eventos confirmados de este fin de semana en pueblos a menos de 2 h 30 de la CDMX y escapadas que siempre funcionan: Tepoztlán, Amecameca, Malinalco y más."
+resumen:
+  - "Los pueblos más cercanos para un día: Tlalmanalco (1 h 10), Amecameca (1 h 15), Cuernavaca (1 h 20) y Tepoztlán (1 h 30)."
+  - "Con niños: balnearios de Cuautla y Oaxtepec, el Sacromonte de Amecameca y la Gran Pirámide de Cholula, con túneles."
+  - "Del 31 de octubre al 2 de noviembre es Día de Muertos, el fin de semana con más visitantes del año en los pueblos."
+  - "Sal antes de las 8:00 del sábado y evita regresar el domingo entre las 16:00 y las 20:00. Lleva efectivo."
 published: 2026-10-15
 updated: 2026-10-15
 municipios: [tepoztlan, amecameca, cuernavaca, tlayacapan, tlalmanalco, malinalco, cuautla, san-pedro-cholula]

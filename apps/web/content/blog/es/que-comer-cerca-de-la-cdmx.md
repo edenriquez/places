@@ -2,6 +2,11 @@
 title: "Qué comer cerca de la CDMX: mercados, moles y ferias"
 ogTitle: "Qué comer cerca de la CDMX"
 description: "Barbacoa en Tlalmanalco, mole en Milpa Alta, trucha en Malinalco y cecina en Tenango del Aire: qué comer un sábado cerca de la CDMX, y en qué feria del año."
+resumen:
+  - "Lo más cercano: barbacoa en Tlalmanalco, a 1 h 10, y mole en San Pedro Atocpan, Milpa Alta, dentro de la ciudad."
+  - "Cecina y queso en Tenango del Aire, a cerca de 1 h; pan en Ozumba, y trucha en Malinalco, a 2 h 10."
+  - "En octubre hay Feria Nacional del Mole en Milpa Alta, Feria de la Trucha en Malinalco y feria de la cecina en Tenango del Aire."
+  - "Lleva efectivo y regresa antes de las 16:00 del domingo: de 16:00 a 20:00 es la peor hora para entrar a la ciudad."
 published: 2026-10-19
 updated: 2026-10-20
 translation: what-to-eat-near-mexico-city

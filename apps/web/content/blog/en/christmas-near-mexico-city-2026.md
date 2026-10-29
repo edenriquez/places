@@ -2,6 +2,11 @@
 title: "Christmas 2026 near Mexico City: fairs, flowers and towns"
 ogTitle: "Christmas 2026 near Mexico City"
 description: "The poinsettia fair in Cuautla, bread in Ozumba, candles in Tlayacapan and ornaments in Chignahuapan: Christmas 2026 near Mexico City, with dates to go."
+resumen:
+  - "Cuautla's Nochebuena fair starts December 15 and runs about twelve days, 1 h 50 from Mexico City; it fits in a day."
+  - "Ozumba's bread and poinsettia fair also starts December 15 and lasts about five days, about 1 h 25 from Mexico City."
+  - "On Saturday, December 12, Amecameca (1 h 15) celebrates Guadalupe at the Sacromonte and Tlayacapan (1 h 40) holds its candle and clay fair."
+  - "Chignahuapan, about three hours away, sells ornaments all year; its ornament fair is in the fall, so plan to sleep there in December."
 published: 2026-10-20
 updated: 2026-10-20
 translation: navidad-cerca-de-cdmx-2026

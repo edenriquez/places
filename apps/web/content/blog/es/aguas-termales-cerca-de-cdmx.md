@@ -2,6 +2,11 @@
 title: "Balnearios y aguas termales cerca de la CDMX"
 ogTitle: "Aguas termales cerca de la CDMX"
 description: "Cuautla, Las Estacas, Ixtapan de la Sal y Tonatico: balnearios y aguas termales a menos de tres horas de la CDMX, con tiempo de camino y qué esperar al llegar."
+resumen:
+  - "Los balnearios más cercanos son los de Cuautla y Oaxtepec, en Yautepec, a menos de 2 h de la CDMX por la México–Cuautla."
+  - "Las Estacas, en Tlaltizapán, es un río de manantial de agua clara a unas 2 h; cobra entrada y el agua se siente fresca."
+  - "Ixtapan de la Sal y Tonatico están a unas 2 h 30 y a diez minutos entre sí; Tonatico suma grutas y cascada, ideal con niños."
+  - "Casi todos cobran entrada: lleva efectivo, traje de baño, toalla y sandalias, y sal temprano el sábado."
 published: 2026-10-20
 updated: 2026-10-20
 translation: hot-springs-near-mexico-city

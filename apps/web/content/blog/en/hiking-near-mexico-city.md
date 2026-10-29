@@ -2,6 +2,11 @@
 title: "Hiking near Mexico City: day hikes within easy reach"
 ogTitle: "Hiking near Mexico City"
 description: "Six easy day hikes within 2 h 30 of Mexico City: Tepozteco, Sacromonte, Malinalco, Zempoala and the volcano viewpoints, with difficulty and what to bring."
+resumen:
+  - "Six easy day hikes within 2 h 30: Sacromonte, Desierto de los Leones, Malinalco, Tepozteco, Lagunas de Zempoala and Paso de Cortés."
+  - "The easiest is the Sacromonte in Amecameca, 1 h 15 away: a short walk uphill with both volcanoes in front of you."
+  - "The Tepozteco climb in Tepoztlán, 1 h 30 away, is steep and takes about an hour up; check the trail is open the day before."
+  - "Leave before 8:00 and bring water, shoes with grip, a warm layer and cash; Zempoala and Paso de Cortés are above 2,800 meters."
 published: 2026-10-20
 updated: 2026-10-20
 translation: senderismo-cerca-de-cdmx

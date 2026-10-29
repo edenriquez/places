@@ -2,6 +2,11 @@
 title: "Qué hacer este fin de semana en Puebla: eventos y planes"
 ogTitle: "Qué hacer este fin de semana en Puebla"
 description: "Eventos confirmados de este fin de semana en Puebla, Cholula y Atlixco, y planes que siempre funcionan: centro histórico, Gran Pirámide y conventos."
+resumen:
+  - "Planes que siempre funcionan: el centro histórico de Puebla, la Gran Pirámide de Cholula, Atlixco y los conventos de Huejotzingo y Calpan."
+  - "Puebla queda a unas 2 h de la CDMX por la México–Puebla; Cholula está a 20 minutos del centro y Atlixco a unos 40."
+  - "Gratis: la Catedral, la Capilla del Rosario, el Santuario de los Remedios en Cholula y, hasta el 9 de noviembre, el Valle de Catrinas."
+  - "En autobús hay corridas frecuentes desde la TAPO, la Terminal del Norte y el aeropuerto de la CDMX."
 published: 2026-10-15
 updated: 2026-10-15
 municipios: [puebla, san-pedro-cholula, san-andres-cholula, atlixco, huejotzingo, calpan]

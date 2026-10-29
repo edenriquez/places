@@ -2,6 +2,11 @@
 title: "Hot springs and water parks near Mexico City"
 ogTitle: "Hot springs near Mexico City"
 description: "Cuautla, Las Estacas, Ixtapan de la Sal and Tonatico: hot springs and swimming holes within three hours of Mexico City, with drive times and what to expect."
+resumen:
+  - "Closest: Cuautla (1 h 50) and Oaxtepec in Yautepec, under 2 h; Las Estacas, a spring-fed river in Tlaltizapán, is about 2 h."
+  - "Ixtapan de la Sal and Tonatico are about 2 h 30 away and ten minutes apart, so you can see both in a day."
+  - "Tonatico adds the Grutas de la Estrella caves and the Tzumpantitlán waterfall; its municipal balneario costs less than the big parks."
+  - "Almost every place charges admission; bring cash, a swimsuit, a towel and sandals, and leave before 8:00 on Saturdays."
 published: 2026-10-20
 updated: 2026-10-20
 translation: aguas-termales-cerca-de-cdmx

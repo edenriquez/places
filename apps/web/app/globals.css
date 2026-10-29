@@ -271,6 +271,15 @@ h1, h2, h3, .font-display {
 .post-body li + li { margin-top: 0.5rem; }
 .post-body blockquote { border-left: 1px solid var(--accent); padding-left: 1.25rem; font-size: 19px; color: var(--ink); }
 .post-body hr { border-color: var(--line); margin: 3rem 0; }
+/* el primer párrafo es el gancho: más grande y en tinta */
+.post-body > p:first-child { font-size: 19px; line-height: 1.65; color: var(--ink); }
+/* subtítulos de lugar ("Cuautla: 1 h 50"): una marca de acento para escanear la guía */
+.post-body h3 { display: flex; align-items: baseline; gap: 0.6rem; }
+.post-body h3::before { content: ""; flex-shrink: 0; width: 0.5rem; height: 0.5rem; border-radius: 9999px; background: var(--accent); transform: translateY(-0.1em); }
+/* links a eventos y pueblos dentro del texto: se notan como algo a donde ir, no como una nota al pie */
+.post-body a[href^="/evento/"], .post-body a[href^="/municipio/"] { font-weight: 600; }
+.post-body a[href^="/evento/"] { color: var(--accent); }
+.post-body a[href^="/evento/"]::after { content: " →"; }
 
 @keyframes blog-rise { from { opacity: 0; transform: translateY(18px); filter: blur(6px); } }
 @keyframes blog-fade-up { from { opacity: 0; transform: translateY(22px); } }

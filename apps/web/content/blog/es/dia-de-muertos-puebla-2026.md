@@ -2,6 +2,11 @@
 title: "Día de Muertos 2026 en Puebla: Atlixco, Huaquechula y Cholula"
 ogTitle: "Día de Muertos 2026 en Puebla"
 description: "Catrinas de hasta 8 metros en Atlixco, altares de tres pisos en Huaquechula y el desfile de calaveras de Puebla: las fechas 2026 y cómo armar la visita."
+resumen:
+  - "El Valle de Catrinas de Atlixco, a unas 2 h 30 de la CDMX, va del 2 de octubre al 9 de noviembre de 2026 y es gratis."
+  - "Los altares de tres pisos de Huaquechula se visitan del 28 de octubre al 2 de noviembre; el 1 hay más abiertos tras las 14:00."
+  - "En la ciudad de Puebla, La Muerte es un Sueño va del 23 de octubre al 3 de noviembre, con desfile de calaveras el domingo 1."
+  - "Plan: Atlixco el sábado 31 en la tarde y noche, y Huaquechula el domingo 1 después de las 14:00. Lleva efectivo y velas."
 published: 2026-10-15
 updated: 2026-10-15
 municipios: [atlixco, puebla, san-andres-cholula, san-pedro-cholula, tochimilco]
