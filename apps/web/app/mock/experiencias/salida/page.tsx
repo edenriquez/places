@@ -12,13 +12,13 @@ export default function MockSalida() {
     <>
       <MockBar current="salida" />
       <main className="mx-auto max-w-screen-sm pb-32">
-        <div className="relative aspect-[4/3] bg-ink">
+        <div className="relative aspect-[4/3] bg-[#222]">
           <Image src={IMG.cascada} alt={d.title} fill priority sizes="640px" className="object-cover" />
           <div className="absolute inset-x-4 top-3 flex justify-between">
-            <span className="grid h-10 w-10 place-items-center rounded-full bg-white shadow-soft"><ArrowLeft size={20} /></span>
+            <span className="grid h-10 w-10 place-items-center rounded-full bg-surface shadow-soft"><ArrowLeft size={20} /></span>
             <span className="flex gap-2">
-              <span className="grid h-10 w-10 place-items-center rounded-full bg-white shadow-soft"><Share2 size={18} /></span>
-              <span className="grid h-10 w-10 place-items-center rounded-full bg-white shadow-soft"><Heart size={18} /></span>
+              <span className="grid h-10 w-10 place-items-center rounded-full bg-surface shadow-soft"><Share2 size={18} /></span>
+              <span className="grid h-10 w-10 place-items-center rounded-full bg-surface shadow-soft"><Heart size={18} /></span>
             </span>
           </div>
         </div>
@@ -75,7 +75,7 @@ export default function MockSalida() {
           { ...d, when: "Sáb 1 de nov · 7:30", price: "$280" },
         ].map((x) => <DatedCard key={x.when} d={{ ...x, from: undefined }} />)}
 
-        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-white/95 backdrop-blur">
+        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-surface/95 backdrop-blur">
           <div className="mx-auto flex max-w-screen-sm items-center justify-between gap-3 px-5 pb-[max(env(safe-area-inset-bottom),12px)] pt-3">
             <div>
               <p className="text-[18px] font-bold leading-tight">{d.price} <span className="text-[13px] font-normal text-ink-2">por persona</span></p>

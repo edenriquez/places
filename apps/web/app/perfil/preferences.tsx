@@ -18,7 +18,7 @@ function Toggle({ on, onClick, children }: { on: boolean; onClick: () => void; c
       onClick={onClick}
       className={clsx(
         "flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-[14px] font-medium transition-[background-color,border-color,color] duration-200 active:scale-95",
-        on ? "border-ink bg-ink text-white" : "border-line-2 bg-white text-ink hover:border-ink",
+        on ? "border-ink bg-ink text-on-ink" : "border-line-2 bg-surface text-ink hover:border-ink",
       )}
     >
       {on && <Check size={14} strokeWidth={3} className="anim-text-in" />}
@@ -71,7 +71,7 @@ export function Preferences({ initial, municipalities }: { initial: Profile; mun
         <select
           value={p.home_municipality ?? ""}
           onChange={(e) => update({ ...p, home_municipality: e.target.value || null })}
-          className="mt-3 w-full rounded-control border border-line-2 bg-white px-3 py-2.5 text-[15px]"
+          className="mt-3 w-full rounded-control border border-line-2 bg-surface px-3 py-2.5 text-[15px]"
         >
           <option value="">Sin elegir</option>
           {Object.entries(byState).map(([state, ms]) => (

@@ -46,7 +46,7 @@ export function DesktopHeader({ children }: { children: React.ReactNode }) {
   const qs = params.toString();
   const keep = (href: string) => (qs && (href === "/" || href === "/mapa") ? `${href}?${qs}` : href);
   return (
-    <header className="sticky top-0 z-40 hidden h-[76px] grid-cols-[minmax(max-content,1fr)_minmax(0,560px)_minmax(max-content,1fr)] items-center gap-6 border-b border-line bg-white/95 px-8 backdrop-blur lg:grid">
+    <header className="sticky top-0 z-40 hidden h-[76px] grid-cols-[minmax(max-content,1fr)_minmax(0,560px)_minmax(max-content,1fr)] items-center gap-6 border-b border-line bg-surface/95 px-8 backdrop-blur lg:grid">
       <Link href="/" className="justify-self-start font-[family-name:var(--font-jakarta)] text-[20px] font-extrabold tracking-tight text-accent">entrelugares</Link>
       <div className="w-full">{children}</div>
       <nav className="flex items-center gap-1 justify-self-end">
@@ -66,7 +66,7 @@ export function DesktopHeader({ children }: { children: React.ReactNode }) {
           );
         })}
         {ready && !user && (
-          <button type="button" onClick={() => openLogin()} className="ml-2 rounded-full bg-ink px-4 py-2 text-[14px] font-semibold text-white hover:bg-ink/90">
+          <button type="button" onClick={() => openLogin()} className="ml-2 rounded-full bg-ink px-4 py-2 text-[14px] font-semibold text-on-ink hover:bg-ink/90">
             Entrar
           </button>
         )}

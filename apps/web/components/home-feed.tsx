@@ -45,7 +45,7 @@ export function HomeFeed({ initial, when, agenda, anyDay }: { initial: Tab; when
   }
 
   const menuOn = tab === "agenda" && !!sel;
-  const btn = (t: Tab) => clsx("flex min-w-0 items-center justify-center gap-1.5 rounded-full py-2 transition", tab === t ? "bg-white shadow-soft" : "text-ink-2");
+  const btn = (t: Tab) => clsx("flex min-w-0 items-center justify-center gap-1.5 rounded-full py-2 transition", tab === t ? "bg-surface shadow-soft dark:bg-line-2" : "text-ink-2");
 
   return (
     <div>
@@ -70,7 +70,7 @@ export function HomeFeed({ initial, when, agenda, anyDay }: { initial: Tab; when
             )}
           </button>
           <button role="tab" aria-selected={tab === "dia"} type="button" onClick={() => tab !== "dia" && go("dia")} data-track="filter" data-label="vista:cualquier-dia" className={btn("dia")}>
-            <Always size={15} strokeWidth={2.4} aria-hidden className={clsx("shrink-0", tab === "dia" && "text-[#17734a]")} />
+            <Always size={15} strokeWidth={2.4} aria-hidden className={clsx("shrink-0", tab === "dia" && "text-nature")} />
             <span className="truncate">Cualquier día</span>
           </button>
         </div>
@@ -98,7 +98,7 @@ function WhenPicker({ when }: { when: When }) {
         aria-label={`Cuándo: ${sel.label}. Cambiar`}
         onClick={() => setOpen((o) => !o)}
         className={clsx(
-          "inline-flex h-11 touch-manipulation items-center gap-2 rounded-full border bg-white pl-4 pr-1.5 text-[15px] font-semibold shadow-soft transition active:scale-[0.97]",
+          "inline-flex h-11 touch-manipulation items-center gap-2 rounded-full border bg-surface pl-4 pr-1.5 text-[15px] font-semibold shadow-soft transition active:scale-[0.97]",
           open ? "border-ink ring-1 ring-ink" : "border-line-2 hover:border-ink",
         )}
       >
@@ -117,7 +117,7 @@ function WhenPicker({ when }: { when: When }) {
 function WhenMenu({ when, sel, close }: { when: When; sel: WhenOption; close: () => void }) {
   const { options } = when;
   return (
-    <div role="menu" className="when-menu absolute left-3 top-[calc(100%+6px)] z-30 w-[min(320px,calc(100%-24px))] rounded-card border border-line bg-white p-1.5 shadow-[0_12px_32px_rgba(0,0,0,0.14)]">
+    <div role="menu" className="when-menu absolute left-3 top-[calc(100%+6px)] z-30 w-[min(320px,calc(100%-24px))] rounded-card border border-line bg-surface p-1.5 shadow-[0_12px_32px_rgba(0,0,0,0.14)]">
       {options.map((o, i) => {
         const on = o === sel;
         const cls = clsx("flex w-full items-center gap-3 rounded-[10px] px-3 py-2.5 text-left transition hover:bg-bg-2", on && "bg-bg-2");

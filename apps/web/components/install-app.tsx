@@ -82,7 +82,7 @@ export function InstallApp({ host }: { host: string }) {
 
   if (isInstalled || done) {
     return (
-      <section className="flex items-center gap-3 rounded-card border border-line bg-white p-5">
+      <section className="flex items-center gap-3 rounded-card border border-line bg-surface p-5">
         <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-free-bg text-free"><Check size={18} /></span>
         <div>
           <h2 className="text-[16px] font-bold">Ya tienes la app</h2>
@@ -93,7 +93,7 @@ export function InstallApp({ host }: { host: string }) {
   }
 
   return (
-    <section className="rounded-card border border-line bg-white p-5">
+    <section className="rounded-card border border-line bg-surface p-5">
       <div className="flex items-start gap-3">
         {/* eslint-disable-next-line @next/next/no-img-element -- ícono estático de la app */}
         <img src="/icon-192.png" alt="" className="h-11 w-11 shrink-0 rounded-[12px] shadow-soft" />
@@ -104,7 +104,7 @@ export function InstallApp({ host }: { host: string }) {
       </div>
 
       {prompt && (
-        <button type="button" onClick={install} className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-ink px-4 py-2.5 text-[14px] font-semibold text-white">
+        <button type="button" onClick={install} className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-ink px-4 py-2.5 text-[14px] font-semibold text-on-ink">
           <Download size={16} /> Instalar {SITE_NAME}
         </button>
       )}
@@ -112,7 +112,7 @@ export function InstallApp({ host }: { host: string }) {
       <div role="tablist" aria-label="Dispositivo" className="mt-4 grid grid-cols-3 gap-1 rounded-full bg-bg-2 p-1 text-[13px] font-semibold">
         {TABS.map((t) => (
           <button key={t.key} type="button" role="tab" aria-selected={platform === t.key} onClick={() => setPicked(t.key)}
-            className={clsx("rounded-full py-1.5 transition-colors", platform === t.key ? "bg-white text-ink shadow-soft" : "text-ink-2")}>
+            className={clsx("rounded-full py-1.5 transition-colors", platform === t.key ? "bg-surface text-ink shadow-soft" : "text-ink-2")}>
             {t.label}
           </button>
         ))}
@@ -121,7 +121,7 @@ export function InstallApp({ host }: { host: string }) {
       <ol className="mt-4 space-y-3" role="tabpanel">
         {steps(host)[platform].map((s, i) => (
           <li key={i} className="flex items-center gap-3 text-[14px]">
-            <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-ink text-[12px] font-bold text-white">{i + 1}</span>
+            <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-ink text-[12px] font-bold text-on-ink">{i + 1}</span>
             <span className="min-w-0 flex-1">{s.text}</span>
             {s.icon && <span className="grid h-8 w-8 shrink-0 place-items-center rounded-[10px] bg-bg-2 text-ink">{s.icon}</span>}
           </li>

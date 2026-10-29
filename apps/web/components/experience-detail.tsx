@@ -294,7 +294,7 @@ function BookButton({ x, className }: { x: Derived; className?: string }) {
   const Icon = b.icon;
   return (
     <a href={b.href} target={b.href.startsWith("tel:") ? undefined : "_blank"} rel="noreferrer" data-track={b.track} data-label={x.label}
-      className={clsx("flex items-center justify-center gap-2 rounded-control px-5 py-3 text-[15px] font-semibold", b.wa ? "bg-whatsapp text-white" : "bg-ink text-white", className)}>
+      className={clsx("flex items-center justify-center gap-2 rounded-control px-5 py-3 text-[15px] font-semibold", b.wa ? "bg-whatsapp text-white" : "bg-ink text-on-ink", className)}>
       <Icon size={18} aria-hidden /> {b.label}
     </a>
   );
@@ -327,8 +327,8 @@ export function ExperienceMobile({ d }: { d: ExperienceData }) {
       <div className="relative">
         <Photos x={x} sizes="(max-width: 640px) 100vw, 640px" aspect="aspect-[4/3]" />
         <div className="pointer-events-none fixed inset-x-0 top-[max(env(safe-area-inset-top),12px)] z-40 mx-auto flex max-w-screen-sm items-center justify-between px-4 [&>*]:pointer-events-auto">
-          <BackButton className="grid h-10 w-10 place-items-center rounded-full bg-white shadow-soft" />
-          <a href={x.shareHref} aria-label="Compartir" data-track="share_whatsapp" data-label={x.label} className="grid h-10 w-10 place-items-center rounded-full bg-white shadow-soft"><Share2 size={18} /></a>
+          <BackButton className="grid h-10 w-10 place-items-center rounded-full bg-surface shadow-soft" />
+          <a href={x.shareHref} aria-label="Compartir" data-track="share_whatsapp" data-label={x.label} className="grid h-10 w-10 place-items-center rounded-full bg-surface shadow-soft"><Share2 size={18} /></a>
         </div>
       </div>
 
@@ -347,7 +347,7 @@ export function ExperienceMobile({ d }: { d: ExperienceData }) {
         <p className="text-center"><Report x={x} /></p>
       </div>
 
-      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-white/95 backdrop-blur">
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-surface/95 backdrop-blur">
         <div className="mx-auto flex max-w-screen-sm items-center justify-between gap-3 px-5 pb-[max(env(safe-area-inset-bottom),12px)] pt-3">
           <Price d={d} x={x} />
           <BookButton x={x} className="shrink-0" />

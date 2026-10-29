@@ -38,7 +38,7 @@ export function OpenToggle({ p }: { p: Pick<GroupPlan, "id" | "is_open"> }) {
           </span>
         </span>
         <span className={clsx("relative h-7 w-12 shrink-0 rounded-full transition-colors", p.is_open ? "bg-free" : "bg-line-2")}>
-          <span className={clsx("absolute top-0.5 h-6 w-6 rounded-full bg-white shadow transition-[left]", p.is_open ? "left-[22px]" : "left-0.5")} />
+          <span className={clsx("absolute top-0.5 h-6 w-6 rounded-full bg-surface shadow transition-[left]", p.is_open ? "left-[22px]" : "left-0.5")} />
         </span>
       </button>
       {error && <p className="mt-1 text-[12px] text-error">{error}</p>}

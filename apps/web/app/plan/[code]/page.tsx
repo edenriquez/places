@@ -68,7 +68,7 @@ export default async function PlanPage({ params }: Params) {
           <Flyer path={p.target.image_path} focus={{ x: p.target.image_focus_x, y: p.target.image_focus_y }} alt={p.target.title}
             sizes="(max-width: 640px) 100vw, 640px" className="aspect-[2/1] lg:rounded-card" eager />
         </Link>
-        <BackButton className="absolute left-4 top-[max(env(safe-area-inset-top),12px)] grid h-10 w-10 place-items-center rounded-full bg-white shadow-soft" />
+        <BackButton className="absolute left-4 top-[max(env(safe-area-inset-top),12px)] grid h-10 w-10 place-items-center rounded-full bg-surface shadow-soft" />
       </div>
 
       <div className="space-y-6 px-5 pt-5">

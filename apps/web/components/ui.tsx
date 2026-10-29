@@ -16,7 +16,7 @@ export function PriceTag({ isFree, min, max, className }: { isFree: boolean; min
 
 export function LiveBadge({ className }: { className?: string }) {
   return (
-    <span className={clsx("inline-flex items-center gap-1.5 rounded-full bg-[#fff0f3] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.04em] text-live", className)}>
+    <span className={clsx("inline-flex items-center gap-1.5 rounded-full bg-accent-soft px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.04em] text-live", className)}>
       <span className="relative inline-block h-2 w-2 rounded-full bg-live live-dot" />
       En vivo
     </span>
@@ -41,7 +41,7 @@ export function SectionHeader({ title, subtitle, action, live }: { title: string
 export function Chip({ active, children, href, onClick, track }: { active?: boolean; children: React.ReactNode; href?: string; onClick?: () => void; track?: string }) {
   const cls = clsx(
     "relative isolate inline-flex h-9 shrink-0 items-center rounded-full border px-4 text-[14px] font-medium transition",
-    active ? "border-ink bg-ink text-white" : "border-line-2 bg-white text-ink hover:border-ink",
+    active ? "border-ink bg-ink text-on-ink" : "border-line-2 bg-surface text-ink hover:border-ink",
   );
   const data = track ? { "data-track": "filter", "data-label": track } : {};
   if (href) {

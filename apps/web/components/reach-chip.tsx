@@ -58,7 +58,7 @@ export function ReachChip({ km, steps, place, count, noun, onPick }: Props) {
         type="button"
         onClick={() => { setOpen("user"); setAnimate(true); }}
         aria-expanded={false}
-        className={clsx("flex h-10 items-center gap-1.5 whitespace-nowrap rounded-full bg-white pl-3 pr-3.5 text-[13px] font-semibold shadow-float", animate && "reach-close")}
+        className={clsx("flex h-10 items-center gap-1.5 whitespace-nowrap rounded-full bg-surface pl-3 pr-3.5 text-[13px] font-semibold shadow-float", animate && "reach-close")}
       >
         <Clock size={15} className="text-ink-2" />
         {all ? "Toda la región" : `a ${radiusLabel(km, true)}`}
@@ -67,7 +67,7 @@ export function ReachChip({ km, steps, place, count, noun, onPick }: Props) {
   }
 
   return (
-    <div ref={rootRef} className="reach-open w-[min(340px,calc(100vw-32px))] rounded-[20px] bg-white p-4 shadow-float">
+    <div ref={rootRef} className="reach-open w-[min(340px,calc(100vw-32px))] rounded-[20px] bg-surface p-4 shadow-float">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0" role="status" aria-live="polite">
           <p className="text-[12px] font-medium text-ink-2">¿Hasta dónde te mueves?</p>
@@ -84,7 +84,7 @@ export function ReachChip({ km, steps, place, count, noun, onPick }: Props) {
         <div className="mt-3 flex flex-wrap gap-1.5">
           {steps.map((s) => (
             <button key={s} type="button" onClick={() => onPick(s)} aria-pressed={s === km}
-              className={clsx("rounded-full px-3 py-1.5 text-[13px] font-semibold transition-colors", s === km ? "bg-ink text-white" : "bg-bg-2 text-ink")}>
+              className={clsx("rounded-full px-3 py-1.5 text-[13px] font-semibold transition-colors", s === km ? "bg-ink text-on-ink" : "bg-bg-2 text-ink")}>
               {s === EXPLORE ? "Todo" : radiusLabel(s, true)}
             </button>
           ))}

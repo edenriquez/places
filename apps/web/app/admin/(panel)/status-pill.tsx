@@ -2,17 +2,17 @@ import clsx from "clsx";
 
 const MAP: Record<string, { label: string; cls: string }> = {
   queued: { label: "En cola", cls: "bg-bg-2 text-ink-2" },
-  processing: { label: "Procesando", cls: "bg-[#fff4e0] text-[#a86400]" },
+  processing: { label: "Procesando", cls: "bg-warn-bg text-warn-ink" },
   needs_review: { label: "Revisar", cls: "bg-accent-soft text-accent" },
   approved: { label: "Listo", cls: "bg-free-bg text-free" },
   rejected: { label: "Descartado", cls: "bg-bg-2 text-ink-3" },
   duplicate: { label: "Duplicado", cls: "bg-bg-2 text-ink-3" },
-  failed: { label: "Error", cls: "bg-[#fde8e5] text-error" },
+  failed: { label: "Error", cls: "bg-error-bg text-error" },
   published: { label: "Publicado", cls: "bg-free-bg text-free" },
   pending: { label: "Pendiente", cls: "bg-accent-soft text-accent" },
   cancelled: { label: "Cancelado", cls: "bg-bg-2 text-ink-3" },
   // jobs
-  running: { label: "Corriendo", cls: "bg-[#fff4e0] text-[#a86400]" },
+  running: { label: "Corriendo", cls: "bg-warn-bg text-warn-ink" },
   done: { label: "Terminada", cls: "bg-free-bg text-free" },
 };
 

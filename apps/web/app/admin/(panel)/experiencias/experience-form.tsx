@@ -142,7 +142,7 @@ export function ExperienceForm({ experience, placeName, organizerName, municipal
         <Field label="Tipo">
           <div className="flex flex-wrap gap-2">
             {(Object.keys(EXPERIENCE_KINDS) as ExperienceKind[]).map((k) => (
-              <button key={k} type="button" onClick={() => setKind(k)} className={clsx("rounded-full border px-3 py-1.5 text-[13px] font-medium", kind === k ? "border-ink bg-ink text-white" : "border-line-2")}>
+              <button key={k} type="button" onClick={() => setKind(k)} className={clsx("rounded-full border px-3 py-1.5 text-[13px] font-medium", kind === k ? "border-ink bg-ink text-on-ink" : "border-line-2")}>
                 {EXPERIENCE_KINDS[k].emoji} {EXPERIENCE_KINDS[k].label}
               </button>
             ))}
@@ -184,7 +184,7 @@ export function ExperienceForm({ experience, placeName, organizerName, municipal
             <label className="mt-2 flex flex-wrap items-center gap-2 text-[13px]">
               <input type="checkbox" checked={!!newPlaceKind} onChange={(e) => setNewPlaceKind(e.target.checked ? "parque_ecoturistico" : null)} />
               Agregar «{placeText.trim()}» al catálogo como
-              <select value={newPlaceKind ?? "parque_ecoturistico"} onChange={(e) => setNewPlaceKind(e.target.value)} disabled={!newPlaceKind} className="rounded-control border border-line-2 bg-white px-2 py-1 disabled:opacity-50">
+              <select value={newPlaceKind ?? "parque_ecoturistico"} onChange={(e) => setNewPlaceKind(e.target.value)} disabled={!newPlaceKind} className="rounded-control border border-line-2 bg-surface px-2 py-1 disabled:opacity-50">
                 {NEW_PLACE_KINDS.map((k) => <option key={k} value={k}>{PLACE_KIND_LABEL[k]}</option>)}
               </select>
               <span className="text-ink-3">(tendrá su página de lugar)</span>
@@ -211,7 +211,7 @@ export function ExperienceForm({ experience, placeName, organizerName, municipal
           <Field label="Dificultad">
             <div className="flex gap-1.5">
               {(Object.keys(DIFFICULTY_LABEL) as Difficulty[]).map((d) => (
-                <button key={d} type="button" onClick={() => setDifficulty(difficulty === d ? null : d)} className={clsx("flex-1 rounded-control border px-2 py-2 text-[13px] font-medium", difficulty === d ? "border-ink bg-ink text-white" : "border-line-2")}>{DIFFICULTY_LABEL[d]}</button>
+                <button key={d} type="button" onClick={() => setDifficulty(difficulty === d ? null : d)} className={clsx("flex-1 rounded-control border px-2 py-2 text-[13px] font-medium", difficulty === d ? "border-ink bg-ink text-on-ink" : "border-line-2")}>{DIFFICULTY_LABEL[d]}</button>
               ))}
             </div>
           </Field>
@@ -280,7 +280,7 @@ export function ExperienceForm({ experience, placeName, organizerName, municipal
           </Field>
         </div>
 
-        <div className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-white/95 px-6 py-3 backdrop-blur md:left-[240px]">
+        <div className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-surface/95 px-6 py-3 backdrop-blur md:left-[240px]">
           <div className="mx-auto flex max-w-[1200px] flex-wrap items-center justify-end gap-2">
             {msg && <p className={clsx("mr-auto text-[13px]", msg.ok ? "text-free" : "text-error")}>{msg.text}</p>}
             {x?.status === "published" && <a href={`/experiencia/${x.slug}`} target="_blank" rel="noreferrer" className="rounded-control px-4 py-2.5 text-[14px] font-semibold underline">Ver en el sitio</a>}
@@ -302,7 +302,7 @@ export function ExperienceForm({ experience, placeName, organizerName, municipal
   );
 }
 
-const inputCls = "w-full rounded-control border border-line-2 bg-white px-3 py-2 text-[14px] focus:border-ink focus:outline-none disabled:bg-bg-2";
+const inputCls = "w-full rounded-control border border-line-2 bg-surface px-3 py-2 text-[14px] focus:border-ink focus:outline-none disabled:bg-bg-2";
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (

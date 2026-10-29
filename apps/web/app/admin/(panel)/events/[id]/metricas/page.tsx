@@ -39,7 +39,7 @@ export default async function EventMetricsPage({ params, searchParams }: { param
       </div>
       <nav className="mt-5 flex flex-wrap gap-2 text-[13px]">
         {RANGES.map(([k, l]) => (
-          <Link key={k} href={`?r=${k}`} className={clsx("rounded-full border px-3 py-1.5 font-medium", range === k ? "border-ink bg-ink text-white" : "border-line-2 hover:border-ink")}>{l}</Link>
+          <Link key={k} href={`?r=${k}`} className={clsx("rounded-full border px-3 py-1.5 font-medium", range === k ? "border-ink bg-ink text-on-ink" : "border-line-2 hover:border-ink")}>{l}</Link>
         ))}
       </nav>
       <div className="mt-5"><EventReport r={r} /></div>

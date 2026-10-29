@@ -72,12 +72,12 @@ export default async function MunicipalityPage({ params }: Params) {
   return (
     <main className="mx-auto max-w-screen-sm pb-28">
       <JsonLd data={[...municipalityGraph(m, events, experiences), breadcrumbs([{ name: "Explorar", path: "/" }, { name: m.name, path: `/municipio/${m.slug}` }])]} />
-      <div className="relative aspect-[4/3] bg-ink">
+      <div className="relative aspect-[4/3] bg-[#222]">
         {m.cover_image_url && <Image src={m.cover_image_url} alt={`${m.name}, ${m.state}`} fill priority sizes="640px" className="object-cover" />}
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
         <div className="absolute inset-x-4 top-[max(env(safe-area-inset-top),12px)] flex justify-between">
-          <Link href="/" aria-label="Volver" className="grid h-10 w-10 place-items-center rounded-full bg-white shadow-soft"><ArrowLeft size={20} /></Link>
-          <span className="grid h-10 w-10 place-items-center rounded-full bg-white shadow-soft"><Heart size={18} /></span>
+          <Link href="/" aria-label="Volver" className="grid h-10 w-10 place-items-center rounded-full bg-surface shadow-soft"><ArrowLeft size={20} /></Link>
+          <span className="grid h-10 w-10 place-items-center rounded-full bg-surface shadow-soft"><Heart size={18} /></span>
         </div>
         <div className="absolute inset-x-5 bottom-5 text-white">
           <h1 className="text-[34px] font-extrabold leading-none">{m.name}</h1>

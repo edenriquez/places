@@ -114,7 +114,7 @@ export function ImageFocus({ src, value, onChange, title, when, place, category,
       <div className="mt-3 flex flex-wrap gap-2">
         {presets.map((p) => (
           <button key={p.label} type="button" onClick={() => onChange(p.f)}
-            className={clsx("rounded-full border px-3 py-1.5 text-[13px] font-medium", value.x === p.f.x && value.y === p.f.y ? "border-ink bg-ink text-white" : "border-line-2")}>
+            className={clsx("rounded-full border px-3 py-1.5 text-[13px] font-medium", value.x === p.f.x && value.y === p.f.y ? "border-ink bg-ink text-on-ink" : "border-line-2")}>
             {p.label}
           </button>
         ))}
@@ -127,8 +127,8 @@ export function ImageFocus({ src, value, onChange, title, when, place, category,
           <div className="w-[300px]">
             <div className="relative">
               <Crop src={src} focus={value} sizes="300px" className="aspect-[4/3] rounded-card" />
-              <span className="absolute left-3 top-3 rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-semibold">{category}</span>
-              <span className="absolute right-3 top-3 grid h-8 w-8 place-items-center rounded-full bg-white/90"><Heart size={16} /></span>
+              <span className="absolute left-3 top-3 rounded-full bg-surface/95 px-2.5 py-1 text-[11px] font-semibold">{category}</span>
+              <span className="absolute right-3 top-3 grid h-8 w-8 place-items-center rounded-full bg-surface/90"><Heart size={16} /></span>
             </div>
             <div className="mt-3 flex items-start justify-between gap-3">
               <div className="min-w-0">
@@ -147,7 +147,7 @@ export function ImageFocus({ src, value, onChange, title, when, place, category,
           </figure>
           <figure>
             <figcaption className="mb-1.5 text-[12px] text-ink-3">Miniatura (mapa)</figcaption>
-            <div className="flex w-[220px] gap-3 rounded-card border border-line bg-white p-3 shadow-soft">
+            <div className="flex w-[220px] gap-3 rounded-card border border-line bg-surface p-3 shadow-soft">
               <Crop src={src} focus={value} sizes="96px" className="h-[84px] w-[96px] shrink-0 rounded-[12px]" />
               <div className="min-w-0">
                 <p className="line-clamp-2 text-[14px] font-semibold leading-snug">{title || "Título"}</p>

@@ -92,7 +92,7 @@ export function Uploader({ municipalities }: { municipalities: { cvegeo: string;
           <input name="origin" type="url" placeholder="https://facebook.com/…" className="mt-1 w-full rounded-control border border-line-2 px-3 py-2.5 text-[14px]" />
         </label>
         <label className="text-[13px] font-medium">Municipio
-          <select name="municipality" className="mt-1 w-full rounded-control border border-line-2 bg-white px-3 py-2.5 text-[14px]">
+          <select name="municipality" className="mt-1 w-full rounded-control border border-line-2 bg-surface px-3 py-2.5 text-[14px]">
             <option value="">Detectar del flyer</option>
             {municipalities.map((m) => <option key={m.cvegeo} value={m.cvegeo}>{m.name}</option>)}
           </select>

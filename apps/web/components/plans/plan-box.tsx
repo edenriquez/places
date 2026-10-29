@@ -120,7 +120,7 @@ export function PlanBox({ target, className }: { target: PlanSheetTarget; classN
 
       <button type="button" onClick={() => (uid ? setSheet(true) : openLogin({ do: "plan" }))}
         className={clsx("mt-3 flex w-full items-center justify-center gap-2 rounded-control py-2.5 text-[14px] font-semibold",
-          mine.length || others.length ? "border border-ink text-ink hover:bg-bg-2" : "bg-ink text-white")}>
+          mine.length || others.length ? "border border-ink text-ink hover:bg-bg-2" : "bg-ink text-on-ink")}>
         <Plus size={16} /> {mine.length ? "Armar otro plan" : crowd ? "Abrir un grupo" : "Armar un plan"}
       </button>
 

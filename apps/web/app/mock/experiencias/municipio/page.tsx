@@ -12,12 +12,12 @@ export default function MockMunicipio() {
     <>
       <MockBar current="municipio" />
       <main className="mx-auto max-w-screen-sm pb-28">
-        <div className="relative aspect-[4/3] bg-ink">
+        <div className="relative aspect-[4/3] bg-[#222]">
           <Image src={IMG.cascada} alt="Tlalmanalco" fill priority sizes="640px" className="object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent" />
           <div className="absolute inset-x-4 top-3 flex justify-between">
-            <span className="grid h-10 w-10 place-items-center rounded-full bg-white shadow-soft"><ArrowLeft size={20} /></span>
-            <span className="grid h-10 w-10 place-items-center rounded-full bg-white shadow-soft"><Heart size={18} /></span>
+            <span className="grid h-10 w-10 place-items-center rounded-full bg-surface shadow-soft"><ArrowLeft size={20} /></span>
+            <span className="grid h-10 w-10 place-items-center rounded-full bg-surface shadow-soft"><Heart size={18} /></span>
           </div>
           <div className="absolute inset-x-5 bottom-5 text-white">
             <h1 className="text-[34px] font-extrabold leading-none">Tlalmanalco</h1>
@@ -33,7 +33,7 @@ export default function MockMunicipio() {
         </div>
 
         <div className="mx-5 mt-4 grid grid-cols-3 rounded-full bg-bg-2 p-1 text-[14px] font-semibold">
-          <span className="rounded-full bg-white py-2 text-center shadow-soft">Todo</span>
+          <span className="rounded-full bg-surface py-2 text-center shadow-soft">Todo</span>
           <span className="rounded-full py-2 text-center text-ink-2">Experiencias</span>
           <span className="rounded-full py-2 text-center text-ink-2">Eventos</span>
         </div>

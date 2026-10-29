@@ -47,7 +47,7 @@ export function finding<T extends { label: string; value: number }>(rows: T[], s
 
 export function Card({ title, subtitle, children, className, action }: { title: string; subtitle?: string; children: React.ReactNode; className?: string; action?: React.ReactNode }) {
   return (
-    <section className={clsx("rounded-card border border-line bg-white p-5", className)}>
+    <section className={clsx("rounded-card border border-line bg-surface p-5", className)}>
       <div className="flex items-start justify-between gap-3">
         <div>
           <h2 className="text-[15px] font-semibold">{title}</h2>
@@ -67,7 +67,7 @@ export function Empty({ children = "Aún no hay datos en este rango." }: { child
 /** Cifra con etiqueta. `hero`: la única cifra grande de la vista. */
 export function Stat({ label, value, hint, hero }: { label: string; value: string; hint?: string; hero?: boolean }) {
   return (
-    <div className="rounded-card border border-line bg-white p-4">
+    <div className="rounded-card border border-line bg-surface p-4">
       <p className="text-[12px] font-medium text-ink-2">{label}</p>
       <p className={clsx("mt-1 font-semibold leading-none text-ink", hero ? "text-[44px]" : "text-[26px]")}>{value}</p>
       {hint && <p className="mt-1.5 text-[12px] text-ink-3">{hint}</p>}
@@ -161,7 +161,7 @@ export function PairedBars({ rows, series, unit = "", flag }: {
             <li key={r.label} className="grid grid-cols-[minmax(0,9rem)_1fr] items-center gap-3 text-[13px]">
               <span className="min-w-0">
                 <span className={clsx("block truncate text-ink", f ? "font-semibold" : "font-medium")}>{r.label}</span>
-                {(f || r.note) && <span className="block truncate text-[11px] text-ink-3">{[f && <b key="f" className="font-semibold text-[#8a5300]">{f}</b>, r.note].filter(Boolean).reduce<React.ReactNode[]>((acc, x, i) => (i ? [...acc, " · ", x] : [x]), [])}</span>}
+                {(f || r.note) && <span className="block truncate text-[11px] text-ink-3">{[f && <b key="f" className="font-semibold text-warn-ink">{f}</b>, r.note].filter(Boolean).reduce<React.ReactNode[]>((acc, x, i) => (i ? [...acc, " · ", x] : [x]), [])}</span>}
               </span>
               <span className="space-y-1">{bar(r.a, 0, series[0])}{bar(r.b, 1, series[1])}</span>
             </li>
@@ -241,7 +241,7 @@ export function LineChart({ days, series, compact, average }: {
       )}
       <div className={clsx("relative ml-9 mr-10", compact ? "h-[120px]" : "h-[180px]")} role="img" aria-label={`Serie diaria: ${series.map((s) => s.label).join(" y ")}`}>
         {ticks.map((t) => (
-          <div key={t} className="absolute inset-x-0 border-t border-[#ebebeb]" style={{ top: `${yp(t)}%` }}>
+          <div key={t} className="absolute inset-x-0 border-t border-line" style={{ top: `${yp(t)}%` }}>
             <span className="absolute -left-9 w-7 -translate-y-1/2 text-right text-[11px] tabular-nums text-ink-3">{fmtN(t)}</span>
           </div>
         ))}
@@ -269,7 +269,7 @@ export function LineChart({ days, series, compact, average }: {
         )}
         {showPeak && (
           <div className="pointer-events-none absolute" style={{ left: `${xp(peak)}%`, top: `${yp(val(days[peak], first))}%` }}>
-            <span className="absolute h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 bg-white" style={{ borderColor: SERIES[0] }} />
+            <span className="absolute h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 bg-surface" style={{ borderColor: SERIES[0] }} />
             <span className={clsx("absolute bottom-2 whitespace-nowrap text-[11px] font-medium tabular-nums text-ink", peak < n * 0.15 ? "" : peak > n * 0.85 ? "-translate-x-full" : "-translate-x-1/2")}>
               máx. {fmtN(val(days[peak], first))} · {dayLabel(days[peak].day)}
             </span>
@@ -278,7 +278,7 @@ export function LineChart({ days, series, compact, average }: {
         {/* punto final con anillo del color de la superficie + valor al final de la línea */}
         {series.map((s, i) => (
           <div key={s.key} className="pointer-events-none absolute" style={{ left: `${xp(last)}%`, top: `${yp(val(days[last], s.key))}%` }}>
-            <span className="absolute h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white" style={{ background: SERIES[i] }} />
+            <span className="absolute h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-surface" style={{ background: SERIES[i] }} />
             <span className="absolute left-2.5 -translate-y-1/2 text-[11px] font-medium tabular-nums text-ink">{fmtN(val(days[last], s.key))}</span>
           </div>
         ))}

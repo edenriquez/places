@@ -75,7 +75,7 @@ export function RadiusSlider({ value, steps, place, onPreview, onCommit, pending
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="flex h-10 items-center gap-1.5 whitespace-nowrap rounded-full bg-white pl-3 pr-2.5 text-[13px] font-semibold shadow-float min-[400px]:gap-2 min-[400px]:pl-3.5 min-[400px]:pr-3 min-[400px]:text-[14px]"
+        className="flex h-10 items-center gap-1.5 whitespace-nowrap rounded-full bg-surface pl-3 pr-2.5 text-[13px] font-semibold shadow-float min-[400px]:gap-2 min-[400px]:pl-3.5 min-[400px]:pr-3 min-[400px]:text-[14px]"
         aria-expanded={false}
       >
         {pending ? <Loader2 size={16} className="animate-spin text-ink-2" /> : <Clock size={16} className="text-ink-2" />}
@@ -88,7 +88,7 @@ export function RadiusSlider({ value, steps, place, onPreview, onCommit, pending
 
   const pct = last ? idx / last : 0;
   return (
-    <div ref={rootRef} className="w-[min(360px,calc(100vw-32px))] rounded-[20px] bg-white p-4 shadow-float">
+    <div ref={rootRef} className="w-[min(360px,calc(100vw-32px))] rounded-[20px] bg-surface p-4 shadow-float">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="text-[12px] font-medium text-ink-2">¿Hasta dónde te mueves?</p>
@@ -112,7 +112,7 @@ export function RadiusSlider({ value, steps, place, onPreview, onCommit, pending
         {steps.map((_, i) => (
           <span
             key={i}
-            className={clsx("absolute top-1/2 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full", i <= idx ? "bg-white/80" : "bg-line-2")}
+            className={clsx("absolute top-1/2 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full", i <= idx ? "bg-surface/80" : "bg-line-2")}
             style={{ left: `calc(${last ? i / last : 0} * (100% - ${THUMB}px) + ${THUMB / 2}px)` }}
           />
         ))}

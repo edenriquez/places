@@ -85,7 +85,7 @@ function Nav({ path }: { path: string }) {
   return (
     <nav
       ref={ref}
-      className="fixed inset-x-0 bottom-0 z-40 border-t lg:hidden border-line bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80 will-change-transform"
+      className="fixed inset-x-0 bottom-0 z-40 border-t lg:hidden border-line bg-surface/95 backdrop-blur supports-[backdrop-filter]:bg-surface/80 will-change-transform"
     >
       <ul className="mx-auto flex max-w-screen-sm items-stretch justify-around px-2 pb-[max(env(safe-area-inset-bottom),8px)] pt-2">
         {ITEMS.map(({ href, label, icon: Icon }) => {

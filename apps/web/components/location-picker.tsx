@@ -50,7 +50,7 @@ export function SearchBar({ loc, municipalities, compact, isSet = true, header }
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className={clsx("flex w-full items-center gap-3 rounded-full border border-line bg-white px-4 text-left shadow-float", header ? "py-2" : "py-3")}
+          className={clsx("flex w-full items-center gap-3 rounded-full border border-line bg-surface px-4 text-left shadow-float", header ? "py-2" : "py-3")}
         >
           <Search size={20} className="shrink-0" />
           <span className="min-w-0 flex-1">
@@ -139,7 +139,7 @@ export function LocationSheet({ loc, municipalities, onClose }: { loc: Loc | nul
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 sm:items-center" onClick={onClose}>
       <div
-        className="flex h-[88dvh] w-full max-w-screen-sm flex-col rounded-t-[20px] bg-white sm:h-auto sm:max-h-[80dvh] sm:rounded-[20px]"
+        className="flex h-[88dvh] w-full max-w-screen-sm flex-col rounded-t-[20px] bg-surface sm:h-auto sm:max-h-[80dvh] sm:rounded-[20px]"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center gap-2 border-b border-line p-4">
@@ -174,7 +174,7 @@ export function LocationSheet({ loc, municipalities, onClose }: { loc: Loc | nul
             <ul className="divide-y divide-line">
               <li>
                 <button type="button" disabled={pending} onClick={() => pickState(drill)} className="flex w-full items-center gap-3 py-3 text-left">
-                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-ink text-[11px] font-bold text-white">{drill.name.slice(0, 2).toUpperCase()}</span>
+                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-ink text-[11px] font-bold text-on-ink">{drill.name.slice(0, 2).toUpperCase()}</span>
                   <span className="text-[15px] font-semibold">Todo {drill.name}</span>
                 </button>
               </li>

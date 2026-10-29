@@ -44,7 +44,7 @@ export function MiniMap({ slug, lat, lng, className }: { slug: string; lat: numb
             aria-label="Mover el mapa"
             className="absolute inset-0 flex items-end justify-end p-2"
           >
-            <span className="flex items-center gap-1 rounded-full bg-white/95 px-2.5 py-1 text-[12px] font-semibold shadow-soft">
+            <span className="flex items-center gap-1 rounded-full bg-surface/95 px-2.5 py-1 text-[12px] font-semibold shadow-soft">
               <Move size={13} /> {live ? "Cargando mapa…" : "Mover mapa"}
             </span>
           </button>

@@ -20,11 +20,11 @@ export function CalendarSync() {
     if (typeof data === "string") setUrl(`${location.host}/planes/calendario/${data}.ics`);
   }
 
-  const btn = "flex h-10 items-center justify-center gap-1.5 rounded-full border border-line-2 bg-white px-4 text-[14px] font-semibold hover:bg-bg-2";
+  const btn = "flex h-10 items-center justify-center gap-1.5 rounded-full border border-line-2 bg-surface px-4 text-[14px] font-semibold hover:bg-bg-2";
   return (
     <section className="mt-8 rounded-card bg-bg-2 p-4">
       <div className="flex items-start gap-3">
-        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white text-ink"><SyncIcon size={19} /></span>
+        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-surface text-ink"><SyncIcon size={19} /></span>
         <div>
           <h2 className="text-[16px] font-bold">Tus planes en tu calendario</h2>
           <p className="mt-0.5 text-[13px] text-ink-2">Conéctalo una vez: cada plan al que te unas, y quién más va, aparece solo, con aviso un día antes.</p>
@@ -44,7 +44,7 @@ export function CalendarSync() {
           </button>
         </div>
       ) : (
-        <button type="button" disabled={busy} onClick={connect} className="mt-3 rounded-full bg-ink px-4 py-2 text-[14px] font-semibold text-white disabled:opacity-60">
+        <button type="button" disabled={busy} onClick={connect} className="mt-3 rounded-full bg-ink px-4 py-2 text-[14px] font-semibold text-on-ink disabled:opacity-60">
           {busy ? "Un momento…" : "Conectar calendario"}
         </button>
       )}

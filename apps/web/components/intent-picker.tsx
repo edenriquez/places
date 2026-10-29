@@ -10,8 +10,12 @@ const ICON: Record<IntentKey, LucideIcon> = {
   musica: Music, fiesta: PartyPopper, comida: UtensilsCrossed, naturaleza: Mountain, familia: Users, cultura: Palette,
 };
 const TINT: Record<IntentKey, string> = {
-  musica: "bg-[#fff0f3] text-[#e0234e]", fiesta: "bg-[#fff4e5] text-[#d9730d]", comida: "bg-[#fdf0ea] text-[#c2410c]",
-  naturaleza: "bg-[#eaf6ec] text-[#15803d]", familia: "bg-[#eaf3fd] text-[#2563eb]", cultura: "bg-[#f3eefc] text-[#7c3aed]",
+  musica: "bg-[#fff0f3] text-[#e0234e] dark:bg-[#e0234e]/15 dark:text-[#ff6b8a]",
+  fiesta: "bg-[#fff4e5] text-[#d9730d] dark:bg-[#d9730d]/15 dark:text-[#f5a25a]",
+  comida: "bg-[#fdf0ea] text-[#c2410c] dark:bg-[#c2410c]/15 dark:text-[#fb8a5c]",
+  naturaleza: "bg-[#eaf6ec] text-[#15803d] dark:bg-[#15803d]/20 dark:text-[#5fd08a]",
+  familia: "bg-[#eaf3fd] text-[#2563eb] dark:bg-[#2563eb]/20 dark:text-[#7aa7ff]",
+  cultura: "bg-[#f3eefc] text-[#7c3aed] dark:bg-[#7c3aed]/20 dark:text-[#b69cff]",
 };
 
 /** Categorías del catálogo que cumplen el filtro; undefined = todas. */
@@ -70,14 +74,14 @@ export function IntentPicker({ compact }: { compact?: boolean }) {
               aria-current={on ? "true" : undefined}
               className={clsx(
                 "flex touch-manipulation flex-col items-start gap-2 rounded-card border p-3 transition-colors duration-150",
-                on ? "border-ink bg-ink text-white" : "border-line bg-white hover:border-ink-3",
+                on ? "border-ink bg-ink text-on-ink" : "border-line bg-surface hover:border-ink-3",
               )}
             >
-              <span className={clsx("grid h-9 w-9 place-items-center rounded-full", on ? "bg-white/15 text-white" : TINT[it.key])}>
+              <span className={clsx("grid h-9 w-9 place-items-center rounded-full", on ? "bg-on-ink/15 text-on-ink" : TINT[it.key])}>
                 <Icon size={19} strokeWidth={2} />
               </span>
               <span className="text-[14px] font-semibold leading-none">{it.label}</span>
-              <span className={clsx("hidden text-[12px] leading-snug lg:block", on ? "text-white/70" : "text-ink-2")}>{it.hint}</span>
+              <span className={clsx("hidden text-[12px] leading-snug lg:block", on ? "text-on-ink/70" : "text-ink-2")}>{it.hint}</span>
             </Link>
           );
         })}

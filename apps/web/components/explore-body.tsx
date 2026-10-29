@@ -234,7 +234,7 @@ function AnyDayPane({ experiences, intent, area, hideDistance }: { experiences: 
                     }}
                     data-track="filter"
                     data-label={`vacio:intencion:${it.key}`}
-                    className="inline-flex h-9 items-center rounded-full border border-line-2 bg-white px-4 text-[14px] font-medium transition hover:border-ink"
+                    className="inline-flex h-9 items-center rounded-full border border-line-2 bg-surface px-4 text-[14px] font-medium transition hover:border-ink"
                   >
                     {it.label}
                   </Link>

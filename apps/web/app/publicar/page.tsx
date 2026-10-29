@@ -31,7 +31,7 @@ export default async function PublishPage() {
           {user ? (
             <SubmitForm userId={user.id} municipalities={munis} />
           ) : (
-            <section className="rounded-card border border-line bg-white p-6">
+            <section className="rounded-card border border-line bg-surface p-6">
               <span className="grid h-11 w-11 place-items-center rounded-full bg-bg-2"><Megaphone size={20} /></span>
               <h2 className="mt-4 text-[18px] font-bold">Entra para publicar</h2>
               <p className="mt-1 text-[14px] text-ink-2">Así podemos avisarte cuando se publique y ves el estado de tus envíos en tu perfil.</p>

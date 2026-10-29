@@ -151,12 +151,12 @@ function PartOfExperience({ d }: { d: EventData }) {
   const img = flyerUrl(x.image_path);
   const price = fmtPrice(x.is_free, x.price_min, x.price_max);
   return (
-    <Link href={`/experiencia/${x.slug}`} className="flex items-center gap-3 rounded-card border border-[#bfe3cf] bg-[#f1faf5] p-3 hover:border-[#17734a]">
+    <Link href={`/experiencia/${x.slug}`} className="flex items-center gap-3 rounded-card border border-nature-line bg-nature-bg p-3 hover:border-nature">
       <span className="relative h-16 w-16 shrink-0 overflow-hidden rounded-[12px] bg-bg-2">
         {img && <Image src={img} alt="" fill sizes="64px" className="object-cover" style={focusStyle(x.image_focus_x, x.image_focus_y)} />}
       </span>
       <span className="min-w-0 flex-1">
-        <span className="flex items-center gap-1 text-[11px] font-semibold uppercase tracking-[0.04em] text-[#17734a]"><Always size={12} strokeWidth={2.6} aria-hidden /> Parte de una experiencia</span>
+        <span className="flex items-center gap-1 text-[11px] font-semibold uppercase tracking-[0.04em] text-nature"><Always size={12} strokeWidth={2.6} aria-hidden /> Parte de una experiencia</span>
         <span className="block truncate text-[15px] font-semibold">{x.title}</span>
         <span className="block text-[13px] text-ink-2">
           También puedes ir por tu cuenta{x.availability_text ? ` · ${x.availability_text.toLowerCase()}` : " cualquier día"}{price !== "Consultar" ? ` · ${price}${x.price_note && !x.is_free ? ` ${x.price_note}` : ""}` : ""}
@@ -319,9 +319,9 @@ export function EventMobile({ d, nearby }: { d: EventData; nearby: NearRow[] }) 
         <Flyer x={x} alt={`Flyer de ${d.event.title}`} sizes="(max-width: 640px) 100vw, 640px" aspect="aspect-[4/3]" media={MOBILE} />
         {/* fija: se puede volver o compartir desde cualquier punto del scroll */}
         <div className="pointer-events-none fixed inset-x-0 top-[max(env(safe-area-inset-top),12px)] z-40 mx-auto flex max-w-screen-sm items-center justify-between px-4 [&>*]:pointer-events-auto">
-          <BackButton className="grid h-10 w-10 place-items-center rounded-full bg-white shadow-soft" />
+          <BackButton className="grid h-10 w-10 place-items-center rounded-full bg-surface shadow-soft" />
           <div className="flex gap-2">
-            <a href={x.shareHref} aria-label="Compartir" data-track="share_whatsapp" data-event={x.id} className="grid h-10 w-10 place-items-center rounded-full bg-white shadow-soft"><Share2 size={18} /></a>
+            <a href={x.shareHref} aria-label="Compartir" data-track="share_whatsapp" data-event={x.id} className="grid h-10 w-10 place-items-center rounded-full bg-surface shadow-soft"><Share2 size={18} /></a>
             <SaveButton eventId={d.event.id} variant="icon" />
           </div>
         </div>

@@ -30,7 +30,7 @@ export function GoogleButton({ onClick, className }: { onClick: () => Promise<vo
       type="button"
       disabled={busy}
       onClick={async () => { setBusy(true); try { await onClick(); } catch { setBusy(false); } }}
-      className={`flex w-full items-center justify-center gap-3 rounded-control border border-line-2 bg-white py-3 text-[15px] font-semibold text-ink hover:bg-bg-2 disabled:opacity-60 ${className ?? ""}`}
+      className={`flex w-full items-center justify-center gap-3 rounded-control border border-line-2 bg-surface py-3 text-[15px] font-semibold text-ink hover:bg-bg-2 disabled:opacity-60 ${className ?? ""}`}
     >
       <GoogleIcon /> {busy ? "Abriendo Google…" : "Continuar con Google"}
     </button>
@@ -47,13 +47,13 @@ export function LoginSheet({ intent, onClose, onGoogle }: { intent?: Intent; onC
   }, [onClose]);
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-end justify-center bg-ink/40 lg:items-center" onClick={onClose}>
+    <div className="fixed inset-0 z-[60] flex items-end justify-center bg-black/40 lg:items-center" onClick={onClose}>
       <section
         role="dialog"
         aria-modal="true"
         aria-labelledby="login-title"
         onClick={(e) => e.stopPropagation()}
-        className="sheet-in relative w-full max-w-screen-sm rounded-t-[20px] bg-white px-6 pb-[max(env(safe-area-inset-bottom),24px)] pt-7 shadow-float lg:max-w-[420px] lg:rounded-card lg:pb-7"
+        className="sheet-in relative w-full max-w-screen-sm rounded-t-[20px] bg-surface px-6 pb-[max(env(safe-area-inset-bottom),24px)] pt-7 shadow-float lg:max-w-[420px] lg:rounded-card lg:pb-7"
       >
         <button type="button" onClick={onClose} aria-label="Cerrar" className="absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full bg-bg-2">
           <X size={18} />

@@ -22,7 +22,7 @@ export const dynamic = "force-dynamic";
 
 function Section({ title, subtitle, action, children }: { title: string; subtitle?: string; action?: React.ReactNode; children: React.ReactNode }) {
   return (
-    <section className="rounded-card border border-line bg-white p-5">
+    <section className="rounded-card border border-line bg-surface p-5">
       <div className="flex items-start justify-between gap-3">
         <div>
           <h2 className="text-[18px] font-bold">{title}</h2>
@@ -43,15 +43,15 @@ function Stat({ icon, value, label, href }: { icon: React.ReactNode; value: numb
       <span className="mt-1 block text-[12px] font-medium text-ink-2">{label}</span>
     </>
   );
-  const cls = "block rounded-card border border-line bg-white p-4 transition hover:border-line-2 hover:shadow-soft";
+  const cls = "block rounded-card border border-line bg-surface p-4 transition hover:border-line-2 hover:shadow-soft";
   return href ? <Link href={href} className={cls}>{body}</Link> : <div className={cls}>{body}</div>;
 }
 
 const SUB_STATUS: Record<Submission["status"], { label: string; cls: string }> = {
   queued: { label: "Recibido", cls: "bg-bg-2 text-ink-2" },
   processing: { label: "Recibido", cls: "bg-bg-2 text-ink-2" },
-  needs_review: { label: "En revisión", cls: "bg-[#fff6e0] text-[#8a5a00]" },
-  failed: { label: "En revisión", cls: "bg-[#fff6e0] text-[#8a5a00]" },
+  needs_review: { label: "En revisión", cls: "bg-warn-bg text-warn-ink" },
+  failed: { label: "En revisión", cls: "bg-warn-bg text-warn-ink" },
   approved: { label: "Publicado", cls: "bg-free-bg text-free" },
   rejected: { label: "No se publicó", cls: "bg-bg-2 text-ink-3" },
   duplicate: { label: "Ya lo teníamos", cls: "bg-bg-2 text-ink-3" },
@@ -59,27 +59,27 @@ const SUB_STATUS: Record<Submission["status"], { label: string; cls: string }> =
 
 function Organizer({ submissions }: { submissions: Submission[] }) {
   return (
-    <section className="overflow-hidden rounded-card bg-ink text-white">
+    <section className="overflow-hidden rounded-card bg-ink text-on-ink">
       <div className="p-5">
-        <span className="grid h-11 w-11 place-items-center rounded-full bg-white/10"><Megaphone size={20} /></span>
+        <span className="grid h-11 w-11 place-items-center rounded-full bg-on-ink/10"><Megaphone size={20} /></span>
         <h2 className="mt-4 text-[20px] font-bold leading-tight">¿Organizas algo?</h2>
-        <p className="mt-1 text-[14px] text-white/70">Sube el flyer y cuéntanos de qué trata. Lo revisamos y lo publicamos gratis.</p>
-        <Link href="/publicar" className="mt-5 inline-flex items-center gap-2 rounded-control bg-white px-4 py-2.5 text-[14px] font-semibold text-ink transition hover:gap-3">
+        <p className="mt-1 text-[14px] text-on-ink/70">Sube el flyer y cuéntanos de qué trata. Lo revisamos y lo publicamos gratis.</p>
+        <Link href="/publicar" className="mt-5 inline-flex items-center gap-2 rounded-control bg-surface px-4 py-2.5 text-[14px] font-semibold text-ink transition hover:gap-3">
           Publicar un evento <ArrowRight size={16} />
         </Link>
       </div>
       {submissions.length > 0 && (
-        <ul className="divide-y divide-white/10 border-t border-white/10 bg-white/[0.04]">
+        <ul className="divide-y divide-on-ink/10 border-t border-on-ink/10 bg-on-ink/[0.04]">
           {submissions.map((s) => {
             const st = SUB_STATUS[s.status];
             const row = (
               <>
-                <span className="relative h-11 w-11 shrink-0 overflow-hidden rounded-[10px] bg-white/10">
+                <span className="relative h-11 w-11 shrink-0 overflow-hidden rounded-[10px] bg-on-ink/10">
                   {s.media_path && <Image src={flyerUrl(s.media_path)!} alt="" fill sizes="44px" className="object-cover" />}
                 </span>
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-[14px] font-semibold">{s.title ?? "Tu flyer"}</span>
-                  <span className="block text-[12px] text-white/60">Enviado el {new Date(s.received_at).toLocaleDateString("es-MX", { day: "numeric", month: "short" })}</span>
+                  <span className="block text-[12px] text-on-ink/60">Enviado el {new Date(s.received_at).toLocaleDateString("es-MX", { day: "numeric", month: "short" })}</span>
                 </span>
                 <span className={clsx("shrink-0 rounded-full px-2.5 py-1 text-[11px] font-semibold", st.cls)}>{st.label}</span>
               </>
@@ -87,7 +87,7 @@ function Organizer({ submissions }: { submissions: Submission[] }) {
             return (
               <li key={s.id}>
                 {s.event_slug ? (
-                  <Link href={`/evento/${s.event_slug}`} className="flex items-center gap-3 px-5 py-3 hover:bg-white/[0.04]">{row}</Link>
+                  <Link href={`/evento/${s.event_slug}`} className="flex items-center gap-3 px-5 py-3 hover:bg-on-ink/[0.04]">{row}</Link>
                 ) : (
                   <div className="flex items-center gap-3 px-5 py-3">{row}</div>
                 )}
@@ -111,12 +111,12 @@ export default async function ProfilePage() {
         {header}
         <main className="mx-auto max-w-[720px] space-y-4 px-5 pb-28 pt-8 lg:pt-12">
           <h1 className="text-[26px] font-bold">Perfil</h1>
-          <section className="rounded-card border border-line bg-white p-6">
+          <section className="rounded-card border border-line bg-surface p-6">
             <h2 className="text-[22px] font-bold leading-tight">Haz tuyo entrelugares</h2>
             <p className="mt-1 text-[14px] text-ink-2">Sin cuenta puedes explorar todo. Con cuenta, además:</p>
             <ul className="mt-5 space-y-3.5 text-[15px]">
               <li className="flex items-center gap-3"><span className="grid h-9 w-9 place-items-center rounded-full bg-accent-soft text-accent"><Heart size={18} /></span>Guarda eventos y encuéntralos en cualquier dispositivo</li>
-              <li className="flex items-center gap-3"><span className="grid h-9 w-9 place-items-center rounded-full bg-[#fff6e0] text-[#b37700]"><Star size={18} /></span>Dile a los demás que vas con &ldquo;Me interesa&rdquo;</li>
+              <li className="flex items-center gap-3"><span className="grid h-9 w-9 place-items-center rounded-full bg-warn-bg text-warn-ink"><Star size={18} /></span>Dile a los demás que vas con &ldquo;Me interesa&rdquo;</li>
               <li className="flex items-center gap-3"><span className="grid h-9 w-9 place-items-center rounded-full bg-bg-2 text-ink"><Sparkles size={18} /></span>Ve primero lo que te late</li>
             </ul>
             <SignInButton className="mt-6" />
@@ -183,7 +183,7 @@ export default async function ProfilePage() {
                       <span className="block truncate text-[15px] font-semibold">{e.title}</span>
                       <span className="block truncate text-[13px] text-ink-2">{fmtWhenShort(e.starts_at, e.is_all_day)} · {e.municipality_name}</span>
                     </span>
-                    {e.going && <span className="flex shrink-0 items-center gap-1 rounded-full bg-ink px-2.5 py-1 text-[11px] font-semibold text-white"><Star size={11} className="fill-[#ffb400] text-[#ffb400]" /> Vas</span>}
+                    {e.going && <span className="flex shrink-0 items-center gap-1 rounded-full bg-ink px-2.5 py-1 text-[11px] font-semibold text-on-ink"><Star size={11} className="fill-[#ffb400] text-[#ffb400]" /> Vas</span>}
                   </Link>
                 </li>
               ))}

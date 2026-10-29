@@ -75,7 +75,7 @@ export default async function EventsAdminPage({ searchParams }: { searchParams: 
         <nav aria-label="Filtrar por estado" className="flex flex-wrap gap-2 text-[13px]">
           {STATUSES.map(([k, l]) => (
             <Link key={k} href={link({ s: k })} aria-current={status === k ? "page" : undefined}
-              className={`rounded-full border px-3 py-1.5 font-medium ${status === k ? "border-ink bg-ink text-white" : "border-line-2"}`}>{l}</Link>
+              className={`rounded-full border px-3 py-1.5 font-medium ${status === k ? "border-ink bg-ink text-on-ink" : "border-line-2"}`}>{l}</Link>
           ))}
         </nav>
       </div>
@@ -92,10 +92,10 @@ export default async function EventsAdminPage({ searchParams }: { searchParams: 
             aria-label="Buscar por nombre del evento"
             defaultValue={search}
             placeholder="Buscar por nombre del evento"
-            className="w-full rounded-control border border-line-2 bg-white py-2 pl-9 pr-3 focus:border-ink focus:outline-none"
+            className="w-full rounded-control border border-line-2 bg-surface py-2 pl-9 pr-3 focus:border-ink focus:outline-none"
           />
         </div>
-        <select name="m" defaultValue={muni} aria-label="Municipio" className="rounded-control border border-line-2 bg-white px-3 py-2">
+        <select name="m" defaultValue={muni} aria-label="Municipio" className="rounded-control border border-line-2 bg-surface px-3 py-2">
           <option value="">Todos los municipios</option>
           {(munis ?? []).map((m) => <option key={m.cvegeo} value={m.cvegeo}>{m.name}</option>)}
         </select>
@@ -115,7 +115,7 @@ export default async function EventsAdminPage({ searchParams }: { searchParams: 
 
       <p aria-live="polite" className="sr-only">{`${total} eventos · ordenados por ${SORTS[sort].label}, ${dir === "asc" ? "ascendente" : "descendente"}`}</p>
 
-      <div className="mt-5 overflow-hidden rounded-card border border-line bg-white">
+      <div className="mt-5 overflow-hidden rounded-card border border-line bg-surface">
         {/* la tabla se desplaza dentro de su caja (encabezado y columna Evento fijos), nunca la página */}
         <div className="max-h-[75vh] overflow-auto">
           <table className="w-full min-w-[760px] border-separate border-spacing-0 text-[14px]">
@@ -136,7 +136,7 @@ export default async function EventsAdminPage({ searchParams }: { searchParams: 
                 const { lastEnd, purgeIn } = purgeSchedule(e.event_occurrences);
                 const purged = !!e.purged_at;
                 return (
-                  <tr key={e.id} className="group bg-white hover:bg-bg-2/60 focus-within:bg-bg-2/60">
+                  <tr key={e.id} className="group bg-surface hover:bg-bg-2/60 focus-within:bg-bg-2/60">
                     <th scope="row" className="sticky left-0 z-10 max-w-[58vw] border-b md:max-w-[300px] border-line bg-inherit px-3 py-2 text-left font-normal shadow-[1px_0_0_var(--line)]">
                       <div className="flex items-center gap-3">
                         <div className="relative hidden h-10 w-10 shrink-0 overflow-hidden rounded-lg bg-bg-2 sm:block">{url && <Image src={url} alt="" fill sizes="40px" className="object-cover" />}</div>
@@ -156,7 +156,7 @@ export default async function EventsAdminPage({ searchParams }: { searchParams: 
                         ? <span className="mt-1 block text-[12px] text-ink-2" title="Sin flyer ni contacto; quedan sus métricas">Purgado</span>
                         : e.keep
                           ? <span className="mt-1 block text-[12px] text-ink-2">Se conserva</span>
-                          : purgeIn != null && <span className="mt-1 block text-[12px] font-medium text-[#a86400]">{purgeIn === 0 ? "se purga hoy" : `se purga en ${purgeIn} ${purgeIn === 1 ? "día" : "días"}`}</span>}
+                          : purgeIn != null && <span className="mt-1 block text-[12px] font-medium text-warn-ink">{purgeIn === 0 ? "se purga hoy" : `se purga en ${purgeIn} ${purgeIn === 1 ? "día" : "días"}`}</span>}
                     </td>
                     <td className="whitespace-nowrap border-b border-line px-3 py-2 text-[13px] text-ink-2 tabular-nums">{fmtShortDate(e.created_at)}</td>
                     <td className="border-b border-line px-3 py-2">

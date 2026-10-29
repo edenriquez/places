@@ -39,7 +39,7 @@ export function JoinButton({ planId, code, eventId, label = "Unirme", className,
   return (
     <span className="inline-flex flex-col items-stretch">
       <button type="button" disabled={busy} onClick={join}
-        className={clsx("flex items-center justify-center gap-1.5 rounded-full bg-ink px-4 py-2 text-[14px] font-semibold text-white disabled:opacity-60", className)}>
+        className={clsx("flex items-center justify-center gap-1.5 rounded-full bg-ink px-4 py-2 text-[14px] font-semibold text-on-ink disabled:opacity-60", className)}>
         <UserPlus size={16} /> {busy ? "Uniéndote…" : label}
       </button>
       {error && <span className="mt-1 text-[12px] text-error">{error}</span>}

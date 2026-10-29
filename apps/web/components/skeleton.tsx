@@ -12,7 +12,7 @@ export function Bone({ className }: { className?: string }) {
 /** Mismo marco que DesktopHeader; el buscador y la sesión llegan con la página. */
 export function DesktopHeaderSkeleton() {
   return (
-    <header className="sticky top-0 z-40 hidden h-[76px] grid-cols-[minmax(max-content,1fr)_minmax(0,560px)_minmax(max-content,1fr)] items-center gap-6 border-b border-line bg-white/95 px-8 lg:grid">
+    <header className="sticky top-0 z-40 hidden h-[76px] grid-cols-[minmax(max-content,1fr)_minmax(0,560px)_minmax(max-content,1fr)] items-center gap-6 border-b border-line bg-surface/95 px-8 lg:grid">
       <Link href="/" className="justify-self-start font-[family-name:var(--font-jakarta)] text-[20px] font-extrabold tracking-tight text-accent">entrelugares</Link>
       <Bone className="h-12 w-full rounded-full" />
       <Bone className="h-9 w-[360px] justify-self-end rounded-full" />

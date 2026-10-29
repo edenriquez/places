@@ -54,7 +54,7 @@ export function QuickReviewActions({ id, blocked }: { id: string; blocked?: stri
           disabled={pending}
           aria-busy={busy === "discard"}
           onClick={() => run("discard")}
-          className="flex h-8 min-w-[7.5rem] items-center justify-center gap-1.5 rounded-control border border-line-2 px-3 text-[13px] font-semibold text-error transition-[background-color,transform,opacity] duration-200 hover:bg-[#fde8e5] active:scale-[0.98] disabled:pointer-events-none disabled:opacity-40"
+          className="flex h-8 min-w-[7.5rem] items-center justify-center gap-1.5 rounded-control border border-line-2 px-3 text-[13px] font-semibold text-error transition-[background-color,transform,opacity] duration-200 hover:bg-error-bg active:scale-[0.98] disabled:pointer-events-none disabled:opacity-40"
         >
           {busy === "discard" && <Loader2 size={14} className="animate-spin" aria-hidden />}
           <span key={busy === "discard" ? "discarding" : "discard"} className={clsx(busy === "discard" && "anim-text-in")}>

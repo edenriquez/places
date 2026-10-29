@@ -27,10 +27,10 @@ export default function MockDetalle() {
         <div className="relative">
           <FlyerCarousel slides={e.gallery.map((src) => ({ src }))} alt={e.title} sizes="(max-width: 640px) 100vw, 640px" slideClassName="aspect-[4/3]" />
           <div className="pointer-events-none absolute inset-x-4 top-3 flex justify-between [&>*]:pointer-events-auto">
-            <span className="grid h-10 w-10 place-items-center rounded-full bg-white shadow-soft"><ArrowLeft size={20} /></span>
+            <span className="grid h-10 w-10 place-items-center rounded-full bg-surface shadow-soft"><ArrowLeft size={20} /></span>
             <span className="flex gap-2">
-              <span className="grid h-10 w-10 place-items-center rounded-full bg-white shadow-soft"><Share2 size={18} /></span>
-              <span className="grid h-10 w-10 place-items-center rounded-full bg-white shadow-soft"><Heart size={18} /></span>
+              <span className="grid h-10 w-10 place-items-center rounded-full bg-surface shadow-soft"><Share2 size={18} /></span>
+              <span className="grid h-10 w-10 place-items-center rounded-full bg-surface shadow-soft"><Heart size={18} /></span>
             </span>
           </div>
         </div>
@@ -133,7 +133,7 @@ export default function MockDetalle() {
           </section>
         </div>
 
-        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-white/95 backdrop-blur">
+        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-surface/95 backdrop-blur">
           <div className="mx-auto flex max-w-screen-sm items-center justify-between gap-3 px-5 pb-[max(env(safe-area-inset-bottom),12px)] pt-3">
             <div>
               <p className="text-[18px] font-bold leading-tight">$50 <span className="text-[13px] font-normal text-ink-2">acceso</span></p>

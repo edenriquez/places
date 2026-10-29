@@ -8,9 +8,9 @@ export default function Loading() {
   return (
     <main role="status" className="mx-auto max-w-screen-sm pb-28">
       <span className="sr-only">Cargando municipio…</span>
-      <div className="relative aspect-[4/3] bg-ink motion-safe:animate-pulse">
+      <div className="relative aspect-[4/3] bg-[#222] motion-safe:animate-pulse">
         <div className="absolute inset-x-4 top-[max(env(safe-area-inset-top),12px)]">
-          <Link href="/" aria-label="Volver" className="grid h-10 w-10 place-items-center rounded-full bg-white shadow-soft"><ArrowLeft size={20} /></Link>
+          <Link href="/" aria-label="Volver" className="grid h-10 w-10 place-items-center rounded-full bg-surface shadow-soft"><ArrowLeft size={20} /></Link>
         </div>
         <div className="absolute inset-x-5 bottom-5 space-y-2">
           <div className="h-8 w-1/2 rounded-md bg-white/20" />

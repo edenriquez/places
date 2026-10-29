@@ -37,12 +37,12 @@ export function PlanShare({ p, className, compact }: { p: P; className?: string;
           setCopied(true);
           setTimeout(() => setCopied(false), 1800);
         }}
-        className={clsx(btn, "border border-line-2 bg-white text-ink hover:bg-bg-2")}
+        className={clsx(btn, "border border-line-2 bg-surface text-ink hover:bg-bg-2")}
       >
         {copied ? <><Check size={16} /> Copiado</> : canShare ? <><Share size={16} /> Compartir</> : <><Link2 size={16} /> Copiar link</>}
       </button>
       {!compact && (
-        <a href={`/plan/${p.code}/calendario`} className={clsx(btn, "border border-line-2 bg-white text-ink hover:bg-bg-2")}>
+        <a href={`/plan/${p.code}/calendario`} className={clsx(btn, "border border-line-2 bg-surface text-ink hover:bg-bg-2")}>
           <CalendarPlus size={16} /> Calendario
         </a>
       )}

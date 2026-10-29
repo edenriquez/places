@@ -11,7 +11,7 @@ export function PlanMapCard({ p, active, href, eager }: { p: GroupPlan; active?:
   const t = p.target;
   const left = spotsLeft(p);
   return (
-    <article className={`w-[300px] shrink-0 rounded-card border bg-white p-3 shadow-soft ${active ? "border-ink" : "border-line"}`}>
+    <article className={`w-[300px] shrink-0 rounded-card border bg-surface p-3 shadow-soft ${active ? "border-ink" : "border-line"}`}>
       <Link href={href ?? targetHref(t)} scroll={!href} className="flex gap-3">
         <Flyer path={t.image_path} focus={{ x: t.image_focus_x, y: t.image_focus_y }} alt={t.title} sizes="72px" className="h-[64px] w-[72px] shrink-0 rounded-[12px]" eager={eager} />
         <div className="min-w-0 flex-1">

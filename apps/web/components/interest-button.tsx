@@ -38,7 +38,7 @@ export function InterestButton({ eventId, className }: { eventId: string; classN
         className={clsx(
           "flex shrink-0 items-center gap-2 border px-4 py-2.5 text-[14px] font-semibold",
           "transition-[background-color,color,border-color,border-radius,box-shadow] duration-300 ease-out active:scale-95",
-          mine ? "rounded-[22px] border-ink bg-ink text-white shadow-soft" : "rounded-control border-ink text-ink hover:bg-bg-2",
+          mine ? "rounded-[22px] border-ink bg-ink text-on-ink shadow-soft" : "rounded-control border-ink text-ink hover:bg-bg-2",
         )}
       >
         <span key={taps} className={clsx("relative grid place-items-center", animate && (mine ? "anim-star-spin" : "anim-shrink"))}>

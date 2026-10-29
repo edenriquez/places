@@ -32,7 +32,7 @@ export function SharePlan({ p, className, labels }: { p: P; className?: string; 
         <FacebookIcon />{labels && "Facebook"}
       </a>
       <a href={`/evento/${p.slug}/calendario`} aria-label="Agregar al calendario"
-        className={clsx(btn, "border border-line bg-white text-ink", labels ? "px-3.5" : "w-9")}>
+        className={clsx(btn, "border border-line bg-surface text-ink", labels ? "px-3.5" : "w-9")}>
         <CalendarPlus size={16} />{labels && "Calendario"}
       </a>
     </div>

@@ -159,7 +159,7 @@ export function ReviewForm({ ingestion, event, organizerName, occurrences, munic
         <Field label="Categoría">
           <div className="flex flex-wrap gap-2">
             {(Object.keys(CATEGORY_LABEL) as Category[]).map((c) => (
-              <button key={c} type="button" onClick={() => setCategory(c)} className={clsx("rounded-full border px-3 py-1.5 text-[13px] font-medium", category === c ? "border-ink bg-ink text-white" : "border-line-2")}>{CATEGORY_LABEL[c]}</button>
+              <button key={c} type="button" onClick={() => setCategory(c)} className={clsx("rounded-full border px-3 py-1.5 text-[13px] font-medium", category === c ? "border-ink bg-ink text-on-ink" : "border-line-2")}>{CATEGORY_LABEL[c]}</button>
             ))}
           </div>
         </Field>
@@ -268,7 +268,7 @@ export function ReviewForm({ ingestion, event, organizerName, occurrences, munic
 
         {msg && <p className="text-[13px] text-free">{msg}</p>}
 
-        <div className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-white/95 px-6 py-3 backdrop-blur md:left-[240px]">
+        <div className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-surface/95 px-6 py-3 backdrop-blur md:left-[240px]">
           <div className="mx-auto flex max-w-[1200px] flex-wrap items-center justify-end gap-2">
             <button type="button" disabled={pending} onClick={() => start(async () => { await rejectIngestion(ingestion.id, event?.id ?? null); })} className="rounded-control px-4 py-2.5 text-[14px] font-semibold text-error">Descartar</button>
             {published ? (
@@ -289,7 +289,7 @@ export function ReviewForm({ ingestion, event, organizerName, occurrences, munic
   );
 }
 
-const inputCls = "w-full rounded-control border border-line-2 bg-white px-3 py-2 text-[14px] focus:border-ink focus:outline-none";
+const inputCls = "w-full rounded-control border border-line-2 bg-surface px-3 py-2 text-[14px] focus:border-ink focus:outline-none";
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (

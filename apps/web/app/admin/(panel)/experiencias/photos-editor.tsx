@@ -65,12 +65,12 @@ export function PhotosEditor({ folder, value, onChange }: { folder: string; valu
           <li key={p} className="relative aspect-square overflow-hidden rounded-[10px] bg-bg-2">
             <Image src={flyerUrl(p)!} alt="" fill sizes="100px" className="object-cover" />
             {i === 0 && <span className="absolute inset-x-1 top-1 rounded-full bg-black/60 py-0.5 text-center text-[10px] font-semibold text-white">Portada</span>}
-            <button type="button" onClick={() => onChange(value.filter((x) => x !== p))} aria-label={`Quitar foto ${i + 1}`} className="absolute right-1 top-1 grid h-6 w-6 place-items-center rounded-full bg-white/95 text-ink shadow-soft">
+            <button type="button" onClick={() => onChange(value.filter((x) => x !== p))} aria-label={`Quitar foto ${i + 1}`} className="absolute right-1 top-1 grid h-6 w-6 place-items-center rounded-full bg-surface/95 text-ink shadow-soft">
               <X size={13} />
             </button>
             <div className="absolute inset-x-1 bottom-1 flex justify-between">
-              <button type="button" disabled={i === 0} onClick={() => move(i, -1)} aria-label={`Mover foto ${i + 1} antes`} className="grid h-6 w-6 place-items-center rounded-full bg-white/95 text-ink shadow-soft disabled:invisible"><ChevronLeft size={13} /></button>
-              <button type="button" disabled={i === value.length - 1} onClick={() => move(i, 1)} aria-label={`Mover foto ${i + 1} después`} className="grid h-6 w-6 place-items-center rounded-full bg-white/95 text-ink shadow-soft disabled:invisible"><ChevronRight size={13} /></button>
+              <button type="button" disabled={i === 0} onClick={() => move(i, -1)} aria-label={`Mover foto ${i + 1} antes`} className="grid h-6 w-6 place-items-center rounded-full bg-surface/95 text-ink shadow-soft disabled:invisible"><ChevronLeft size={13} /></button>
+              <button type="button" disabled={i === value.length - 1} onClick={() => move(i, 1)} aria-label={`Mover foto ${i + 1} después`} className="grid h-6 w-6 place-items-center rounded-full bg-surface/95 text-ink shadow-soft disabled:invisible"><ChevronRight size={13} /></button>
             </div>
           </li>
         ))}

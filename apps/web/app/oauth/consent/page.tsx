@@ -38,7 +38,7 @@ export default async function ConsentPage({ searchParams }: { searchParams: Prom
 function Shell({ children }: { children: React.ReactNode }) {
   return (
     <main className="grid min-h-dvh place-items-center bg-bg-2 px-5">
-      <div className="w-full max-w-[420px] rounded-card border border-line bg-white p-6 shadow-soft">
+      <div className="w-full max-w-[420px] rounded-card border border-line bg-surface p-6 shadow-soft">
         <div className="flex items-center gap-2">
           <span className="grid h-8 w-8 place-items-center rounded-lg bg-accent text-[13px] font-bold text-white">EL</span>
           <span className="text-[15px] font-bold">Entre Lugares · Admin</span>

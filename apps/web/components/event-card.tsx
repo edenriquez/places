@@ -37,25 +37,25 @@ export function EventCard({ e, live, hideDistance, vt, nearby, href, eager }: { 
         <Flyer path={e.image_path} focus={{ x: e.image_focus_x, y: e.image_focus_y }} alt={e.title} sizes="(max-width: 640px) 100vw, 640px" className="aspect-[4/3] rounded-card" eager={eager} />
         <div className="absolute left-3 top-3 flex items-center gap-1.5">
           {live ? (
-            <LiveBadge className="bg-white/95" />
+            <LiveBadge className="bg-surface/95" />
           ) : (
-            <span className="rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-semibold text-ink">
+            <span className="rounded-full bg-surface/95 px-2.5 py-1 text-[11px] font-semibold text-ink">
               {CATEGORY_LABEL[e.category] ?? "Evento"}
             </span>
           )}
           {nearby && (
             <span className="group/near relative" aria-label="Sugerencia en base a tu cercanía" title="Sugerencia en base a tu cercanía">
-              <span className="flex items-center gap-1 rounded-full bg-ink/85 px-2 py-1 text-[11px] font-semibold text-white">
-                <Navigation size={11} className="fill-white" /> Cerca
+              <span className="flex items-center gap-1 rounded-full bg-ink/85 px-2 py-1 text-[11px] font-semibold text-on-ink">
+                <Navigation size={11} className="fill-current" /> Cerca
               </span>
-              <span role="tooltip" className="pointer-events-none absolute left-0 top-[calc(100%+6px)] z-10 whitespace-nowrap rounded-control bg-ink px-2.5 py-1.5 text-[12px] font-medium text-white opacity-0 shadow-float transition group-hover/near:opacity-100">
+              <span role="tooltip" className="pointer-events-none absolute left-0 top-[calc(100%+6px)] z-10 whitespace-nowrap rounded-control bg-ink px-2.5 py-1.5 text-[12px] font-medium text-on-ink opacity-0 shadow-float transition group-hover/near:opacity-100">
                 Sugerencia en base a tu cercanía
               </span>
             </span>
           )}
         </div>
         <SaveButton eventId={e.event_id} variant="card" className="absolute right-3 top-3" />
-        <LinkPending className="inset-0 rounded-card bg-white/40" />
+        <LinkPending className="inset-0 rounded-card bg-surface/40" />
       </div>
       <div className="mt-3 flex items-start justify-between gap-3">
         <div className="min-w-0">
@@ -81,7 +81,7 @@ export function LiveCard({ e }: { e: NearRow }) {
       <div className="relative">
         <Flyer path={e.image_path} focus={{ x: e.image_focus_x, y: e.image_focus_y }} alt={e.title} sizes="240px" className="aspect-[4/3] rounded-card" />
         {e.ends_at && (
-          <span className="absolute left-3 top-3 rounded-full bg-ink/85 px-2.5 py-1 text-[11px] font-semibold text-white">
+          <span className="absolute left-3 top-3 rounded-full bg-ink/85 px-2.5 py-1 text-[11px] font-semibold text-on-ink">
             Termina {fmtTime(e.ends_at)}
           </span>
         )}
@@ -100,7 +100,7 @@ export function CompactCard({ e, active, href, eager }: { e: NearRow; active?: b
     <Link
       href={href ?? `/evento/${e.slug}`}
       scroll={!href}
-      className={`flex w-[300px] shrink-0 snap-center gap-3 rounded-card border bg-white p-3 shadow-soft ${active ? "border-ink" : "border-line"}`}
+      className={`flex w-[300px] shrink-0 snap-center gap-3 rounded-card border bg-surface p-3 shadow-soft ${active ? "border-ink" : "border-line"}`}
     >
       <Flyer path={e.image_path} focus={{ x: e.image_focus_x, y: e.image_focus_y }} alt={e.title} sizes="96px" className="h-[84px] w-[96px] shrink-0 rounded-[12px]" eager={eager} />
       <div className="min-w-0 flex-1">

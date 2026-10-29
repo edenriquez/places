@@ -91,17 +91,17 @@ export function GalleryEditor({ folder, coverStyle, value, onChange, title }: {
             )}
           >
             <Image src={flyerUrl(p)!} alt="" fill sizes="100px" draggable={false} className="pointer-events-none object-cover" style={i === 0 ? coverStyle : undefined} />
-            <button type="button" onClick={() => onChange(value.filter((x) => x !== p))} aria-label={i === 0 ? "Quitar portada" : `Quitar foto ${i + 1}`} className="absolute right-1 top-1 grid h-6 w-6 place-items-center rounded-full bg-white/95 text-ink shadow-soft">
+            <button type="button" onClick={() => onChange(value.filter((x) => x !== p))} aria-label={i === 0 ? "Quitar portada" : `Quitar foto ${i + 1}`} className="absolute right-1 top-1 grid h-6 w-6 place-items-center rounded-full bg-surface/95 text-ink shadow-soft">
               <X size={13} />
             </button>
             {i === 0 && (
               <span className="absolute left-1 top-1 rounded-full bg-black/60 px-1.5 py-0.5 text-[10px] font-semibold text-white">Portada</span>
             )}
             <div className="absolute inset-x-1 bottom-1 flex justify-between">
-              <button type="button" disabled={i === 0} onClick={() => moveTo(i, i - 1)} aria-label={`Mover foto ${i + 1} antes`} className="grid h-6 w-6 place-items-center rounded-full bg-white/95 text-ink shadow-soft disabled:invisible">
+              <button type="button" disabled={i === 0} onClick={() => moveTo(i, i - 1)} aria-label={`Mover foto ${i + 1} antes`} className="grid h-6 w-6 place-items-center rounded-full bg-surface/95 text-ink shadow-soft disabled:invisible">
                 <ChevronLeft size={13} />
               </button>
-              <button type="button" disabled={i === value.length - 1} onClick={() => moveTo(i, i + 1)} aria-label={`Mover foto ${i + 1} después`} className="grid h-6 w-6 place-items-center rounded-full bg-white/95 text-ink shadow-soft disabled:invisible">
+              <button type="button" disabled={i === value.length - 1} onClick={() => moveTo(i, i + 1)} aria-label={`Mover foto ${i + 1} después`} className="grid h-6 w-6 place-items-center rounded-full bg-surface/95 text-ink shadow-soft disabled:invisible">
                 <ChevronRight size={13} />
               </button>
             </div>

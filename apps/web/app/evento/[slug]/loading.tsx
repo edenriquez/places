@@ -25,7 +25,7 @@ export default function Loading() {
       <main className="mx-auto max-w-screen-sm lg:hidden">
         <Bone className="aspect-[4/3] rounded-none" />
         <div className="fixed inset-x-0 top-[max(env(safe-area-inset-top),12px)] z-40 mx-auto max-w-screen-sm px-4">
-          <BackButton className="grid h-10 w-10 place-items-center rounded-full bg-white shadow-soft" />
+          <BackButton className="grid h-10 w-10 place-items-center rounded-full bg-surface shadow-soft" />
         </div>
         <div className="px-5 pt-5">
           <Bone className="h-6 w-24 rounded-full" />

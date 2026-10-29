@@ -47,11 +47,11 @@ export default async function ExperiencesAdminPage({ searchParams }: { searchPar
       <nav aria-label="Filtrar por estado" className="mt-4 flex flex-wrap gap-2 text-[13px]">
         {STATUSES.map(([k, l]) => (
           <Link key={k} href={k ? `/admin/experiencias?s=${k}` : "/admin/experiencias"} aria-current={status === k ? "page" : undefined}
-            className={`rounded-full border px-3 py-1.5 font-medium ${status === k ? "border-ink bg-ink text-white" : "border-line-2"}`}>{l}</Link>
+            className={`rounded-full border px-3 py-1.5 font-medium ${status === k ? "border-ink bg-ink text-on-ink" : "border-line-2"}`}>{l}</Link>
         ))}
       </nav>
 
-      <div className="mt-5 overflow-hidden rounded-card border border-line bg-white">
+      <div className="mt-5 overflow-hidden rounded-card border border-line bg-surface">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[760px] border-separate border-spacing-0 text-[14px]">
             <caption className="sr-only">Experiencias</caption>

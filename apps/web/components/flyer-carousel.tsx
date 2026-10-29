@@ -94,4 +94,4 @@ export function FlyerCarousel({ slides, alt, sizes, contain, eventId, slideClass
 
 const GAP = 6;
 // solo con mouse: en touch se desliza
-const ARROW = "absolute top-1/2 hidden h-9 w-9 -translate-y-1/2 place-items-center rounded-full bg-white/95 text-ink shadow-soft [@media(hover:hover)]:grid";
+const ARROW = "absolute top-1/2 hidden h-9 w-9 -translate-y-1/2 place-items-center rounded-full bg-surface/95 text-ink shadow-soft [@media(hover:hover)]:grid";

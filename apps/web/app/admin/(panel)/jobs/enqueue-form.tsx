@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { enqueueJob } from "../actions";
 import { JOB_KIND_LABEL, type JobKind } from "@/lib/types";
 
-const inputCls = "rounded-control border border-line-2 bg-white px-3 py-2 text-[14px]";
+const inputCls = "rounded-control border border-line-2 bg-surface px-3 py-2 text-[14px]";
 const HELP: Record<JobKind, string> = {
   process: "OCR + modelo local sobre los flyers en cola. La Mac lo hace sola cuando hay flyers; úsalo para forzarlo.",
   festivities: "Crea un evento publicado por cada fiesta recurrente del año (idempotente).",

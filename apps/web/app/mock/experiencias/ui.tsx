@@ -13,9 +13,9 @@ export function MockBar({ current }: { current: string }) {
   return (
     <div className="sticky top-0 z-50 border-b border-line bg-[#fffbe6]/95 px-3 py-2 backdrop-blur">
       <div className="no-scrollbar mx-auto flex max-w-screen-sm items-center gap-1.5 overflow-x-auto text-[12px]">
-        <Link href={BASE} className="shrink-0 rounded-full bg-ink px-2.5 py-1 font-semibold text-white">Mock</Link>
+        <Link href={BASE} className="shrink-0 rounded-full bg-ink px-2.5 py-1 font-semibold text-on-ink">Mock</Link>
         {screens.map(([href, label]) => (
-          <Link key={href} href={`${BASE}/${href}`} className={`shrink-0 rounded-full px-2.5 py-1 font-medium ${current === href ? "bg-white text-ink shadow-soft" : "text-ink-2"}`}>{label}</Link>
+          <Link key={href} href={`${BASE}/${href}`} className={`shrink-0 rounded-full px-2.5 py-1 font-medium ${current === href ? "bg-surface text-ink shadow-soft" : "text-ink-2"}`}>{label}</Link>
         ))}
       </div>
     </div>
@@ -25,7 +25,7 @@ export function MockBar({ current }: { current: string }) {
 export function TypeBadge({ e, solid }: { e: Experience; solid?: boolean }) {
   const t = typeOf(e.type);
   return (
-    <span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${solid ? "bg-white/95 text-ink" : "bg-bg-2 text-ink-2"}`}>
+    <span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${solid ? "bg-surface/95 text-ink" : "bg-bg-2 text-ink-2"}`}>
       {t.emoji} {t.label}
     </span>
   );
@@ -57,9 +57,9 @@ export function ExperienceCard({ e }: { e: Experience }) {
       <div className="relative aspect-[4/3] overflow-hidden rounded-card bg-bg-2">
         <Image src={e.img} alt={e.title} fill sizes="640px" className="object-cover" />
         <div className="absolute left-3 top-3 flex gap-1.5"><TypeBadge e={e} solid /></div>
-        <span className="absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full bg-white/90"><Heart size={17} /></span>
+        <span className="absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full bg-surface/90"><Heart size={17} /></span>
         {e.upcoming > 0 && (
-          <span className="absolute bottom-3 left-3 inline-flex items-center gap-1 rounded-full bg-ink/85 px-2.5 py-1 text-[11px] font-semibold text-white">
+          <span className="absolute bottom-3 left-3 inline-flex items-center gap-1 rounded-full bg-ink/85 px-2.5 py-1 text-[11px] font-semibold text-on-ink">
             <CalendarDays size={12} /> {e.upcoming} salida{e.upcoming === 1 ? "" : "s"} con guía
           </span>
         )}

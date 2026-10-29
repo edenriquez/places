@@ -32,7 +32,7 @@ function Choice({ on, onClick, icon, title, body }: { on: boolean; onClick: () =
   return (
     <button type="button" aria-pressed={on} onClick={onClick}
       className={clsx("flex w-full items-start gap-3 rounded-card border p-3.5 text-left transition", on ? "border-ink bg-bg-2 ring-1 ring-ink" : "border-line-2 hover:border-ink")}>
-      <span className={clsx("grid h-9 w-9 shrink-0 place-items-center rounded-full", on ? "bg-ink text-white" : "bg-bg-2 text-ink-2")}>{icon}</span>
+      <span className={clsx("grid h-9 w-9 shrink-0 place-items-center rounded-full", on ? "bg-ink text-on-ink" : "bg-bg-2 text-ink-2")}>{icon}</span>
       <span className="min-w-0">
         <span className="block text-[15px] font-semibold">{title}</span>
         <span className="block text-[13px] leading-snug text-ink-2">{body}</span>
@@ -97,13 +97,13 @@ export function PlanSheet({ target, defaultOpen = false, onClose, onCreated }: {
   }
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-end justify-center bg-ink/40 lg:items-center" onClick={onClose}>
+    <div className="fixed inset-0 z-[60] flex items-end justify-center bg-black/40 lg:items-center" onClick={onClose}>
       <section
         role="dialog"
         aria-modal="true"
         aria-labelledby="plan-title"
         onClick={(e) => e.stopPropagation()}
-        className="sheet-in relative flex max-h-[92dvh] w-full max-w-screen-sm flex-col rounded-t-[20px] bg-white shadow-float lg:max-w-[480px] lg:rounded-card"
+        className="sheet-in relative flex max-h-[92dvh] w-full max-w-screen-sm flex-col rounded-t-[20px] bg-surface shadow-float lg:max-w-[480px] lg:rounded-card"
       >
         <button type="button" onClick={onClose} aria-label="Cerrar" className="absolute right-3 top-3 z-10 grid h-9 w-9 place-items-center rounded-full bg-bg-2">
           <X size={18} />
@@ -136,7 +136,7 @@ export function PlanSheet({ target, defaultOpen = false, onClose, onCreated }: {
                   <div className="mt-2 flex flex-wrap gap-2">
                     {target.occurrences.slice(0, 8).map((o) => (
                       <button key={o.id} type="button" aria-pressed={occ === o.id} onClick={() => setOcc(o.id)}
-                        className={clsx("rounded-full border px-3.5 py-2 text-[14px] font-medium", occ === o.id ? "border-ink bg-ink text-white" : "border-line-2 hover:border-ink")}>
+                        className={clsx("rounded-full border px-3.5 py-2 text-[14px] font-medium", occ === o.id ? "border-ink bg-ink text-on-ink" : "border-line-2 hover:border-ink")}>
                         {fmtWhenShort(o.starts_at, o.is_all_day)}
                       </button>
                     ))}
@@ -146,7 +146,7 @@ export function PlanSheet({ target, defaultOpen = false, onClose, onCreated }: {
                     <div className="no-scrollbar -mx-6 mt-2 flex gap-2 overflow-x-auto px-6">
                       {days.map((d) => (
                         <button key={d.ymd} type="button" aria-pressed={day === d.ymd} onClick={() => setDay(d.ymd)}
-                          className={clsx("shrink-0 rounded-full border px-3.5 py-2 text-[14px] font-medium capitalize", day === d.ymd ? "border-ink bg-ink text-white" : "border-line-2 hover:border-ink")}>
+                          className={clsx("shrink-0 rounded-full border px-3.5 py-2 text-[14px] font-medium capitalize", day === d.ymd ? "border-ink bg-ink text-on-ink" : "border-line-2 hover:border-ink")}>
                           {d.label}
                         </button>
                       ))}
@@ -199,7 +199,7 @@ export function PlanSheet({ target, defaultOpen = false, onClose, onCreated }: {
             <div className="shrink-0 border-t border-line px-6 pb-[max(env(safe-area-inset-bottom),16px)] pt-3">
               {error && <p className="mb-2 text-[13px] text-error">{error}</p>}
               <button type="button" disabled={busy || (target.kind === "event" && !occ)} onClick={submit}
-                className="w-full rounded-control bg-ink py-3 text-[15px] font-semibold text-white disabled:opacity-60">
+                className="w-full rounded-control bg-ink py-3 text-[15px] font-semibold text-on-ink disabled:opacity-60">
                 {busy ? "Armando…" : "Armar plan"}
               </button>
             </div>

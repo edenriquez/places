@@ -17,6 +17,44 @@
   --whatsapp: #25d366;
   --warn: #f5a623;
   --error: #c13515;
+  /* superficies elevadas (tarjetas, hojas, menús) y texto sobre fondos bg-ink */
+  --surface: #ffffff;
+  --on-ink: #ffffff;
+  --warn-bg: #fff4e0;
+  --warn-ink: #a86400;
+  --error-bg: #fde8e5;
+  --nature: #17734a;
+  --nature-bg: #e8f5ee;
+  --nature-line: #bfe3cf;
+  color-scheme: light dark;
+}
+
+/* Tema oscuro: sigue la preferencia del sistema/navegador (prefers-color-scheme). Solo cambian los tokens;
+   ink se invierte (texto claro) y por eso lo que va sobre bg-ink usa on-ink en lugar de blanco. */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #121212;
+    --bg-2: #1e1e1e;
+    --surface: #1a1a1a;
+    --line: #2a2a2a;
+    --line-2: #3a3a3a;
+    --ink: #f2f2f2;
+    --ink-2: #b0b0b0;
+    --ink-3: #7c7c7c;
+    --on-ink: #121212;
+    --accent: #ff4d6d;
+    --accent-soft: #3a1520;
+    --live: #ff4d6d;
+    --free: #4cc35a;
+    --free-bg: #15301a;
+    --error: #ff7a5c;
+    --warn-bg: #3a2a0e;
+    --warn-ink: #f5b24a;
+    --error-bg: #3a1a14;
+    --nature: #5fd09a;
+    --nature-bg: #10291d;
+    --nature-line: #1f4a33;
+  }
 }
 
 @theme inline {
@@ -35,6 +73,14 @@
   --color-whatsapp: var(--whatsapp);
   --color-warn: var(--warn);
   --color-error: var(--error);
+  --color-surface: var(--surface);
+  --color-on-ink: var(--on-ink);
+  --color-warn-bg: var(--warn-bg);
+  --color-warn-ink: var(--warn-ink);
+  --color-error-bg: var(--error-bg);
+  --color-nature: var(--nature);
+  --color-nature-bg: var(--nature-bg);
+  --color-nature-line: var(--nature-line);
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-jakarta), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --radius-card: 16px;
@@ -172,10 +218,10 @@ h1, h2, h3, .font-display {
 .el-range::-moz-range-track { height: 28px; background: transparent; }
 .el-range::-webkit-slider-thumb {
   -webkit-appearance: none; width: 26px; height: 26px; margin-top: 1px; border-radius: 9999px;
-  background: #fff; border: 2px solid var(--ink); box-shadow: 0 2px 8px rgba(0,0,0,.18); transition: transform .15s ease;
+  background: var(--surface); border: 2px solid var(--ink); box-shadow: 0 2px 8px rgba(0,0,0,.18); transition: transform .15s ease;
 }
 .el-range::-moz-range-thumb {
-  width: 22px; height: 22px; border-radius: 9999px; background: #fff; border: 2px solid var(--ink);
+  width: 22px; height: 22px; border-radius: 9999px; background: var(--surface); border: 2px solid var(--ink);
   box-shadow: 0 2px 8px rgba(0,0,0,.18); transition: transform .15s ease;
 }
 .el-range:active::-webkit-slider-thumb { transform: scale(1.12); }

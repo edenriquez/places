@@ -70,7 +70,7 @@ export default async function PlacePage({ params }: Params) {
     <main className="mx-auto max-w-screen-sm pb-28">
       <JsonLd data={[graph, breadcrumbs([{ name: "Explorar", path: "/" }, { name: m.name, path: `/municipio/${m.slug}` }, { name: place.name, path }])]} />
       <div className="px-4 pt-[max(env(safe-area-inset-top),12px)]">
-        <Link href={`/municipio/${m.slug}`} aria-label={`Volver a ${m.name}`} className="grid h-10 w-10 place-items-center rounded-full border border-line bg-white shadow-soft"><ArrowLeft size={20} /></Link>
+        <Link href={`/municipio/${m.slug}`} aria-label={`Volver a ${m.name}`} className="grid h-10 w-10 place-items-center rounded-full border border-line bg-surface shadow-soft"><ArrowLeft size={20} /></Link>
       </div>
 
       <div className="px-5 pt-4">

@@ -85,7 +85,7 @@ export default async function MetricsPage({ searchParams }: { searchParams: Prom
         </div>
         <nav className="flex gap-2 text-[13px]">
           {RANGES.map(([key, l]) => (
-            <Link key={key} href={`?r=${key}`} className={clsx("rounded-full border px-3 py-1.5 font-medium", range === key ? "border-ink bg-ink text-white" : "border-line-2 hover:border-ink")}>{l}</Link>
+            <Link key={key} href={`?r=${key}`} className={clsx("rounded-full border px-3 py-1.5 font-medium", range === key ? "border-ink bg-ink text-on-ink" : "border-line-2 hover:border-ink")}>{l}</Link>
           ))}
         </nav>
       </div>
@@ -93,8 +93,8 @@ export default async function MetricsPage({ searchParams }: { searchParams: Prom
 
       <div className="mt-5 space-y-4">
         {/* lo que se le cuenta a un comercio en una frase */}
-        <section className="rounded-card bg-ink p-5 text-white">
-          <p className="text-[12px] font-semibold uppercase tracking-[0.04em] text-white/60">Para el pitch</p>
+        <section className="rounded-card bg-ink p-5 text-on-ink">
+          <p className="text-[12px] font-semibold uppercase tracking-[0.04em] text-on-ink/60">Para el pitch</p>
           <p className="mt-2 text-[17px] leading-relaxed">
             <b>{fmtN(k.mau)}</b> personas usaron entrelugares en los últimos 30 días
             {mobilePct > 0 && <>, <b>{fmtPct(mobilePct)}</b> desde el celular</>}

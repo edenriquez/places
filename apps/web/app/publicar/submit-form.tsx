@@ -14,7 +14,7 @@ async function sha256(file: File) {
   return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
-const input = "mt-1.5 w-full rounded-control border border-line-2 bg-white px-3 py-2.5 text-[15px] outline-none transition focus:border-ink";
+const input = "mt-1.5 w-full rounded-control border border-line-2 bg-surface px-3 py-2.5 text-[15px] outline-none transition focus:border-ink";
 
 /** Flyer + descripción → misma cola que el admin (la Mac lo procesa y queda en revisión). */
 export function SubmitForm({ userId, municipalities }: { userId: string; municipalities: { cvegeo: string; name: string; state: string }[] }) {
@@ -68,12 +68,12 @@ export function SubmitForm({ userId, municipalities }: { userId: string; municip
 
   if (state.kind === "done") {
     return (
-      <div className="anim-text-in rounded-card border border-line bg-white p-8 text-center">
+      <div className="anim-text-in rounded-card border border-line bg-surface p-8 text-center">
         <CheckCircle2 size={48} className="anim-heart-pop mx-auto text-free" />
         <h2 className="mt-4 text-[22px] font-bold">¡Recibimos tu evento!</h2>
         <p className="mx-auto mt-2 max-w-[360px] text-[14px] text-ink-2">Lo revisamos y, si todo está en orden, lo publicamos en menos de 48 horas. Puedes ver cómo va en tu perfil.</p>
         <div className="mt-6 flex flex-wrap justify-center gap-3">
-          <Link href="/perfil" className="rounded-control bg-ink px-5 py-3 text-[14px] font-semibold text-white">Ver en mi perfil</Link>
+          <Link href="/perfil" className="rounded-control bg-ink px-5 py-3 text-[14px] font-semibold text-on-ink">Ver en mi perfil</Link>
           <button type="button" onClick={() => { setFile(null); setPreview(null); setDesc(""); setState({ kind: "idle" }); }} className="rounded-control border border-ink px-5 py-3 text-[14px] font-semibold">Enviar otro</button>
         </div>
       </div>
@@ -92,7 +92,7 @@ export function SubmitForm({ userId, municipalities }: { userId: string; municip
           <div className="relative mt-2 overflow-hidden rounded-card border border-line bg-bg-2">
             {/* eslint-disable-next-line @next/next/no-img-element -- vista previa local (blob:) */}
             <img src={preview} alt="Vista previa del flyer" className="mx-auto max-h-[420px] w-auto object-contain" />
-            <button type="button" onClick={() => { setFile(null); setPreview(null); }} aria-label="Quitar flyer" className="absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full bg-white shadow-soft"><X size={18} /></button>
+            <button type="button" onClick={() => { setFile(null); setPreview(null); }} aria-label="Quitar flyer" className="absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full bg-surface shadow-soft"><X size={18} /></button>
           </div>
         ) : (
           <button

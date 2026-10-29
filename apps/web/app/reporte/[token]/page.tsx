@@ -35,15 +35,15 @@ export default async function CommerceReportPage({ params }: { params: Promise<{
 
       <div className="mt-6"><EventReport r={r} forCommerce /></div>
 
-      <section className="mt-8 flex flex-wrap items-center justify-between gap-4 rounded-card bg-ink p-6 text-white">
+      <section className="mt-8 flex flex-wrap items-center justify-between gap-4 rounded-card bg-ink p-6 text-on-ink">
         <div className="flex items-start gap-4">
-          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-white/10"><Megaphone size={20} /></span>
+          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-on-ink/10"><Megaphone size={20} /></span>
           <div>
             <h2 className="text-[18px] font-bold">Llega a más gente con tu próximo evento</h2>
-            <p className="mt-1 text-[14px] text-white/70">Destacamos tu evento en la zona y te mandamos este reporte al terminar.</p>
+            <p className="mt-1 text-[14px] text-on-ink/70">Destacamos tu evento en la zona y te mandamos este reporte al terminar.</p>
           </div>
         </div>
-        <a href={`mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(`Promocionar: ${r.event.title}`)}`} className="rounded-control bg-white px-5 py-3 text-[14px] font-semibold text-ink">Quiero promocionarlo</a>
+        <a href={`mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(`Promocionar: ${r.event.title}`)}`} className="rounded-control bg-surface px-5 py-3 text-[14px] font-semibold text-ink">Quiero promocionarlo</a>
       </section>
     </main>
   );

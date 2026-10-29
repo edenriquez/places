@@ -106,7 +106,7 @@ export default async function BehaviorPage({ searchParams }: { searchParams: Pro
         </div>
         <nav className="flex gap-2 text-[13px]">
           {RANGES.map(([key, l]) => (
-            <Link key={key} href={`?r=${key}`} className={clsx("rounded-full border px-3 py-1.5 font-medium", range === key ? "border-ink bg-ink text-white" : "border-line-2 hover:border-ink")}>{l}</Link>
+            <Link key={key} href={`?r=${key}`} className={clsx("rounded-full border px-3 py-1.5 font-medium", range === key ? "border-ink bg-ink text-on-ink" : "border-line-2 hover:border-ink")}>{l}</Link>
           ))}
         </nav>
       </div>
@@ -114,8 +114,8 @@ export default async function BehaviorPage({ searchParams }: { searchParams: Pro
 
       <div className="mt-5 space-y-4">
         {/* lo accionable en una frase */}
-        <section className="rounded-card bg-ink p-5 text-white">
-          <p className="text-[12px] font-semibold uppercase tracking-[0.04em] text-white/60">Lectura</p>
+        <section className="rounded-card bg-ink p-5 text-on-ink">
+          <p className="text-[12px] font-semibold uppercase tracking-[0.04em] text-on-ink/60">Lectura</p>
           <p className="mt-2 text-[17px] leading-relaxed">
             {worstGap
               ? <>Falta oferta de <b>{worstGap.label.toLowerCase()}</b>: la elige el <b>{fmtPct(worstGap.dShare)}</b> de quien escoge una intención y es el <b>{fmtPct(worstGap.sShare)}</b> de los eventos próximos.</>
@@ -234,7 +234,7 @@ export default async function BehaviorPage({ searchParams }: { searchParams: Pro
                           const tone = seqStep(n, max);
                           return (
                             <td key={it.key} className="px-1 py-1 text-right">
-                              <span className={clsx("block rounded-[4px] px-2 py-1.5", n && n === max ? "font-semibold" : "", tone.dark ? "text-white" : n ? "text-ink" : "text-ink-3")} style={{ background: tone.bg }} title={`${regionLabel(region === "?" ? null : region)} · ${it.label}: ${fmtN(n)} de ${fmtN(total)}`}>
+                              <span className={clsx("block rounded-[4px] px-2 py-1.5", n && n === max ? "font-semibold" : "", tone.dark ? "text-white" : n ? "text-[#222]" : "text-ink-3")} style={{ background: tone.bg }} title={`${regionLabel(region === "?" ? null : region)} · ${it.label}: ${fmtN(n)} de ${fmtN(total)}`}>
                                 {n ? fmtPct(pct(n, total)) : "–"}
                               </span>
                             </td>
@@ -297,7 +297,7 @@ export default async function BehaviorPage({ searchParams }: { searchParams: Pro
 
 function Pill({ tone, children }: { tone: "warn" | "bad"; children: React.ReactNode }) {
   return (
-    <span className={clsx("inline-block whitespace-nowrap rounded-full px-2 py-0.5 text-[11px] font-semibold", tone === "bad" ? "bg-[#fdecea] text-[#c13515]" : "bg-[#fff4e0] text-[#8a5300]")}>
+    <span className={clsx("inline-block whitespace-nowrap rounded-full px-2 py-0.5 text-[11px] font-semibold", tone === "bad" ? "bg-error-bg text-error" : "bg-warn-bg text-warn-ink")}>
       {children}
     </span>
   );

@@ -27,8 +27,8 @@ export function SaveButton({ eventId, variant, className }: { eventId: string; v
       }}
       className={clsx(
         "transition-colors duration-300",
-        variant === "card" && "grid h-9 w-9 place-items-center rounded-full bg-white/90 text-ink",
-        variant === "icon" && "grid h-10 w-10 place-items-center rounded-full bg-white shadow-soft",
+        variant === "card" && "grid h-9 w-9 place-items-center rounded-full bg-surface/90 text-ink",
+        variant === "icon" && "grid h-10 w-10 place-items-center rounded-full bg-surface shadow-soft",
         variant === "label" && "flex items-center gap-2 rounded-full px-3 py-2 text-[14px] font-semibold underline-offset-2 hover:bg-bg-2 hover:underline",
         on && variant === "label" && "text-accent",
         className,

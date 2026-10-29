@@ -23,7 +23,7 @@ export default async function ReviewListPage({ searchParams }: { searchParams: P
           <p className="mt-1 text-[14px] text-ink-2">Eventos extraídos automáticamente que esperan tu aprobación.</p>
         </div>
         <form className="flex items-center gap-2 text-[13px]">
-          <select name="m" defaultValue={sp.m ?? ""} className="rounded-control border border-line-2 bg-white px-3 py-2">
+          <select name="m" defaultValue={sp.m ?? ""} className="rounded-control border border-line-2 bg-surface px-3 py-2">
             <option value="">Todos los municipios</option>
             {(munis ?? []).map((m) => <option key={m.cvegeo} value={m.cvegeo}>{m.name}</option>)}
           </select>

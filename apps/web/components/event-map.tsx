@@ -487,7 +487,7 @@ export function EventMap({ events, plans, searchBar, loc, stateBounds, variant =
         .maplibregl-ctrl-top-right{top:${panel || searchBar ? 64 : 168}px;right:${panel ? 12 : 8}px}
       `}</style>
       {searchBar && !panel ? (
-        <div className="absolute left-1/2 top-3 z-20 flex h-10 w-[256px] max-w-[calc(100%-40px)] -translate-x-1/2 items-center rounded-full bg-white shadow-float">
+        <div className="absolute left-1/2 top-3 z-20 flex h-10 w-[256px] max-w-[calc(100%-40px)] -translate-x-1/2 items-center rounded-full bg-surface shadow-float">
           {searchBar}
           <span aria-hidden className="h-5 w-px shrink-0 bg-line" />
           <button type="button" onClick={locate} aria-label="Mi ubicación" className="grid h-10 w-11 shrink-0 place-items-center rounded-r-full pr-0.5">
@@ -495,21 +495,21 @@ export function EventMap({ events, plans, searchBar, loc, stateBounds, variant =
           </button>
         </div>
       ) : (
-        <button type="button" onClick={locate} aria-label="Mi ubicación" className={clsx("absolute grid h-10 w-10 place-items-center rounded-full bg-white shadow-float", panel ? "right-4 top-4" : "right-5 top-[116px]")}>
+        <button type="button" onClick={locate} aria-label="Mi ubicación" className={clsx("absolute grid h-10 w-10 place-items-center rounded-full bg-surface shadow-float", panel ? "right-4 top-4" : "right-5 top-[116px]")}>
           {pending ? <Loader2 size={18} className="animate-spin" /> : <LocateFixed size={18} />}
         </button>
       )}
       {!panel && plans && (
-        <div ref={modeRef} role="group" aria-label="Qué ver en el mapa" className="absolute left-1/2 top-[64px] z-10 flex h-10 w-[256px] max-w-[calc(100%-40px)] -translate-x-1/2 items-center gap-0.5 rounded-full bg-white p-1 text-[13px] font-semibold shadow-float">
+        <div ref={modeRef} role="group" aria-label="Qué ver en el mapa" className="absolute left-1/2 top-[64px] z-10 flex h-10 w-[256px] max-w-[calc(100%-40px)] -translate-x-1/2 items-center gap-0.5 rounded-full bg-surface p-1 text-[13px] font-semibold shadow-float">
           <button type="button" aria-pressed={!showPlans} onClick={() => setShowPlans(false)}
-            className={clsx("h-full flex-1 rounded-full px-3.5 transition-colors", showPlans ? "text-ink-2" : "bg-ink text-white")}>
+            className={clsx("h-full flex-1 rounded-full px-3.5 transition-colors", showPlans ? "text-ink-2" : "bg-ink text-on-ink")}>
             Eventos
           </button>
           <button type="button" aria-pressed={showPlans} onClick={() => setShowPlans(true)}
-            className={clsx("flex h-full flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-full pl-3 pr-3.5 transition-colors", showPlans ? "bg-ink text-white" : "text-ink-2")}>
+            className={clsx("flex h-full flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-full pl-3 pr-3.5 transition-colors", showPlans ? "bg-ink text-on-ink" : "text-ink-2")}>
             <Users size={14} /> Comunidades
             {planList.length > 0 && (
-              <span className={clsx("grid h-[18px] min-w-[18px] place-items-center rounded-full px-1 text-[11px] font-bold", showPlans ? "bg-white text-ink" : "bg-[#ff385c] text-white")}>{planList.length}</span>
+              <span className={clsx("grid h-[18px] min-w-[18px] place-items-center rounded-full px-1 text-[11px] font-bold", showPlans ? "bg-on-ink text-ink" : "bg-[#ff385c] text-white")}>{planList.length}</span>
             )}
           </button>
         </div>
@@ -541,12 +541,12 @@ export function EventMap({ events, plans, searchBar, loc, stateBounds, variant =
         </div>
       )}
       {showPlans && pins.length === 0 && (
-        <div role="status" className="absolute inset-x-5 bottom-[calc(86px+env(safe-area-inset-bottom))] z-10 rounded-card bg-white p-4 shadow-float">
+        <div role="status" className="absolute inset-x-5 bottom-[calc(86px+env(safe-area-inset-bottom))] z-10 rounded-card bg-surface p-4 shadow-float">
           {nextOut != null ? (
             <>
               <p className="flex items-center gap-2 text-[15px] font-semibold"><Users size={16} className="shrink-0" /> Ningún plan a {radiusLabel(reachKm)}</p>
               <p className="mt-1 text-[13px] text-ink-2">{nextOut === EXPLORE ? "Hay planes más lejos, en la región." : `El más cercano está a ${radiusLabel(nextOut)}.`} Aleja el mapa para verlos.</p>
-              <button type="button" onClick={() => goToReach(nextOut)} className="mt-3 rounded-full bg-ink px-4 py-2 text-[13px] font-semibold text-white">
+              <button type="button" onClick={() => goToReach(nextOut)} className="mt-3 rounded-full bg-ink px-4 py-2 text-[13px] font-semibold text-on-ink">
                 {nextOut === EXPLORE ? "Ver toda la región" : `Ver a ${radiusLabel(nextOut)}`}
               </button>
             </>
@@ -554,37 +554,37 @@ export function EventMap({ events, plans, searchBar, loc, stateBounds, variant =
             <>
               <p className="flex items-center gap-2 text-[15px] font-semibold"><Users size={16} className="shrink-0" /> Aún no hay planes abiertos por aquí</p>
               <p className="mt-1 text-[13px] text-ink-2">Los arma la gente desde cualquier evento o experiencia con “Ve con alguien”. Sé quien abra el primero.</p>
-              <button type="button" onClick={() => setShowPlans(false)} className="mt-3 rounded-full bg-ink px-4 py-2 text-[13px] font-semibold text-white">Ver eventos</button>
+              <button type="button" onClick={() => setShowPlans(false)} className="mt-3 rounded-full bg-ink px-4 py-2 text-[13px] font-semibold text-on-ink">Ver eventos</button>
             </>
           )}
         </div>
       )}
       {dynamic && !showPlans && pins.length === 0 && (
-        <div role="status" className="absolute left-1/2 z-10 flex w-max max-w-[calc(100%-32px)] -translate-x-1/2 items-center gap-2 rounded-full bg-white py-1.5 pl-3 pr-1.5 text-[13px] shadow-float bottom-[calc(86px+env(safe-area-inset-bottom))]">
+        <div role="status" className="absolute left-1/2 z-10 flex w-max max-w-[calc(100%-32px)] -translate-x-1/2 items-center gap-2 rounded-full bg-surface py-1.5 pl-3 pr-1.5 text-[13px] shadow-float bottom-[calc(86px+env(safe-area-inset-bottom))]">
           <Info size={15} className="shrink-0 text-ink-2" />
           <span className="truncate text-ink-2">
             {nextOut == null ? "Sin eventos por ahora" : `Nada a ${radiusLabel(reachKm)} · lo más cercano está a ${nextOut === EXPLORE ? "más de 3 h" : radiusLabel(nextOut)}`}
           </span>
           {nextOut != null && (
-            <button type="button" onClick={() => goToReach(nextOut)} className="shrink-0 rounded-full bg-ink px-3 py-1 text-[12px] font-semibold text-white">Alejar</button>
+            <button type="button" onClick={() => goToReach(nextOut)} className="shrink-0 rounded-full bg-ink px-3 py-1 text-[12px] font-semibold text-on-ink">Alejar</button>
           )}
         </div>
       )}
       {!dynamic && !showPlans && pins.length === 0 && (
-        <div role="status" className={clsx("absolute left-1/2 z-10 flex w-max max-w-[calc(100%-32px)] -translate-x-1/2 items-center gap-2 rounded-full bg-white py-1.5 pl-3 pr-1.5 text-[13px] shadow-float", panel ? "top-[68px]" : "bottom-[calc(86px+env(safe-area-inset-bottom))]")}>
+        <div role="status" className={clsx("absolute left-1/2 z-10 flex w-max max-w-[calc(100%-32px)] -translate-x-1/2 items-center gap-2 rounded-full bg-surface py-1.5 pl-3 pr-1.5 text-[13px] shadow-float", panel ? "top-[68px]" : "bottom-[calc(86px+env(safe-area-inset-bottom))]")}>
           <Info size={15} className="shrink-0 text-ink-2" />
           {nearest && !explore ? (
             <>
               <span className="min-w-0 truncate text-ink-2">
                 {stateCve ? `Nada en ${loc.label}` : `Nada a ${radiusLabel(radiusKm)}`} · lo más cercano: <span className="font-semibold text-ink">{nearest.title}</span> · {fmtDistance(nearest.distance_m)}
               </span>
-              <Link href={detailHref(nearest.slug)} scroll={false} className="shrink-0 rounded-full bg-ink px-3 py-1 text-[12px] font-semibold text-white">Ver</Link>
+              <Link href={detailHref(nearest.slug)} scroll={false} className="shrink-0 rounded-full bg-ink px-3 py-1 text-[12px] font-semibold text-on-ink">Ver</Link>
             </>
           ) : (
             <span className="truncate text-ink-2">{stateCve ? `Sin eventos en ${loc.label} por ahora` : explore ? "Sin eventos por ahora" : `Nada a ${radiusLabel(radiusKm)} por ahora`}</span>
           )}
           {!nearest && !stateCve && !explore && (
-            <button type="button" disabled={pending} onClick={() => apply({ ...loc, radiusKm: RADII.find((r) => r > radiusKm) ?? EXPLORE })} className="shrink-0 rounded-full bg-ink px-3 py-1 text-[12px] font-semibold text-white disabled:opacity-60">
+            <button type="button" disabled={pending} onClick={() => apply({ ...loc, radiusKm: RADII.find((r) => r > radiusKm) ?? EXPLORE })} className="shrink-0 rounded-full bg-ink px-3 py-1 text-[12px] font-semibold text-on-ink disabled:opacity-60">
               {RADII.find((r) => r > radiusKm) ? `Ver a ${radiusLabel(RADII.find((r) => r > radiusKm)!)}` : "Explorar"}
             </button>
           )}

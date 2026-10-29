@@ -64,7 +64,7 @@ export default async function BlogMetricsPage({ searchParams }: { searchParams: 
         </div>
         <nav className="flex gap-2 text-[13px]">
           {RANGES.map(([key, l]) => (
-            <Link key={key} href={`?r=${key}`} className={clsx("rounded-full border px-3 py-1.5 font-medium", range === key ? "border-ink bg-ink text-white" : "border-line-2 hover:border-ink")}>{l}</Link>
+            <Link key={key} href={`?r=${key}`} className={clsx("rounded-full border px-3 py-1.5 font-medium", range === key ? "border-ink bg-ink text-on-ink" : "border-line-2 hover:border-ink")}>{l}</Link>
           ))}
         </nav>
       </div>

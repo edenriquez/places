@@ -42,14 +42,14 @@ export default function MockExplorar() {
         <div className="mx-5 mt-6 grid grid-cols-3 rounded-full bg-bg-2 p-1 text-[14px] font-semibold">
           <span className="rounded-full py-2 text-center text-ink-2">Ahora</span>
           <span className="rounded-full py-2 text-center text-ink-2">Próximos</span>
-          <span className="rounded-full bg-white py-2 text-center shadow-soft">Cualquier día</span>
+          <span className="rounded-full bg-surface py-2 text-center shadow-soft">Cualquier día</span>
         </div>
 
         <SectionHeader title="Para cualquier día" subtitle="Experiencias cerca de Tlalmanalco que no dependen de una fecha" />
         <div className="no-scrollbar flex gap-2 overflow-x-auto px-5 pb-1">
-          <span className="inline-flex h-9 shrink-0 items-center rounded-full border border-ink bg-ink px-4 text-[14px] font-medium text-white">Todo</span>
+          <span className="inline-flex h-9 shrink-0 items-center rounded-full border border-ink bg-ink px-4 text-[14px] font-medium text-on-ink">Todo</span>
           {TYPES.map((t) => (
-            <span key={t.id} className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full border border-line-2 bg-white px-4 text-[14px] font-medium">
+            <span key={t.id} className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full border border-line-2 bg-surface px-4 text-[14px] font-medium">
               <span>{t.emoji}</span> {t.label}
             </span>
           ))}

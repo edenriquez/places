@@ -12,13 +12,13 @@ export default function MockLugar() {
     <>
       <MockBar current="lugar" />
       <main className="mx-auto max-w-screen-sm pb-28">
-        <div className="relative aspect-[4/3] bg-ink">
+        <div className="relative aspect-[4/3] bg-[#222]">
           <Image src={IMG.sendero} alt="Parque Dos Aguas" fill priority sizes="640px" className="object-cover" />
           <div className="absolute inset-x-4 top-3 flex justify-between">
-            <span className="grid h-10 w-10 place-items-center rounded-full bg-white shadow-soft"><ArrowLeft size={20} /></span>
+            <span className="grid h-10 w-10 place-items-center rounded-full bg-surface shadow-soft"><ArrowLeft size={20} /></span>
             <span className="flex gap-2">
-              <span className="grid h-10 w-10 place-items-center rounded-full bg-white shadow-soft"><Share2 size={18} /></span>
-              <span className="grid h-10 w-10 place-items-center rounded-full bg-white shadow-soft"><Heart size={18} /></span>
+              <span className="grid h-10 w-10 place-items-center rounded-full bg-surface shadow-soft"><Share2 size={18} /></span>
+              <span className="grid h-10 w-10 place-items-center rounded-full bg-surface shadow-soft"><Heart size={18} /></span>
             </span>
           </div>
         </div>

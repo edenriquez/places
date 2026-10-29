@@ -149,7 +149,7 @@ function OpenPlans({ plans, where }: { plans: GroupPlan[]; where: string }) {
                 <div className="relative">
                   <Flyer path={p.target.image_path} focus={{ x: p.target.image_focus_x, y: p.target.image_focus_y }} alt={p.target.title} sizes="260px" className="aspect-[16/9]" />
                   {p.interested && (
-                    <span className="absolute left-2 top-2 flex items-center gap-1 rounded-full bg-white/95 px-2 py-0.5 text-[11px] font-bold text-ink">
+                    <span className="absolute left-2 top-2 flex items-center gap-1 rounded-full bg-surface/95 px-2 py-0.5 text-[11px] font-bold text-ink">
                       <Star size={11} className="fill-[#ffb400] text-[#ffb400]" /> Te interesa
                     </span>
                   )}
@@ -245,7 +245,7 @@ export default async function PlansPage() {
       ) : upcoming.length === 0 && past.length === 0 ? (
         <>
           <Empty title="Aún no tienes planes" body="Toca el corazón o “Me interesa” en cualquier evento, o arma un plan e invita: aparece aquí, con aviso un día antes.">
-            <Link href="/" className="mt-6 rounded-control bg-ink px-5 py-3 text-[14px] font-semibold text-white">¿Qué quieres hacer este fin?</Link>
+            <Link href="/" className="mt-6 rounded-control bg-ink px-5 py-3 text-[14px] font-semibold text-on-ink">¿Qué quieres hacer este fin?</Link>
           </Empty>
           <OpenPlans plans={open} where={nearText(loc)} />
         </>

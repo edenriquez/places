@@ -43,7 +43,7 @@ export function BottomSheet({ closeHref, label, children }: { closeHref: string;
       <section
         role="dialog"
         aria-label={label}
-        className="sheet-in fixed inset-x-3 bottom-[calc(72px+env(safe-area-inset-bottom))] z-50 mx-auto flex max-w-[calc(640px-24px)] items-center gap-2 rounded-card bg-white py-2 pl-4 pr-2 shadow-float"
+        className="sheet-in fixed inset-x-3 bottom-[calc(72px+env(safe-area-inset-bottom))] z-50 mx-auto flex max-w-[calc(640px-24px)] items-center gap-2 rounded-card bg-surface py-2 pl-4 pr-2 shadow-float"
       >
         <button type="button" onClick={() => setSnap("peek")} className="flex min-w-0 flex-1 items-center gap-2 py-1.5 text-left">
           <ChevronUp size={18} className="shrink-0 text-ink-2" />
@@ -65,7 +65,7 @@ export function BottomSheet({ closeHref, label, children }: { closeHref: string;
       aria-modal="true"
       aria-label={label}
       className={clsx(
-        "fixed inset-x-0 bottom-0 z-50 mx-auto flex max-w-screen-sm flex-col rounded-t-[20px] bg-white shadow-[0_-8px_32px_rgba(0,0,0,0.18)]",
+        "fixed inset-x-0 bottom-0 z-50 mx-auto flex max-w-screen-sm flex-col rounded-t-[20px] bg-surface shadow-[0_-8px_32px_rgba(0,0,0,0.18)]",
         drag === 0 && "transition-[height,transform] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
         closing ? "translate-y-full" : "sheet-in",
       )}

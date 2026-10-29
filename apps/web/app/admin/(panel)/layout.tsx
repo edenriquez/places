@@ -34,7 +34,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         : "Mac en línea · libre";
 
   return (
-    <div className="flex min-h-dvh bg-white text-ink">
+    <div className="flex min-h-dvh bg-surface text-ink">
       <aside className="hidden w-[240px] shrink-0 flex-col border-r border-line px-4 py-5 md:flex">
         <Link href="/admin/metricas" className="flex items-center gap-2 px-2">
           <span className="grid h-8 w-8 place-items-center rounded-lg bg-accent text-[13px] font-bold text-white">EL</span>
