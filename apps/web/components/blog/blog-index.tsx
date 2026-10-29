@@ -22,6 +22,7 @@ export async function BlogIndex({ locale }: { locale: Locale }) {
 
   return (
     <main lang={LANG_TAG[locale]} className="mx-auto max-w-[760px] px-5 pb-28 pt-6 lg:pt-10">
+      <div className="guide-aura" aria-hidden />
       <JsonLd
         data={[
           {

@@ -57,6 +57,7 @@ export async function PostView({ slug, locale }: { slug: string; locale: Locale 
 
   return (
     <main lang={LANG_TAG[locale]} className="mx-auto max-w-[680px] px-5 pb-28 pt-6 lg:pt-10">
+      <div className="guide-aura" aria-hidden />
       <div className="read-progress" aria-hidden />
       <JsonLd
         data={[
@@ -87,7 +88,7 @@ export async function PostView({ slug, locale }: { slug: string; locale: Locale 
         <PostEventsRail data={events} range={range} locale={locale} />
 
         {p.resumen.length > 0 && (
-          <section aria-labelledby="de-un-vistazo" className="post-glance rise mt-10 rounded-[20px] border border-line bg-bg-2/60 p-5 sm:p-6" style={delay(6)}>
+          <section aria-labelledby="de-un-vistazo" className="post-glance rise mt-10 rounded-[20px] border border-line bg-surface/60 p-5 shadow-soft backdrop-blur-md sm:p-6" style={delay(6)}>
             <h2 id="de-un-vistazo" className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-3">{c.glance}</h2>
             <ul className="mt-4 space-y-3">
               {p.resumen.map((r, i) => (

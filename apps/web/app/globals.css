@@ -250,6 +250,34 @@ h1, h2, h3, .font-display {
 }
 .group:hover .link-grow { background-size: 100% 2px; }
 
+/* Fondo de entrada de las guías: luces suaves (acento, oro y un toque violeta) que derivan muy despacio, grano fino
+   y un desvanecido hacia el fondo de la página. Va a todo lo ancho, detrás del encabezado. */
+:root { --aura-a: 20%; --aura-b: 16%; --aura-c: 10%; --aura-grain: 0.05; }
+@media (prefers-color-scheme: dark) { :root { --aura-a: 26%; --aura-b: 12%; --aura-c: 16%; --aura-grain: 0.07; } }
+.guide-aura {
+  position: absolute; inset: 0 0 auto 0; height: min(760px, 95vh); z-index: -1; pointer-events: none; overflow: hidden;
+  -webkit-mask-image: linear-gradient(to bottom, #000 35%, transparent);
+  mask-image: linear-gradient(to bottom, #000 35%, transparent);
+}
+.guide-aura::before {
+  content: ""; position: absolute; inset: -20% -10%;
+  background:
+    radial-gradient(42% 48% at 18% 18%, color-mix(in oklab, var(--accent) var(--aura-a), transparent), transparent 70%),
+    radial-gradient(38% 42% at 82% 10%, color-mix(in oklab, #ffb400 var(--aura-b), transparent), transparent 70%),
+    radial-gradient(46% 46% at 62% 62%, color-mix(in oklab, #7c3aed var(--aura-c), transparent), transparent 70%);
+  filter: blur(24px);
+  animation: aura-drift 22s ease-in-out infinite alternate;
+}
+.guide-aura::after {
+  content: ""; position: absolute; inset: 0; opacity: var(--aura-grain); mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+@keyframes aura-drift {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to { transform: translate3d(4%, 3%, 0) scale(1.08) rotate(2deg); }
+}
+@media (prefers-reduced-motion: reduce) { .guide-aura::before { animation: none; } }
+
 /* texto de las guías (HTML que sale del Markdown de content/blog) */
 .post-body { font-size: 17px; line-height: 1.75; color: var(--ink-2); }
 .post-body > * + * { margin-top: 1.15rem; }
