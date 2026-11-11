@@ -347,6 +347,60 @@ export function registerTools(server: McpServer) {
   );
 
   server.registerTool(
+    "actualizar_evento",
+    {
+      title: "Actualizar evento",
+      description:
+        "Corrige o completa un evento que ya existe (evento_id de crear_evento, buscar_duplicados o buscar_eventos_sin_imagen). " +
+        "Solo cambia los campos que mandes; fechas, imágenes, municipio, estado y todo lo demás se conservan. " +
+        "No uses crear_evento para corregir un evento: crearía un duplicado. Para la imagen usa agregar_imagen.",
+      inputSchema: z.object({
+        evento_id: z.string().uuid(),
+        titulo: z.string().min(3).max(160).optional(),
+        categoria: z.enum(CATEGORIES).optional(),
+        descripcion: z.string().max(2000).optional().describe("reemplaza la descripción completa; cadena vacía la borra"),
+        lugar_id: z.string().uuid().optional().describe("id de buscar_lugar"),
+        lugar_texto: z.string().max(200).optional().describe("nombre del lugar tal como aparece"),
+        gratis: z.boolean().optional(),
+        precio_min: z.number().nonnegative().optional(),
+        precio_max: z.number().nonnegative().optional(),
+      }),
+      annotations: { idempotentHint: true },
+    },
+    async ({ evento_id, ...a }, ctx) => {
+      const sb = userClient(tokenOf(ctx));
+      try {
+        const { data: ev, error } = await sb.from("events").select("id, slug, title").eq("id", evento_id).maybeSingle();
+        if (error) throw new Error(error.message);
+        if (!ev) return fail("No existe un evento con ese evento_id.");
+        const changes: Record<string, unknown> = {};
+        if (a.titulo !== undefined) changes.title = a.titulo.trim();
+        if (a.categoria !== undefined) changes.category = a.categoria;
+        if (a.descripcion !== undefined) changes.description = a.descripcion.trim() || null;
+        if (a.lugar_id !== undefined) changes.place_id = a.lugar_id;
+        if (a.lugar_texto !== undefined) changes.place_text = a.lugar_texto.trim() || null;
+        if (a.gratis) Object.assign(changes, { is_free: true, price_min: null, price_max: null });
+        else {
+          if (a.gratis === false) changes.is_free = false;
+          if (a.precio_min !== undefined) Object.assign(changes, { is_free: false, price_min: a.precio_min });
+          if (a.precio_max !== undefined) Object.assign(changes, { is_free: false, price_max: a.precio_max });
+        }
+        if (!Object.keys(changes).length) return fail("No mandaste ningún campo para cambiar.");
+        // el slug se queda igual aunque cambie el título, para no romper enlaces ya compartidos
+        const { error: upErr } = await sb.from("events").update(changes).eq("id", ev.id);
+        if (upErr) throw new Error(upErr.message);
+        revalidatePath("/admin/events");
+        revalidatePath("/admin/review");
+        revalidatePath(`/evento/${ev.slug}`);
+        revalidateTag(EVENTS_TAG, "max");
+        return text({ ok: true, evento: (changes.title as string | undefined) ?? ev.title, actualizado: Object.keys(a), url: `${siteUrl()}/evento/${ev.slug}` });
+      } catch (e) {
+        return fail(e instanceof Error ? e.message : String(e));
+      }
+    },
+  );
+
+  server.registerTool(
     "subir_flyer",
     {
       title: "Subir flyer a la cola",
