@@ -9,21 +9,19 @@ const HOST = "brecha-web.vercel.app";
 const PATH = "/?utm_source=entrelugares&utm_medium=referral";
 const BRECHA_URL = `https://${HOST}${PATH}`;
 
-// navegadores embebidos (Instagram, Facebook, etc.): ahí no se puede instalar ni abrir la PWA
-const IN_APP = /FBAN|FBAV|FB_IAB|Instagram|Line\/|TikTok|Twitter|Snapchat|Pinterest/i;
-
 /**
  * Saca al usuario del navegador embebido para que Brecha abra como app:
  * - Android: un intent sin paquete abre la PWA instalada y, si no la hay, el navegador predeterminado (Chrome).
- * - iOS dentro de una app: intenta Chrome; si no está instalado, sigue al enlace normal.
- * En cualquier otro caso el enlace se comporta como siempre (pestaña nueva).
+ * - iOS (Safari o dentro de una app): intenta Chrome; si no está instalado, sigue al enlace normal.
+ *   En Safari sin Chrome aparece antes un aviso de "dirección no válida"; es un costo aceptado.
+ * En cualquier otro caso (escritorio, Chrome en iOS) el enlace se comporta como siempre (pestaña nueva).
  */
 function openBrecha(e: MouseEvent<HTMLAnchorElement>) {
   const ua = navigator.userAgent;
   if (/Android/i.test(ua)) {
     e.preventDefault();
     window.location.href = `intent://${HOST}${PATH}#Intent;scheme=https;S.browser_fallback_url=${encodeURIComponent(BRECHA_URL)};end`;
-  } else if (/iPhone|iPad|iPod/i.test(ua) && IN_APP.test(ua)) {
+  } else if (/iPhone|iPad|iPod/i.test(ua) && !/CriOS/i.test(ua)) {
     e.preventDefault();
     window.location.href = `googlechromes://${HOST}${PATH}`;
     window.setTimeout(() => { if (!document.hidden) window.location.href = BRECHA_URL; }, 1500);
