@@ -346,3 +346,12 @@ details.faq[open] .faq-icon { transform: rotate(45deg); color: var(--accent); }
   .rise, .draw-line, .unveil, .unveil img, .post-body > *, .reveal { animation: none !important; }
   details.faq::details-content, details.faq .faq-icon { transition: none; }
 }
+
+/* Brillo que cruza la promoción de Brecha cada pocos segundos para llamar la atención sin estorbar. */
+@keyframes brecha-shine { 0%, 70% { transform: translateX(-120%) skewX(-20deg); } 100% { transform: translateX(320%) skewX(-20deg); } }
+.brecha-shine::after {
+  content: ""; position: absolute; inset: 0 auto 0 0; width: 40%; pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.28), transparent);
+  animation: brecha-shine 4.5s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) { .brecha-shine::after { display: none; } }

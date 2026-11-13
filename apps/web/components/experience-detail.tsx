@@ -305,10 +305,9 @@ export function ExperienceMobile({ d }: { d: ExperienceData }) {
         <p className="text-center"><Report x={x} /></p>
       </div>
 
-      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-surface/95 backdrop-blur">
-        <div className="mx-auto flex max-w-screen-sm items-center justify-between gap-3 px-5 pb-[max(env(safe-area-inset-bottom),12px)] pt-3">
-          <Price d={d} x={x} />
-          <BrechaPromo label={x.label} variant="button" className="shrink-0" />
+      <div className="pointer-events-none fixed inset-x-0 bottom-0 z-40">
+        <div className="mx-auto max-w-screen-sm px-3 pb-[max(env(safe-area-inset-bottom),12px)]">
+          <BrechaPromo label={x.label} variant="bar" className="pointer-events-auto" />
         </div>
       </div>
     </main>
