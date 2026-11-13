@@ -3,6 +3,7 @@ import Link from "next/link";
 import { AtSign, Backpack, CalendarDays, CheckCircle2, Clock, Flag, Globe, MapPin, MessageCircle, Mountain, Phone, Route, Share2, Sun, Ticket } from "lucide-react";
 import clsx from "clsx";
 import { BackButton } from "./back-button";
+import { BrechaPromo } from "./brecha-promo";
 import { AnyDayBadge, KindBadge } from "./experience-card";
 import { FlyerCarousel, type Slide } from "./flyer-carousel";
 import { ZoomableImage } from "./image-viewer";
@@ -33,28 +34,17 @@ function derive(d: ExperienceData) {
     ...(cover ? [{ src: cover, style: focus }] : []),
     ...(x.gallery_paths ?? []).map((p) => flyerUrl(p)).filter((s): s is string => !!s).map((src) => ({ src })),
   ];
-  const coords = x.lat != null && x.lng != null ? { lat: x.lat, lng: x.lng } : null;
   const where = place?.name ?? x.place_text;
   const greeting = encodeURIComponent(`Hola, vi "${x.title}" en entrelugares y quiero más información`);
-  // reservar: WhatsApp si hay, si no llamada, si no el sitio
-  const book = x.contact_phone && x.contact_whatsapp
-    ? { href: `${waLink(x.contact_phone)}?text=${greeting}`, label: "Reservar", icon: MessageCircle, track: "whatsapp_contact", wa: true }
-    : x.contact_phone
-      ? { href: `tel:${x.contact_phone}`, label: "Llamar", icon: Phone, track: "call", wa: false }
-      : x.website_url
-        ? { href: x.website_url, label: "Sitio web", icon: Globe, track: "website", wa: false }
-        : null;
   return {
     x,
     slides,
     cover,
     focus,
-    coords,
     where,
-    book,
+    waHref: x.contact_phone && x.contact_whatsapp ? `${waLink(x.contact_phone)}?text=${greeting}` : null,
     label: `experiencia:${x.slug}`,
     shareHref: `https://wa.me/?text=${encodeURIComponent(`${x.title} · ${[where, municipality?.name].filter(Boolean).join(", ")} · ${siteUrl}/experiencia/${x.slug}?utm_source=whatsapp&utm_medium=share`)}`,
-    mapsQuery: encodeURIComponent(`${where ?? x.title}, ${municipality?.name ?? ""}`),
     expired: !!x.valid_until && x.valid_until < new Date().toISOString().slice(0, 10),
     planTarget: { kind: "experience", id: x.id, title: x.title, hours: x.hours } satisfies PlanSheetTarget,
   };
@@ -223,7 +213,7 @@ function Provider({ d, x }: { d: ExperienceData; x: Derived }) {
             <div className="flex gap-2">
               <a href={`tel:${e.contact_phone}`} data-track="call" data-label={x.label} className="flex items-center gap-1.5 rounded-control border border-ink px-3 py-2 text-[14px] font-semibold"><Phone size={16} aria-hidden /> Llamar</a>
               {e.contact_whatsapp && (
-                <a href={x.book?.wa ? x.book.href : waLink(e.contact_phone)} target="_blank" rel="noreferrer" data-track="whatsapp_contact" data-label={x.label} className="flex items-center gap-1.5 rounded-control bg-whatsapp px-3 py-2 text-[14px] font-semibold text-white"><MessageCircle size={16} aria-hidden /> WhatsApp</a>
+                <a href={x.waHref ?? waLink(e.contact_phone)} target="_blank" rel="noreferrer" data-track="whatsapp_contact" data-label={x.label} className="flex items-center gap-1.5 rounded-control bg-whatsapp px-3 py-2 text-[14px] font-semibold text-white"><MessageCircle size={16} aria-hidden /> WhatsApp</a>
               )}
             </div>
           </div>
@@ -238,19 +228,6 @@ function Provider({ d, x }: { d: ExperienceData; x: Derived }) {
             )}
           </div>
         )}
-      </div>
-    </section>
-  );
-}
-
-function Directions({ x, title = true }: { x: Derived; title?: boolean }) {
-  const c = x.coords;
-  return (
-    <section>
-      {title && <H2>Cómo llegar</H2>}
-      <div className={clsx("grid grid-cols-2 gap-3", title && "mt-3")}>
-        <a href={`https://www.google.com/maps/search/?api=1&query=${c ? `${c.lat},${c.lng}` : x.mapsQuery}`} target="_blank" rel="noreferrer" data-track="maps" data-label={x.label} className="rounded-control border border-ink py-3 text-center text-[14px] font-semibold">Abrir en Maps</a>
-        <a href={c ? `https://waze.com/ul?ll=${c.lat},${c.lng}&navigate=yes` : `https://waze.com/ul?q=${x.mapsQuery}`} target="_blank" rel="noreferrer" data-track="waze" data-label={x.label} className="rounded-control border border-ink py-3 text-center text-[14px] font-semibold">Waze</a>
       </div>
     </section>
   );
@@ -280,24 +257,6 @@ function Price({ d, x, big }: { d: ExperienceData; x: Derived; big?: boolean }) 
 function minOutingPrice(d: ExperienceData) {
   const prices = d.outings.map((o) => (o.event.is_free ? 0 : o.event.price_min)).filter((p): p is number => p != null);
   return prices.length ? fmtPrice(Math.min(...prices) === 0, Math.min(...prices), null) : "consultar";
-}
-
-function BookButton({ x, className }: { x: Derived; className?: string }) {
-  const b = x.book;
-  if (!b) {
-    return (
-      <a href={x.shareHref} target="_blank" rel="noreferrer" data-track="share_whatsapp" data-label={x.label} className={clsx("flex items-center justify-center gap-2 rounded-control bg-whatsapp px-5 py-3 text-[15px] font-semibold text-white", className)}>
-        <Share2 size={18} aria-hidden /> Compartir
-      </a>
-    );
-  }
-  const Icon = b.icon;
-  return (
-    <a href={b.href} target={b.href.startsWith("tel:") ? undefined : "_blank"} rel="noreferrer" data-track={b.track} data-label={x.label}
-      className={clsx("flex items-center justify-center gap-2 rounded-control px-5 py-3 text-[15px] font-semibold", b.wa ? "bg-whatsapp text-white" : "bg-ink text-on-ink", className)}>
-      <Icon size={18} aria-hidden /> {b.label}
-    </a>
-  );
 }
 
 /** Portada sola o carrusel si hay más fotos. */
@@ -343,14 +302,13 @@ export function ExperienceMobile({ d }: { d: ExperienceData }) {
         <About x={x} />
         <Bring x={x} />
         <Provider d={d} x={x} />
-        <Directions x={x} />
         <p className="text-center"><Report x={x} /></p>
       </div>
 
       <div className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-surface/95 backdrop-blur">
         <div className="mx-auto flex max-w-screen-sm items-center justify-between gap-3 px-5 pb-[max(env(safe-area-inset-bottom),12px)] pt-3">
           <Price d={d} x={x} />
-          <BookButton x={x} className="shrink-0" />
+          <BrechaPromo label={x.label} variant="button" className="shrink-0" />
         </div>
       </div>
     </main>
@@ -390,8 +348,7 @@ export function ExperienceDesktop({ d }: { d: ExperienceData }) {
                 {d.outings.length > 1 && <p className="text-[13px] text-ink-2">y {d.outings.length - 1} más</p>}
               </Link>
             )}
-            <BookButton x={x} className="w-full" />
-            <Directions x={x} title={false} />
+            <BrechaPromo label={x.label} />
           </div>
         </aside>
       </div>
