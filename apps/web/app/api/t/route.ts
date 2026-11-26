@@ -4,6 +4,7 @@ import { classifySource, deviceOf, isBot, STAFF_COOKIE, TRACK_TYPES, type TrackP
 import { parseLoc, LOC_COOKIE } from "@/lib/location";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createServiceClient } from "@/lib/supabase/service";
+import { isAdminUser } from "@/lib/analytics-server";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const TYPES = new Set<string>(TRACK_TYPES);
@@ -22,17 +23,6 @@ async function eventIdFor(sb: SupabaseClient, url: URL) {
     slugIds.set(slug, (data?.id as string | undefined) ?? null);
   }
   return slugIds.get(slug) ?? null;
-}
-
-// cuentas admin (user_id → es admin); en memoria mientras viva la función
-const adminIds = new Map<string, boolean>();
-async function isAdminUser(sb: SupabaseClient, uid: string) {
-  if (!adminIds.has(uid)) {
-    const { data } = await sb.from("admin_users").select("user_id").eq("user_id", uid).maybeSingle();
-    if (adminIds.size > 2000) adminIds.clear();
-    adminIds.set(uid, !!data);
-  }
-  return adminIds.get(uid)!;
 }
 
 /** Recibe los beacons de components/tracker.tsx. Siempre responde 204: la analítica nunca rompe la página. */

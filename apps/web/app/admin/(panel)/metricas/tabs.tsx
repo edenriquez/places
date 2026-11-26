@@ -4,10 +4,12 @@ import clsx from "clsx";
 const TABS = [
   { key: "general", href: "/admin/metricas", label: "General" },
   { key: "comportamiento", href: "/admin/metricas/comportamiento", label: "Comportamiento" },
+  { key: "usuarios", href: "/admin/metricas/usuarios", label: "Usuarios nuevos" },
+  { key: "calor", href: "/admin/metricas/mapa-calor", label: "Mapa de calor" },
   { key: "blog", href: "/admin/metricas/blog", label: "Blog" },
 ] as const;
 
-/** General (uso, cuentas, adquisición) ⇄ Comportamiento (qué buscan, dónde y si hay oferta) ⇄ Blog (guías y llegadas desde buscadores e IA). Conserva el rango. */
+/** General (uso, cuentas, adquisición) ⇄ Comportamiento (qué buscan, dónde y si hay oferta) ⇄ Usuarios nuevos (qué hace cada uno) ⇄ Mapa de calor (dónde tocan) ⇄ Blog (guías y llegadas desde buscadores e IA). Conserva el rango. */
 export function MetricsTabs({ active, range }: { active: (typeof TABS)[number]["key"]; range: string }) {
   return (
     <nav className="mt-4 flex gap-5 border-b border-line text-[14px]">

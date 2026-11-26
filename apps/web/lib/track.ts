@@ -13,6 +13,16 @@ let lastPath: string | null = null;
 export function setTrackUser(id: string | null) {
   userId = id;
 }
+export const getTrackUser = () => userId;
+
+/** La sesión vigente sin renovarla (los clics no cuentan como actividad nueva: ya la cuenta el pageview). */
+export function sessionIdIfAny() {
+  try {
+    return (JSON.parse(sessionStorage.getItem(SESSION_KEY) ?? "null") as { id: string } | null)?.id;
+  } catch {
+    return undefined;
+  }
+}
 
 /** Id anónimo del navegador (cookie propia, 1 año). */
 function visitorId() {
